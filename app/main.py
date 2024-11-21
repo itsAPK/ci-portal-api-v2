@@ -25,7 +25,7 @@ responses: Set[int] = {
     status.HTTP_500_INTERNAL_SERVER_ERROR,
 }
 
-app = FastAPI(
+app = FastAPI( #
     lifespan=lifespan,
   
 )
