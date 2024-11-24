@@ -8,16 +8,19 @@ from beanie import (
 
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 
+from app.archive.models import Archive
 from app.company.models import Company
 from app.core.config import settings
 from app.division.models import Division
+from app.documents.models import Documents
 from app.plant.models import Plant
 from app.department.models import Department
+from app.tools.models import Tools
 
 
 async def init_db():
     client = AsyncIOMotorClient(settings.MONGODB_URI)
     await init_beanie(
         database=client.get_database(settings.MONGODB_DB_NAME),
-        document_models=[Company, Division, Plant, Department],
+        document_models=[Company, Division, Plant, Department, Tools, Documents, Archive],
     )

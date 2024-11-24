@@ -1,9 +1,9 @@
 from beanie import PydanticObjectId
 from fastapi import HTTPException, status
 import pandas as pd
-from app.employee.models import EmployeeModel, EmployeeUpdate, Employee
-from app.core.enums import ResponseStatus
-from app.schemas.api import Response
+from app.employee.models import EmployeeModel, EmployeeUpdate, Employee, PlantChange, PlantChangeRequest, PlantChangeStatus
+from app.plant.models import Plant
+from app.schemas.api import Response, ResponseStatus
 
 
 class EmployeeService:
@@ -118,6 +118,20 @@ class EmployeeService:
                 },
             )
         return employee
+    
+    async def get_by_email(self, email: str):
+        employee = await Employee.find_one(EmployeeModel.email == email)
+        if not employee:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "message": "employee not found",
+                    "success": False,
+                    "status": ResponseStatus.NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+        return employee
 
     async def get_all(self, page: int, page_size: int):
         skip = (page - 1) * page_size
@@ -192,3 +206,119 @@ class EmployeeService:
                 },
             )
 
+    async def create_plant_change(self, data: PlantChangeRequest):
+        if not data.employee_id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "message": "employee_id is required",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+        employee = await Employee.find_one(Employee.id == data.employee_id)
+        if not employee:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "message": "employee not found",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+        current_plant = await Plant.find_one(Plant.name == employee.plant)
+        if not current_plant:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "message": "employee not found",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+        requested_plant = await Plant.find_one(Plant.id == data.requested_plant_id)
+        if not requested_plant:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "message": "requested_plant not found",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+        plant_change = PlantChange(**data.model_dump(), employee=employee, current_plant=current_plant, requested_plant=requested_plant)
+        await plant_change.insert()
+        return plant_change
+    
+    async def get_plant_changes(self, employee_id: str):
+        employee = await Employee.find_one(Employee.employee_id == employee_id)
+        if not employee:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "message": "employee not found",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+        plant_changes = await PlantChange.find(PlantChange.employee == employee).to_list()
+        return plant_changes
+    
+    
+    async def approve_plant_change(self, id: str):
+        plant_change = await PlantChange.find_one(PlantChange.id == id)
+        if not plant_change:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "message": "employee not found",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+        if plant_change.status != PlantChangeStatus.pending:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "message": f"Requested status is already {plant_change.status}",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+            
+        await plant_change.set({"status": PlantChangeStatus.approved})
+        await Employee.update(Employee.employee_id == plant_change.employee.employee_id, {"$set": {"plant": plant_change.requested_plant.name}})
+        return plant_change
+    
+    async def reject_plant_change(self, id: str):
+        plant_change = await PlantChange.find_one(PlantChange.id == id)
+        if not plant_change:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "message": "employee not found",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+        if plant_change.status != PlantChangeStatus.pending:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "message": f"Requested status is already {plant_change.status}",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+            
+        await plant_change.set({"status": PlantChangeStatus.rejected})
+        return plant_change

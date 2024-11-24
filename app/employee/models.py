@@ -2,7 +2,10 @@ from datetime import datetime
 from enum import Enum
 from typing import Optional
 from beanie import Document
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
+from app.plant.models import Plant
+from app.schemas.db import BaseDocument
 
 class Role(str, Enum):
     ci_head = "ci_head"
@@ -12,6 +15,12 @@ class Role(str, Enum):
     lof="lof"
     cs_head="cs_head"
     employee = "employee"
+    
+    
+class PlantChangeStatus(str, Enum):
+    pending = "pending"
+    approved = "approved"
+    rejected = "rejected"
 
 class EmployeeModel(BaseModel):
     employee_id: str
@@ -50,3 +59,19 @@ class EmployeeUpdate(BaseModel):
     working_location : Optional[str] = None
     designation : Optional[str] = None
     bussiness_unit : Optional[str] = None
+    
+    
+    
+class PlantChangeModel(BaseModel):
+    employee : Employee
+    current_plant : Plant
+    requested_plant : Plant = Field(...)
+    status : Optional[PlantChangeStatus] = Field(default=PlantChangeStatus.pending)
+
+class PlantChange(PlantChangeModel, BaseDocument):
+    pass
+     
+     
+class PlantChangeRequest(BaseModel):
+    requested_plant_id : str
+    employee_id : Optional[str] = None

@@ -1,7 +1,8 @@
 from beanie import PydanticObjectId
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 
-from app.employee.models import EmployeeModel
+from app.core.security import authenticate
+from app.employee.models import Employee, EmployeeModel, PlantChangeRequest, Role
 from app.employee.service import EmployeeService
 from app.schemas.api import Response, ResponseStatus
 from app.utils.class_based_views import cbv
@@ -12,7 +13,7 @@ employee_router = APIRouter()
 
 @cbv(employee_router)
 class EmployeeRouter:
-    # user: User = Depends(get_current_active_user)
+    user: Employee = Depends(authenticate)
     _service: EmployeeService = Depends(EmployeeService)
 
     @employee_router.post("/", status_code=status.HTTP_201_CREATED)
@@ -82,5 +83,68 @@ class EmployeeRouter:
             message="Employee Retrieved Successfully",
             success=True,
             status=ResponseStatus.RETRIEVED,
+            data=result,
+        )
+        
+    @employee_router.post("/plant-change", status_code=status.HTTP_201_CREATED)
+    async def create_plant_change(self, data: PlantChangeRequest):
+        result = await self._service.create_plant_change(PlantChangeRequest(
+            **data.model_dump(),
+            employee_id=self.user.id,
+        ))
+        return Response(
+            message="Plant Change Created Successfully",
+            success=True,
+            status=ResponseStatus.CREATED,
+            data=result,
+        )
+        
+    @employee_router.get("/plant-change", status_code=status.HTTP_200_OK)
+    async def get_plant_changes(self, employee_id: str):
+        result = await self._service.get_plant_changes(employee_id)
+        return Response(
+            message="Plant Change Retrieved Successfully",
+            success=True,
+            status=ResponseStatus.RETRIEVED,
+            data=result,
+        )
+        
+    @employee_router.get("/plant-change/approve/{id}", status_code=status.HTTP_200_OK)
+    async def approve_plant_change(self, id: str):
+        if self.user.role != Role.admin:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "message": "Only admin can approve plant change",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+        result = await self._service.approve_plant_change(id)
+        return Response(
+            message="Plant Change Approved Successfully",
+            success=True,
+            status=ResponseStatus.UPDATED,
+            data=result,
+        )
+        
+    @employee_router.get("/plant-change/reject/{id}", status_code=status.HTTP_200_OK)
+    async def reject_plant_change(self, id: str):
+        if self.user.role != Role.admin:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "message": "Only admin can reject plant change",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+        result = await self._service.reject_plant_change(id)
+        return Response(
+            message="Plant Change Rejected Successfully",
+            success=True,
+            status=ResponseStatus.UPDATED,
             data=result,
         )

@@ -2,6 +2,8 @@ from beanie import PydanticObjectId
 from fastapi import APIRouter, Depends, UploadFile, status
 from app.company.models import CompanyModel, CompanyUpdate
 from app.company.service import CompanyService
+from app.core.security import authenticate
+from app.employee.models import Employee
 from app.schemas.api import Response, ResponseStatus
 from app.utils.class_based_views import cbv
 
@@ -11,7 +13,7 @@ company_router = APIRouter()
 
 @cbv(company_router)
 class CompanyRouter:
-    # user: User = Depends(get_current_active_user)
+    user: Employee = Depends(authenticate)
     _service: CompanyService = Depends(CompanyService)
 
     @company_router.post("/", status_code=status.HTTP_201_CREATED)

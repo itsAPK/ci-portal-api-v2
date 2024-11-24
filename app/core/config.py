@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     MONGODB_DB_NAME: str = "ci-portal"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 1  # 60 minutes * 24 hours * 1 = 1 day
     SECRET_KEY: str = secrets.token_urlsafe(32)
+    RESET_TOKEN_EXPIRE_MINUTES: str = 60
     class Config:
         # Place your .env file under this path
         env_file = ".env"
