@@ -13,3 +13,5 @@ class LogLevel(BaseEnum):
     WARNING = "WARNING"
     ERROR = "ERROR"
     CRITICAL = "CRITICAL"
+    
+    

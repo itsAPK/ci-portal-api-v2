@@ -1,6 +1,8 @@
 from enum import Enum
 from typing import Optional
 
+from pydantic import BaseModel
+
 class ResponseStatus(Enum):
     SUCCESS = "SUCCESS"
     DATA_NOT_FOUND = "DATA_NOT_FOUND"
@@ -14,6 +16,7 @@ class ResponseStatus(Enum):
     UPDATED = "UPDATED"
     DELETED = "DELETED"
     FAILED = "FAILED"
+    RETRIEVED = "RETRIEVED"
 
 class Response:
     def __init__(self, message: str, success: bool, status: ResponseStatus, data: any):
@@ -29,3 +32,7 @@ class Response:
             "status": self.status.value,  # Return the enum value, not the enum itself
             "data": self.data,
         }
+        
+        
+class FilterRequest(BaseModel):
+    filter: list[dict] = []

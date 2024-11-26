@@ -56,10 +56,10 @@ class Opportunity(BaseDocument, BaseModel):
     baseline : str
     status : Optional[Status] = Field(default=Status.OPEN_FOR_ASSIGNING)
     project_score : Optional[float] = Field(default=0.0)
-    project_impact : Optional[str] 
-    project_leader : Optional[Employee]
-    remarks : Optional[str]
-    savings_type : Optional[str]
+    project_impact : Optional[str] = None
+    project_leader : Optional[Employee] =  None
+    remarks : Optional[str]  = None
+    savings_type : Optional[str] = None
     estimated_savings : Optional[float] = Field(default=0.0)
     opportunity_year : str = Field(default=f"{datetime.now().year}-{datetime.now().year + 1}")
     created_by : Employee
@@ -67,6 +67,7 @@ class Opportunity(BaseDocument, BaseModel):
     team_members: list["TeamMember"] = []
     schedules: list["Schedule"] = []
     define_phase : Optional['DefinePhase'] = None
+    ssv_tools : Optional['SSVTool'] = None
     control_phase : Optional['ControlPhase'] = None
     improvement_phase : Optional['ImprovementPhase'] = None
     measure_analysis_phase : Optional['MeasureAnalysisPhase'] = None
@@ -119,7 +120,7 @@ class ActionPlanStatus(str, Enum):
     DEFERRED = "Deferred"
     FOR_INFO = "For Info"
     
-class ActionPlan(BaseModel):
+class ActionPlan(Document):
     id: PydanticObjectId = Field(default_factory=ObjectId, alias="_id")
     created_at : datetime = datetime.now()
     action : str 
@@ -131,7 +132,6 @@ class ActionPlan(BaseModel):
 class ActionPlanRequest(BaseModel):
     action : str 
     target_date : datetime
-    opportunity_id : str
     
 class ActionPlanUpdate(BaseModel):
     action : Optional[str] = None
@@ -145,18 +145,18 @@ class TeamMemberRole(str, Enum):
     TEAM_MEMBER = "Team Member"
     PROJECT_SPONSOR = "Project Sponsor"
 
-class TeamMember(BaseModel):
+class TeamMember(Document):
     id: PydanticObjectId = Field(default_factory=ObjectId, alias="_id")
     employee: Employee
     role: TeamMemberRole = TeamMemberRole.TEAM_MEMBER
     
 class TeamMemberRequest(BaseModel):
-    employee: Employee
+    employee_id: str
     role: TeamMemberRole = TeamMemberRole.TEAM_MEMBER
 
 
     
-class Schedule(BaseModel):
+class Schedule(Document):
     id: PydanticObjectId = Field(default_factory=ObjectId, alias="_id")
     planned_start_date : datetime
     planned_end_date : datetime
@@ -178,7 +178,7 @@ class ScheduleUpdate(BaseModel):
     
 
     
-class DefinePhase(BaseModel):
+class DefinePhase(Document):
     id: PydanticObjectId = Field(default_factory=ObjectId, alias="_id")
     part_no : str
     baseline : int 
@@ -263,12 +263,12 @@ class DefinePhaseUpdate(BaseModel):
     concentration_chart : Optional[str] = None
     is_iso_plot : Optional[bool] = None
     
-class SSVToolBase(BaseModel):
+class SSVToolBase( Document):
     id: PydanticObjectId = Field(default_factory=ObjectId, alias="_id")
     suspected_source : str
     tools : str
     
-class SSVTool(BaseModel):
+class SSVTool( Document):
     id: PydanticObjectId = Field(default_factory=ObjectId, alias="_id")
     data : list["SSVToolBase"] = []
     document : Optional[str] = None
@@ -280,15 +280,14 @@ class SSVToolRequest(BaseModel):
 class SSVToolUpdate(BaseModel):
     suspected_source : Optional[str] = None
     tools : Optional[str] = None
-    document : Optional[str] = None
     
-class MeasureAnalysisBase(BaseModel):
+class MeasureAnalysisBase( Document):
     id: PydanticObjectId = Field(default_factory=ObjectId, alias="_id")
     suspected_source : str
     tools : str
     root_cause : str
     
-class MeasureAnalysisPhase(BaseModel):
+class MeasureAnalysisPhase( Document):
     id: PydanticObjectId = Field(default_factory=ObjectId, alias="_id")
     data : list["MeasureAnalysisBase"] = []
     document : Optional[str] = None
@@ -304,13 +303,13 @@ class MeasureAnalysisUpdate(BaseModel):
     root_cause : Optional[str] = None
     document : Optional[str] = None
     
-class ImprovementBase(BaseModel):
+class ImprovementBase( Document):
     id: PydanticObjectId = Field(default_factory=ObjectId, alias="_id")
     confirmed_cause : str
     action_taken : str
     type_of_action : str
     
-class ImprovementPhase(BaseModel):
+class ImprovementPhase( Document):
     id: PydanticObjectId = Field(default_factory=ObjectId, alias="_id")
     data : list["ImprovementBase"] = []
     is_b_vs_c : bool
@@ -328,26 +327,26 @@ class ImprovementUpdate(BaseModel):
     is_b_vs_c : Optional[bool] = None
     document : Optional[str] = None
     
-class ControlBase(BaseModel):
+class ControlBase( Document):
     id: PydanticObjectId = Field(default_factory=ObjectId, alias="_id")
     confirmed_cause : str
     mechanism : str
     contol_tools : str
     
-class ControlResponse(BaseModel):
+class ControlResponse( Document):
     id: PydanticObjectId = Field(default_factory=ObjectId, alias="_id")
     baseline : int
     target : int
     action : int
     uom : str
 
-class ControlCost(BaseModel):
+class ControlCost( Document):
     id: PydanticObjectId = Field(default_factory=ObjectId, alias="_id")
     estimated: int
     actual : int
     uom : str
     
-class ControlPhase(BaseModel):
+class ControlPhase( Document):
     id: PydanticObjectId = Field(default_factory=ObjectId, alias="_id")
     data : list[ControlBase] = []
     control_response : Optional["ControlResponse"] = None
@@ -355,7 +354,7 @@ class ControlPhase(BaseModel):
     document : Optional[str] = None
     
     
-class ProjectClosure(BaseModel):
+class ProjectClosure( Document):
     id: PydanticObjectId = Field(default_factory=ObjectId, alias="_id")
     suspected_cause : list[str] = []
     pin_pointed_root_cause : list[str] = []

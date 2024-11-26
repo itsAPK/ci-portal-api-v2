@@ -1,10 +1,11 @@
 from beanie import PydanticObjectId
 from fastapi import HTTPException, status
 import pandas as pd
+from app.core.databases import parse_json
 from app.employee.models import EmployeeModel, EmployeeUpdate, Employee, PlantChange, PlantChangeRequest, PlantChangeStatus
 from app.plant.models import Plant
 from app.schemas.api import Response, ResponseStatus
-
+from app.core.security import get_password_hash
 
 class EmployeeService:
     def __init__(self):
@@ -12,8 +13,9 @@ class EmployeeService:
 
     async def create(self, data: EmployeeModel):
         values = data.model_dump()
+    
         employee = await Employee.find_one(
-            EmployeeModel.employee_id == values.get("employee_id")
+            Employee.employee_id == values["employee_id"]
         )
         if employee:
             raise HTTPException(
@@ -25,7 +27,9 @@ class EmployeeService:
                     "data": None,
                 },
             )
-        employee = EmployeeModel(**values)
+        password = get_password_hash(values["password"])
+        values.pop("password")
+        employee = Employee(**values,password=password)
         await employee.insert()
         return employee
 
@@ -87,8 +91,8 @@ class EmployeeService:
             "total_pages": total_pages,
             "page": page,
             "page_size": page_size,
-            "data": results,
             "remaining_items": remaining_items,
+            "data": parse_json(results),
         }
 
     async def get(self, id: PydanticObjectId):
@@ -106,7 +110,7 @@ class EmployeeService:
         return employee
 
     async def get_by_employee_id(self, employee_id: str):
-        employee = await Employee.find_one(EmployeeModel.employee_id == employee_id)
+        employee = await Employee.find_one(Employee.employee_id == employee_id)
         if not employee:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -120,7 +124,7 @@ class EmployeeService:
         return employee
     
     async def get_by_email(self, email: str):
-        employee = await Employee.find_one(EmployeeModel.email == email)
+        employee = await Employee.find_one(Employee.email == email)
         if not employee:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,

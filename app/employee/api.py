@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from app.core.security import authenticate
 from app.employee.models import Employee, EmployeeModel, PlantChangeRequest, Role
 from app.employee.service import EmployeeService
-from app.schemas.api import Response, ResponseStatus
+from app.schemas.api import FilterRequest, Response, ResponseStatus
 from app.utils.class_based_views import cbv
 
 
@@ -13,11 +13,11 @@ employee_router = APIRouter()
 
 @cbv(employee_router)
 class EmployeeRouter:
-    user: Employee = Depends(authenticate)
     _service: EmployeeService = Depends(EmployeeService)
 
     @employee_router.post("/", status_code=status.HTTP_201_CREATED)
     async def create(self, employee: EmployeeModel):
+        print(employee)
         result = await self._service.create(employee)
         return Response(
             message="Employee Created Successfully",
@@ -77,8 +77,8 @@ class EmployeeRouter:
         )
         
     @employee_router.post("/query", status_code=status.HTTP_200_OK)
-    async def query(self, filter: list[dict], page: int = 1, page_size: int = 10):
-        result = await self._service.query(filter, page, page_size)
+    async def query(self, data: FilterRequest, page: int = 1, page_size: int = 10):
+        result = await self._service.query(data.filter, page, page_size)
         return Response(
             message="Employee Retrieved Successfully",
             success=True,

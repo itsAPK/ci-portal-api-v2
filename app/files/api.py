@@ -19,7 +19,7 @@ class FileRouter:
     @files_router.get("/download/{bucket:path}")
     async def download_file(bucket: str):
         # Calculate the full file path
-        file_path = os.path.join(BASE_UPLOAD_FOLDER, bucket)
+        file_path = os.path.join(bucket)
         
         # Check if file exists
         if not os.path.isfile(file_path):

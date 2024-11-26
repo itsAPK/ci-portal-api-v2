@@ -13,6 +13,7 @@ class PlantService:
     async def create(self, data: PlantModel):
 
         values = data.model_dump()
+        
 
         plant = await Plant.find_one(Plant.name == values.get("name"))
         if plant:

@@ -17,7 +17,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 ALGORITHM = "HS256"
 
 
-def verify_password(plain_password: str, hashed_password: str) -> bool:
+async def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify a hashed password and a plain password."""
     return pwd_context.verify(plain_password, hashed_password)
 
@@ -86,16 +86,7 @@ async def authenticate(credentials : HTTPAuthorizationCredentials = Depends(HTTP
                 },
             )
         return employee
-    except jwt.InvalidTokenError as err:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail={
-                "message": str(err),
-                "success": False,
-                "status": ResponseStatus.FAILED.value,
-                "data": None,
-            },
-        )
+    
     except jwt.ExpiredSignatureError as err:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

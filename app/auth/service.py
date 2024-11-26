@@ -12,10 +12,11 @@ from typing import Optional
 import jwt
 
 class AuthService:
-    user_service: EmployeeService
+    user_service: EmployeeService = EmployeeService()
 
     async def login(self, data: Login):
         user = await self.user_service.get_by_employee_id(data.employee_id)
+        
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -26,8 +27,11 @@ class AuthService:
                     "data": None,
                 },
             )
-
-        authenticate = await verify_password(data.password, user.password)
+            
+        user_obj = user.model_dump()
+        print(user_obj)
+        
+        authenticate = await verify_password(data.password, user_obj['password'])
 
         if not authenticate:
             raise HTTPException(
@@ -41,7 +45,7 @@ class AuthService:
             )
 
         access_token = create_access_token(
-            data={"sub": user.employee_id},
+            subject=user_obj["employee_id"],
         )
 
         return {
@@ -51,7 +55,7 @@ class AuthService:
                 minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
             ).total_seconds(),
             "user": {
-                "id" : user._id,
+                "id" : str(user_obj["id"]),
                 "employee_id": user.employee_id,
                 "name": user.name,
                 "email": user.email,
