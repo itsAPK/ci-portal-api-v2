@@ -1,7 +1,8 @@
 
+import json
 import os
 import shutil
-from fastapi import APIRouter, Depends, File, UploadFile,status
+from fastapi import APIRouter, Depends, File, Form, UploadFile,status
 from app.core.security import authenticate
 from app.documents.models import Documents, DocumentsModel
 from app.documents.service import DocumentsService
@@ -20,20 +21,18 @@ class DocumentRouter:
     _service: DocumentsService = Depends(DocumentsService)
 
     @document_router.post("/", status_code=status.HTTP_201_CREATED)
-    async def create(self, document: DocumentsModel, file: UploadFile = File(...)):
+    async def create(self, document: str = Form(...), file: UploadFile = File(...)):
         os.makedirs(UPLOAD_PATH, exist_ok=True)
         
-        # Create the file path
         file_path = os.path.join(UPLOAD_PATH, file.filename)
         
-        # Save the uploaded file
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
             
-        # Assuming the `document` needs to store the file path as well
-        document.file_path = file_path
+        archive_data = json.loads(document)
+         
         result = await self._service.create(Documents(
-            name=document.name,
+            name=archive_data.get("name"),
             path=file_path,
             author=self.user.name,
             author_id=self.user.employee_id,

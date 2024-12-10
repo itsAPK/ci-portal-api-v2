@@ -1,6 +1,8 @@
+import json
 import os
 import shutil
-from fastapi import APIRouter, Depends, File, UploadFile,status
+from beanie import PydanticObjectId
+from fastapi import APIRouter, Depends, File, Form, UploadFile,status
 from app.core.security import authenticate
 from app.utils.class_based_views import cbv
 from app.employee.models import Employee
@@ -18,18 +20,19 @@ class ArchiveRouter:
     _service: ArchiveService = Depends(ArchiveService)
 
     @archive_router.post("/", status_code=status.HTTP_201_CREATED)
-    async def create(self, archive: ArchiveModel, file: UploadFile = File(...)):
+    async def create(self, archive: str = Form(...), file: UploadFile = File(...)):
         os.makedirs(UPLOAD_PATH, exist_ok=True)
         
         file_path = os.path.join(UPLOAD_PATH, file.filename)
         
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
-            
-        archive.file_path = file_path
+        archive_data = json.loads(archive)  
+        archive_model = ArchiveModel(**archive_data) 
+
         result = await self._service.create(ArchiveRequest(
-            **archive.model_dump(),
-            uploaded_by=self.user._id,
+            **archive_model.model_dump(),
+            uploaded_by=PydanticObjectId(self.user.id),
             file_path=file_path,
         ))
         
@@ -42,7 +45,7 @@ class ArchiveRouter:
         
         
     @archive_router.get("/{id}", status_code=status.HTTP_200_OK)
-    async def get(self, id: str):
+    async def get(self, id: PydanticObjectId):
         result = await self._service.get(id)
         return Response(
             message="Archive Retrieved Successfully",
@@ -53,7 +56,7 @@ class ArchiveRouter:
 
     @archive_router.post("/query", status_code=status.HTTP_200_OK)
     async def query(self, data: FilterRequest, page: int = 1, page_size: int = 10):
-        result = await self._service.query(data.query, page, page_size)
+        result = await self._service.query(data.filter, page, page_size)
         return Response(
             message="Archive Retrieved Successfully",
             success=True,
@@ -72,7 +75,7 @@ class ArchiveRouter:
         )
 
     @archive_router.delete("/{id}", status_code=status.HTTP_200_OK)
-    async def delete(self, id: str):
+    async def delete(self, id: PydanticObjectId):
         result = await self._service.delete(id)
         return Response(
             message="Archive Deleted Successfully",

@@ -1,7 +1,7 @@
 
 from pydantic import BaseModel
 from typing import Optional 
-from beanie import Document, Indexed, Link
+from beanie import Document, Indexed, Link, PydanticObjectId
 
 from app.employee.models import Employee
 from app.schemas.db import BaseDocument
@@ -19,14 +19,14 @@ class ArchiveModel(BaseModel):
     
 
 class Archive(ArchiveModel, BaseDocument):
-    uploaded_by : Link[Employee]
+    uploaded_by : Employee
     file_path : str
 
 
 
 class ArchiveRequest(ArchiveModel,BaseModel):
     file_path : str
-    uploaded_by : str
+    uploaded_by : PydanticObjectId
     
 
 

@@ -1,7 +1,9 @@
  
 from fastapi import APIRouter, Depends,status
-from app.auth.models import Login, PasswordUpdateRequest
+from app.auth.models import ChangePasswordRequest, Login, PasswordUpdateRequest
 from app.auth.service import AuthService
+from app.core.security import authenticate
+from app.employee.models import Employee
 from app.utils.class_based_views import cbv
 from app.schemas.api import Response, ResponseStatus
 
@@ -30,6 +32,16 @@ class AuthRouter:
         result = await self._service.password_reset(data)
         return Response(
             message="Password Reset Successfully",
+            success=True,
+            status=ResponseStatus.SUCCESS,
+            data=result,
+        )
+        
+    @auth_router.post("/change-password", status_code=status.HTTP_200_OK)
+    async def change_password(self, data: ChangePasswordRequest,   user: Employee = Depends(authenticate)):
+        result = await self._service.change_password(data, user_id=user.id)
+        return Response(
+            message="Password Updated Successfully",
             success=True,
             status=ResponseStatus.SUCCESS,
             data=result,

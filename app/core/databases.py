@@ -10,6 +10,7 @@ from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 from bson import ObjectId
 
 from app.archive.models import Archive
+from app.bussiness_unit.models import BussinessUnit
 from app.company.models import Company
 from app.core.config import settings
 from app.division.models import Division
@@ -19,6 +20,7 @@ from app.plant.models import Plant
 from app.department.models import Department
 from app.tools.models import Tools
 from app.opportunity.models import ActionPlan, Opportunity, SSVTool, SSVToolBase, TeamMember, Schedule, DefinePhase, ControlPhase, ImprovementPhase, MeasureAnalysisPhase
+from app.training.models import Training
 
 
 async def init_db():
@@ -43,7 +45,9 @@ async def init_db():
             ImprovementPhase,
             MeasureAnalysisPhase,
             SSVTool,
-            SSVToolBase
+            SSVToolBase,
+            BussinessUnit,
+            Training
         ],
     )
 

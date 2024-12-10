@@ -1,5 +1,6 @@
+from beanie import PydanticObjectId
 from fastapi import HTTPException, status
-from app.auth.models import Login, PasswordUpdateRequest
+from app.auth.models import ChangePasswordRequest, Login, PasswordUpdateRequest
 from app.core.security import create_access_token, get_password_hash, verify_password
 from app.employee.service import EmployeeService
 from app.schemas.api import ResponseStatus
@@ -31,7 +32,7 @@ class AuthService:
         user_obj = user.model_dump()
         print(user_obj)
         
-        authenticate = await verify_password(data.password, user_obj['password'])
+        authenticate = verify_password(data.password, user_obj['password'])
 
         if not authenticate:
             raise HTTPException(
@@ -117,4 +118,35 @@ class AuthService:
             "status": ResponseStatus.UPDATED,
             "data": None,
         }
-    
+    async def change_password(self, data : ChangePasswordRequest,user_id : PydanticObjectId):
+        user = await self.user_service.get(user_id)
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "message": "Employee not found",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+        print(user)
+        print(data)
+        if not verify_password(data.old_password, user.password):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "message": "Invalid Old Password",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+        
+        hashed_password = get_password_hash(data.new_password)
+        
+        await user.set({"password": hashed_password})
+        await user.save()
+        return user
+        
+        

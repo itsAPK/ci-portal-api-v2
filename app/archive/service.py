@@ -1,5 +1,7 @@
+from beanie import PydanticObjectId
 from fastapi import HTTPException, status
 from app.archive.models import Archive, ArchiveRequest
+from app.core.databases import parse_json
 from app.employee.models import Employee
 from app.schemas.api import ResponseStatus
 
@@ -9,7 +11,7 @@ class ArchiveService:
         pass
 
     async def create(self, data: ArchiveRequest):
-        employee = await Employee.find_one(Employee.employee_id == data.uploaded_by)
+        employee = await Employee.get(data.uploaded_by)
         if not employee:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -20,12 +22,13 @@ class ArchiveService:
                     "data": None,
                 },
             )
-        archive = Archive(**data.model_dump(), uploaded_by=employee)
+        data.uploaded_by = employee
+        archive = Archive(**data.model_dump())
         await archive.insert()
         return archive
     
     
-    async def get(self, archive_id: str):
+    async def get(self, archive_id: PydanticObjectId):
         archive = await Archive.find_one(Archive.id == archive_id,fetch_links=True)
         if not archive:
             raise HTTPException(
@@ -72,7 +75,7 @@ class ArchiveService:
             "total_pages": total_pages,
             "page": page,
             "page_size": page_size,
-            "data": results,
+            "data": parse_json(results),
             "remaining_items": remaining_items,
         }
     
@@ -80,7 +83,7 @@ class ArchiveService:
         results = await Archive.aggregate(filter).to_list()
         return len(results)
     
-    async def delete(self, id: str):
+    async def delete(self, id: PydanticObjectId):
         archive = await Archive.find_one(Archive.id == id)
         if not archive:
             raise HTTPException(

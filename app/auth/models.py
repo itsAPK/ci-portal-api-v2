@@ -19,3 +19,8 @@ class PasswordUpdateRequest(BaseModel):
     old_password: str
     new_password: str
     email: str
+    
+    
+class ChangePasswordRequest(BaseModel):
+    new_password: str
+    old_password: str

@@ -1,41 +1,45 @@
 from beanie import PydanticObjectId
-import pandas as pd
-from app.company.models import Company, CompanyModel, CompanyUpdate
 from fastapi import HTTPException, status
+import pandas as pd
 
+from app.bussiness_unit.models import (
+    BussinessUnit,
+    BussinessUnitModel,
+    BussinessUnitRequest,
+)
 from app.schemas.api import Response, ResponseStatus
 
 
-class CompanyService:
+class BussinessUnitService:
     def __init__(self):
         pass
 
-    async def create(self, data: CompanyModel):
+    async def create(self, data: BussinessUnitRequest):
 
         values = data.model_dump()
 
-        company = await Company.find_one(Company.name == values.get("name"))
-        if company:
+        bussiness_unit = await BussinessUnit.find_one(BussinessUnit.name == values.get("name"))
+        if bussiness_unit:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=Response(
-                    message="Company already exists",
+                    message="Bussiness Unit already exists",
                     success=False,
                     status=ResponseStatus.ALREADY_EXIST,
                     data=None,
                 ),
             )
 
-        company = Company(**values)
+        company = BussinessUnit(**values)
         await company.insert()
         return company
 
-    async def update(self, data: CompanyUpdate, id: PydanticObjectId):
+    async def update(self, data: BussinessUnitRequest, id: PydanticObjectId):
 
         values = data.model_dump(exclude_none=True)
-        company = await Company.find_one(Company.id == id)
+        bussiness_unit = await BussinessUnit.find_one(BussinessUnit.id == id)
 
-        if not company:
+        if not bussiness_unit:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=Response(
@@ -47,63 +51,64 @@ class CompanyService:
             )
 
         if values["name"]:
-            company.name = values["name"]
+            bussiness_unit.name = values["name"]
 
-        if values["company_code"]:
-            company.company_code = values["company_code"]
-        await company.save()
-        return company
+        await bussiness_unit.save()
+        return bussiness_unit
 
-    async def delete(self, id: PydanticObjectId):
-        company = await Company.get(id)
-        if not company:
+    async def delete(self, id: str):
+        bussiness_unit = await BussinessUnit.find_one(BussinessUnit.name == id)
+        if not bussiness_unit:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=Response(
-                    message="Company not found",
+                    message="BussinessUnit not found",
                     success=False,
                     status=ResponseStatus.DATA_NOT_FOUND,
                     data=None,
                 ),
             )
-        await company.delete()
-        return company
+        await bussiness_unit.delete()
+        return bussiness_unit
 
-    async def get(self, company_id: PydanticObjectId):
-        company = await Company.find_one(Company.id == company_id)
-        if not company:
+    async def get(self, bussiness_unit_id: PydanticObjectId):
+        bussiness_unit = await BussinessUnit.find_one(
+            BussinessUnit.id == bussiness_unit_id
+        )
+        if not bussiness_unit:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=Response(
-                    message="Company not found",
+                    message="Bussiness Unit not found",
                     success=False,
                     status=ResponseStatus.DATA_NOT_FOUND,
                     data=None,
                 ),
             )
-        return company
+        return bussiness_unit
 
     async def get_all(self):
-        companies = await Company.find_all().to_list()
-        return companies
+        bussiness_unit = await BussinessUnit.find_all().to_list()
+        return bussiness_unit
 
     async def upload_excel(self, file: bytes):
         try:
             df = pd.read_excel(file)
 
             for _, row in df.iterrows():
-                company_data = CompanyModel(
-                    name=row["Company Name"],
-                    company_code=row["Company Code"],
+                bussiness_unit_data = BussinessUnitModel(
+                    name=row["Name"],
                 )
-                company = await Company.find_one(Company.name == company_data.name)
-                if company:
-                    await company.set(company_data.model_dump())
+                bussiness_unit = await BussinessUnit.find_one(
+                    BussinessUnit.name == bussiness_unit_data.name
+                )
+                if bussiness_unit:
+                    await bussiness_unit.set(bussiness_unit_data.model_dump())
                 else:
-                    await self.create(company_data)
+                    await self.create(bussiness_unit_data)
 
             return Response(
-                message="Companies imported from Excel file successfully",
+                message="Bussiness Unit imported from Excel file successfully",
                 success=True,
                 status=ResponseStatus.CREATED,
                 data=None,

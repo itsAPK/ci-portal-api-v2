@@ -1,7 +1,8 @@
 
+from beanie import PydanticObjectId
 from fastapi import APIRouter, Depends,status
 from app.employee.models import Employee
-from app.schemas.api import Response, ResponseStatus
+from app.schemas.api import FilterRequest, Response, ResponseStatus
 from app.tools.models import ToolsModel, ToolsUpdate
 from app.tools.service import ToolsService
 from app.utils.class_based_views import cbv
@@ -27,7 +28,7 @@ class ToolsRouter:
         )
 
     @tools_router.patch("/{id}", status_code=status.HTTP_200_OK)
-    async def update(self, id: str, tool: ToolsUpdate):
+    async def update(self, id: PydanticObjectId, tool: ToolsUpdate):
         result = await self._service.update(tool, id)
         return Response(
             message="Tool Updated Successfully",
@@ -37,7 +38,7 @@ class ToolsRouter:
         )
 
     @tools_router.delete("/{id}", status_code=status.HTTP_200_OK)
-    async def delete(self, id: str):
+    async def delete(self, id: PydanticObjectId):
         result = await self._service.delete(id)
         return Response(
             message="Tool Deleted Successfully",
@@ -47,7 +48,7 @@ class ToolsRouter:
         )
 
     @tools_router.get("/{id}", status_code=status.HTTP_200_OK)
-    async def get(self, id: str):
+    async def get(self, id: PydanticObjectId):
         result = await self._service.get(id)
         return Response(
             message="Tool Retrieved Successfully",
@@ -67,8 +68,8 @@ class ToolsRouter:
                 )
             
     @tools_router.post("/query", status_code=status.HTTP_200_OK)
-    async def query(self, filter: list[dict], page: int = 1, page_size: int = 10):
-            result = await self._service.query(filter, page, page_size)
+    async def query(self,  data: FilterRequest, page: int = 1, page_size: int = 10):
+            result = await self._service.query(data.filter, page, page_size)
             return Response(
                 message="Tools Retrieved Successfully",
                 success=True,

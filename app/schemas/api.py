@@ -17,6 +17,7 @@ class ResponseStatus(Enum):
     DELETED = "DELETED"
     FAILED = "FAILED"
     RETRIEVED = "RETRIEVED"
+    ACCEPTED = "ACCEPTED"
 
 class Response:
     def __init__(self, message: str, success: bool, status: ResponseStatus, data: any):

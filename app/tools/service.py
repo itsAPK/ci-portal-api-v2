@@ -1,6 +1,8 @@
 
 
+from beanie import PydanticObjectId
 from fastapi import HTTPException,status
+from app.core.databases import parse_json
 from app.schemas.api import ResponseStatus
 from app.tools.models import Tools, ToolsModel, ToolsUpdate
 
@@ -19,16 +21,17 @@ class ToolsService:
                     "message":'Tool already exists',
                     "success":False,
                     "status":ResponseStatus.ALREADY_EXIST.value,
-                    "data":tool,
+                    "data": None,
                 },
             )
         tool = Tools(**values)
         await tool.insert()
         return tool
     
-    async def update(self, data: ToolsUpdate,id : str):
+    async def update(self, data: ToolsUpdate,id : PydanticObjectId):
         values = data.model_dump(exclude_none=True)
-        tool = await Tools.find_one(Tools.id == id)
+        status =True if values.get("status") == True else False
+        tool = await Tools.get(id)
         if not tool:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -39,16 +42,20 @@ class ToolsService:
                     "data":None,
                 },
             )   
+        print(values.get("status"))
         if values.get("name"):
             tool.name = values.get("name")
         if values.get("category"):
             tool.category = values.get("category")
-        if values.get("status"):
-            tool.status = values.get("status")
-        await tool.save()
+        if values.get("status") == True:
+            tool.status = True
+        else:
+            tool.status = False
+        a =await tool.save()
+        print(a)
         return tool
     
-    async def delete(self, id: str):
+    async def delete(self, id: PydanticObjectId):
         tool = await Tools.find_one(Tools.id == id)
         if not tool:
             raise HTTPException(
@@ -63,7 +70,7 @@ class ToolsService:
         await tool.delete()
         return tool
     
-    async def get(self, tool_id: str):
+    async def get(self, tool_id: PydanticObjectId):
         tool = await Tools.find_one(Tools.id == tool_id)
         if not tool:
             raise HTTPException(
@@ -96,6 +103,7 @@ class ToolsService:
         return await Tools.find().count()
     
     async def query(self, filter: list[dict], page: int, page_size: int):
+        print(filter)
         skip = (page - 1) * page_size
         query = [] + filter
         total_items = await self.query_count(query)
@@ -110,7 +118,7 @@ class ToolsService:
             "total_pages": total_pages,
             "page": page,
             "page_size": page_size,
-            "data": results,
+            "data": parse_json(results),
             "remaining_items": remaining_items,
         }
     

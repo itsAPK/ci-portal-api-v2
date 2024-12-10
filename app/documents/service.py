@@ -1,4 +1,5 @@
 
+from beanie import PydanticObjectId
 from fastapi import HTTPException,status
 from app.documents.models import Documents, DocumentsModel, DocumentsUpdate
 from app.schemas.api import ResponseStatus
@@ -14,8 +15,8 @@ class DocumentsService:
         await document.insert()
         return document
     
-    async def get(self, document_id: str):
-        document = await Documents.find_one(Documents.id == document_id)
+    async def get(self, document_id: PydanticObjectId):
+        document = await Documents.get(document_id)
         if not document:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -32,8 +33,8 @@ class DocumentsService:
         documents = await Documents.find_all().to_list()
         return documents
     
-    async def delete(self, id: str):
-        document = await Documents.find_one(Documents.id == id)
+    async def delete(self, id: PydanticObjectId):
+        document = await Documents.get(id)
         if not document:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,

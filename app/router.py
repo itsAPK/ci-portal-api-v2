@@ -11,6 +11,8 @@ from app.tools.api import tools_router
 from app.documents.api import document_router
 from app.archive.api import archive_router
 from app.opportunity.api import opportunity_router
+from app.bussiness_unit.api import bussiness_unit_router
+from app.training.api import training_router
 
 router = APIRouter(prefix=f"/api")
 router.include_router(employee_router, prefix="/employee", tags=["Employee"])
@@ -24,3 +26,5 @@ router.include_router(tools_router, prefix="/tools", tags=["Tools"])
 router.include_router(document_router, prefix="/document", tags=["Document"])
 router.include_router(archive_router, prefix="/archive", tags=["Archive"])
 router.include_router(opportunity_router, prefix="/opportunity", tags=["Opportunity"])
+router.include_router(bussiness_unit_router, prefix="/bussiness-unit", tags=["Bussiness Unit"])
+router.include_router(training_router, prefix="/training", tags=["Training"])

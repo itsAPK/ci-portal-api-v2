@@ -1,7 +1,7 @@
 from datetime import datetime
 from enum import Enum
 from typing import Optional
-from beanie import Document
+from beanie import Document, PydanticObjectId
 from pydantic import BaseModel, Field
 
 from app.plant.models import Plant
@@ -25,8 +25,8 @@ class PlantChangeStatus(str, Enum):
 class EmployeeModel(BaseModel):
     employee_id: str
     name: str
-    email: str
-    password: str
+    email: str | None = None
+    password: str | None = None
     plant : str
     company : str
     department : str
@@ -46,7 +46,6 @@ class Employee(Document, EmployeeModel):
 class EmployeeUpdate(BaseModel):
     name: Optional[str] = None
     email: Optional[str] = None
-    password: Optional[str] = None
     plant : Optional[str] = None
     company : Optional[str] = None
     department : Optional[str] = None
@@ -73,5 +72,5 @@ class PlantChange(PlantChangeModel, BaseDocument):
      
      
 class PlantChangeRequest(BaseModel):
-    requested_plant_id : str
-    employee_id : Optional[str] = None
+    requested_plant_id : PydanticObjectId
+    employee_id : Optional[PydanticObjectId] = None

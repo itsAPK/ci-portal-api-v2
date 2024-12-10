@@ -20,6 +20,7 @@ python-jose = {extras = ["cryptography"], version = "^3.3.0"}
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 pandas = "^2.2.3"
 openpyxl = "^3.1.5"
+python-dateutil = "^2.9.0.post0"
 
 
 [build-system]

@@ -1,8 +1,8 @@
 from beanie import PydanticObjectId
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, UploadFile, status
 
 from app.core.security import authenticate
-from app.employee.models import Employee, EmployeeModel, PlantChangeRequest, Role
+from app.employee.models import Employee, EmployeeModel, EmployeeUpdate, PlantChangeRequest, Role
 from app.employee.service import EmployeeService
 from app.schemas.api import FilterRequest, Response, ResponseStatus
 from app.utils.class_based_views import cbv
@@ -14,6 +14,7 @@ employee_router = APIRouter()
 @cbv(employee_router)
 class EmployeeRouter:
     _service: EmployeeService = Depends(EmployeeService)
+    user : Employee = Depends(authenticate)
 
     @employee_router.post("/", status_code=status.HTTP_201_CREATED)
     async def create(self, employee: EmployeeModel):
@@ -23,11 +24,11 @@ class EmployeeRouter:
             message="Employee Created Successfully",
             success=True,
             status=ResponseStatus.CREATED,
-            data=result,
+            data=None
         )
         
     @employee_router.patch("/{id}", status_code=status.HTTP_200_OK)
-    async def update(self, id: PydanticObjectId, employee: EmployeeModel):
+    async def update(self, id: PydanticObjectId, employee: EmployeeUpdate):
         result = await self._service.update(employee, id)
         return Response(
             message="Division Updated Successfully",
@@ -56,7 +57,7 @@ class EmployeeRouter:
             data=result,
         )
         
-    @employee_router.get("/{employee_id}", status_code=status.HTTP_200_OK)
+    @employee_router.get("/by-id/{employee_id}", status_code=status.HTTP_200_OK)
     async def get_by_employee_id(self, employee_id: str):
         result = await self._service.get_by_employee_id(employee_id)
         return Response(
@@ -76,6 +77,16 @@ class EmployeeRouter:
             data=result,
         )
         
+    @employee_router.post("/upload", status_code=status.HTTP_200_OK)
+    async def upload(self, file: UploadFile,background_tasks: BackgroundTasks):
+        result = await self._service.upload_excel_in_background(background_tasks, await file.read())
+        return Response(
+            message="Employee Uploaded Successfully",
+            success=True,
+            status=ResponseStatus.CREATED,
+            data=result,
+        )
+        
     @employee_router.post("/query", status_code=status.HTTP_200_OK)
     async def query(self, data: FilterRequest, page: int = 1, page_size: int = 10):
         result = await self._service.query(data.filter, page, page_size)
@@ -86,11 +97,22 @@ class EmployeeRouter:
             data=result,
         )
         
+    @employee_router.post("/export", status_code=status.HTTP_200_OK)
+    async def query_export(self, data: FilterRequest):
+        result = await self._service.export_query(data.filter)
+        return Response(
+            message="Employee Retrieved Successfully",
+            success=True,
+            status=ResponseStatus.RETRIEVED,
+            data=result,
+        )
+        
     @employee_router.post("/plant-change", status_code=status.HTTP_201_CREATED)
     async def create_plant_change(self, data: PlantChangeRequest):
+        print(data)
         result = await self._service.create_plant_change(PlantChangeRequest(
             **data.model_dump(),
-            employee_id=self.user.id,
+           
         ))
         return Response(
             message="Plant Change Created Successfully",
@@ -109,8 +131,18 @@ class EmployeeRouter:
             data=result,
         )
         
+    @employee_router.post('/plant-change/query',status_code=status.HTTP_200_OK)
+    async def query_plant_change(self, data: FilterRequest, page: int = 1, page_size: int = 10):
+        result = await self._service.plant_change_query(data.filter, page, page_size)
+        return Response(
+            message="Plant Change Retrieved Successfully",
+            success=True,
+            status=ResponseStatus.RETRIEVED,
+            data=result,
+        )
+        
     @employee_router.get("/plant-change/approve/{id}", status_code=status.HTTP_200_OK)
-    async def approve_plant_change(self, id: str):
+    async def approve_plant_change(self, id:  PydanticObjectId):
         if self.user.role != Role.admin:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -130,7 +162,7 @@ class EmployeeRouter:
         )
         
     @employee_router.get("/plant-change/reject/{id}", status_code=status.HTTP_200_OK)
-    async def reject_plant_change(self, id: str):
+    async def reject_plant_change(self, id: PydanticObjectId):
         if self.user.role != Role.admin:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
