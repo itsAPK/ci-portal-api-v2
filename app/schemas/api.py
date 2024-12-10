@@ -18,6 +18,7 @@ class ResponseStatus(Enum):
     FAILED = "FAILED"
     RETRIEVED = "RETRIEVED"
     ACCEPTED = "ACCEPTED"
+    NOT_FOUND = "NOT_FOUND"
 
 class Response:
     def __init__(self, message: str, success: bool, status: ResponseStatus, data: any):
