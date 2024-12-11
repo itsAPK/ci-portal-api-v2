@@ -17,6 +17,8 @@ from app.schemas.api import Response, ResponseStatus
 from app.core.security import get_password_hash
 from dateutil import parser
 
+from app.utils import process_role
+
 
 class EmployeeService:
     def __init__(self):
@@ -92,12 +94,13 @@ class EmployeeService:
         skip = (page - 1) * page_size
         query = [] + filter
         total_items = await self.query_count(query)
+        print(query)
         results = await Employee.aggregate(
             query + [{"$skip": skip}, {"$limit": page_size}]
         ).to_list()
         total_pages = (total_items + page_size - 1) // page_size
         remaining_items = max(0, total_items - (skip + len(results)))
-
+        print(results)
         return {
             "total_items": total_items,
             "total_pages": total_pages,
@@ -180,56 +183,60 @@ class EmployeeService:
             df = pd.read_excel(file)
 
             for _, row in df.iterrows():
-                employee_data = EmployeeModel(
-                    name=row["Name"],
-                    employee_id=str(row["Employee No."]),
-                    plant=row["Plant"],
-                    company=row["Company"],
-                    department=row["Department"],
-                    email=str(row["E-Mail"]),
-                    date_of_birth=(
-                        row["Date of Birth"].to_pydatetime()
-                        if hasattr(row["Date of Birth"], "to_pydatetime")
-                        else parser.parse(str(row["Date of Birth"]))
-                    ),
-                    date_of_joining=(
-                        row["Date of Joining"].to_pydatetime()
-                        if hasattr(row["Date of Joining"], "to_pydatetime")
-                        else (
-                            parser.parse(str(row["Date of Joining"]))
-                            if row["Date of Joining"]
-                            else None
-                        )
-                    ),
-                    grade=row["Grade"],
-                    role=str(row["Role"]).replace(" ", "_").lower() if row["Role"] else 'employee',
-                    designation=row["Designation"],
-                    working_location=row["Working Location"],
-                    bussiness_unit=row["Business Unit"],
-                )
-                employee = await Employee.find_one(
-                    Employee.employee_id == employee_data.employee_id
-                )
-                if employee:
-                    await employee.set(
-                        {
-                            "name": employee_data.name,
-                            "employee_id": employee_data.employee_id,
-                            "plant": employee_data.plant,
-                            "company": employee_data.company,
-                            "department": employee_data.department,
-                            "email": employee_data.email,
-                            "date_of_birth": employee_data.date_of_birth,
-                            "date_of_joining": employee_data.date_of_joining,
-                            "grade": employee_data.grade,
-                            "role": employee_data.role,
-                            "designation": employee_data.designation,
-                            "bussiness_unit": employee_data.bussiness_unit,
-                            "working_location": employee_data.working_location,
-                        }
+                try:
+                    employee_data = EmployeeModel(
+                        name=row["Name"],
+                        employee_id=str(row["Employee No."]),
+                        plant=row["Plant"],
+                        company=row["Company"],
+                        department=row["Department"],
+                        email=str(row["E-Mail"]),
+                        date_of_birth=(
+                            row["Date of Birth"].to_pydatetime()
+                            if hasattr(row["Date of Birth"], "to_pydatetime")
+                            else parser.parse(str(row["Date of Birth"]))
+                        ),
+                        date_of_joining=(
+                            row["Date of Joining"].to_pydatetime()
+                            if hasattr(row["Date of Joining"], "to_pydatetime")
+                            else (
+                                parser.parse(str(row["Date of Joining"]))
+                                if row["Date of Joining"]
+                                else None
+                            )
+                        ),
+                        grade=row["Grade"],
+                        role=process_role(row["Role"]),
+                        designation=row["Designation"],
+                        working_location=row["Working Location"],
+                        bussiness_unit=row["Business Unit"],
                     )
-                else:
-                    await self.create(employee_data)
+                    employee = await Employee.find_one(
+                        Employee.employee_id == employee_data.employee_id
+                    )
+                    if employee:
+                        await employee.set(
+                            {
+                                "name": employee_data.name,
+                                "employee_id": employee_data.employee_id,
+                                "plant": employee_data.plant,
+                                "company": employee_data.company,
+                                "department": employee_data.department,
+                                "email": employee_data.email,
+                                "date_of_birth": employee_data.date_of_birth,
+                                "date_of_joining": employee_data.date_of_joining,
+                                "grade": employee_data.grade,
+                                "role": employee_data.role,
+                                "designation": employee_data.designation,
+                                "bussiness_unit": employee_data.bussiness_unit,
+                                "working_location": employee_data.working_location,
+                            }
+                        )
+                    else:
+                        await self.create(employee_data)
+                except Exception as e:
+                    print(e)
+                    continue
 
             return Response(
                 message="employee imported from Excel file successfully",
@@ -248,7 +255,9 @@ class EmployeeService:
                 },
             )
 
-    async def upload_excel_in_background(self, background_tasks: BackgroundTasks, file: bytes):
+    async def upload_excel_in_background(
+        self, background_tasks: BackgroundTasks, file: bytes
+    ):
         background_tasks.add_task(self.upload_excel, file)
         return Response(
             message="Excel file upload is in progress.",
@@ -256,7 +265,7 @@ class EmployeeService:
             status=ResponseStatus.ACCEPTED,
             data=None,
         )
-        
+
     async def create_plant_change(self, data: PlantChangeRequest):
         if not data.employee_id:
             raise HTTPException(
