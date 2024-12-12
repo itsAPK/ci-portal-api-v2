@@ -48,11 +48,11 @@ class OppurtunityService:
         values = data.model_dump()
         print(values)
         count = await Opportunity.find(
-            Opportunity.division == values["division"],
+            Opportunity.plant == values["plant"],
             Opportunity.opportunity_year
             == f"{datetime.now().year}-{datetime.now().year + 1}",
         ).count()
-        opportunity_id = f"{values['division']}/{values['category']}/{datetime.now().year}-{datetime.now().year + 1}/{count + 1}"
+        opportunity_id = f"{values['plant']}/{values['category']}/{datetime.now().year}-{datetime.now().year + 1}/{count + 1}"
         opportunity = Opportunity(
             **values,
             opportunity_id=opportunity_id,
@@ -61,6 +61,189 @@ class OppurtunityService:
         )
         await opportunity.insert()
         return opportunity
+    
+    async def calculate_impact_score(self, opportunity : OpportunityRequest):
+        baseline = [
+            {
+                "name": "<=10,000 ppm",
+                "score" : 0.2,
+                "weightage" : 15
+            },
+            {
+                "name": ">10,000 and <=30,000 ppm",
+                "score" : 0.6,
+                "weightage" : 15
+            },
+            {
+                "name": ">30,000 and <=100,000 ppm",
+                "score" : 0.8,
+                "weightage" : 15
+            },
+            {
+                "name": ">100,000 ppm",
+                "score" : 1.0,
+                "weightage" : 15
+            }
+        ]
+        
+        cross_function_rating = [
+            {
+                "name": "Low",
+                "score" : 0.2,
+                "weightage" : 10
+            },
+            {
+                "name": "Medium",
+                "score" : 0.5,
+                "weightage" : 10
+            },
+            {
+                "name": "High",
+                "score" : 1,
+                "weightage" : 10
+            },
+        ]
+        
+        data_analysis = [
+            {
+                "name": "No Data",
+                "score" : 0.1,
+                "weightage" : 15
+            },
+            {
+                "name": "Less Data",
+                "score" : 0.4,
+                "weightage" : 15
+            },
+            {
+                "name": "Medium Data",
+                "score" : 0.7,
+                "weightage" : 15
+            },
+            {
+                "name": "Data Intensive",
+                "score" : 1,
+                "weightage" : 15
+            }
+        ]
+        
+        project_nature = [
+            {
+                "name": "Problem Solving",
+                "score" : 0.2,
+                "weightage" : 10
+            },
+            {
+                "name": "Process Optimization",
+                "score" : 0.6,
+                "weightage" : 10
+            },
+            {
+                "name": "Innovation",
+                "score" : 0.8,
+                "weightage" : 10
+            },
+            {
+                "name": "Perceived Quality",
+                "score" : 1,
+                "weightage" : 10
+            }
+        ]
+        
+        expected_savings = [
+            {
+                "name": "<= 1 Lakh",
+                "score" : 0.2,
+                "weightage" : 10
+            },
+            {
+                "name": ">1 and <=5 Lakh",
+                "score" : 0.6,
+                "weightage" : 10
+            },
+            {
+                "name": ">5 and <=10 Lakh",
+                "score" : 0.8,
+                "weightage" : 10
+            },
+            {
+                "name" : ">10 Lakh",
+                "score" : 1,
+                "wightage" : 10
+                
+            }
+            
+        ]
+        
+        external_customer = [
+            {
+                "name" : "Nil",
+                "score" : 0,
+                "wightage" : 0
+            },
+            {
+                "name" : "Low",
+                "score" : 0.2,
+                "wightage" : 10
+            },
+            {
+                "name" : "Medium",
+                "score" : 0.5,
+                "wightage" : 10
+            },
+            {
+                "name" : "High",
+                "score" : 1,
+                "wightage" : 10
+            }
+        ]
+        
+        internal_customer = [
+            {
+                "name" : "Nil",
+                "score" : 0,
+                "wightage" : 0
+            },
+            {
+                "name" : "Low",
+                "score" : 0.2,
+                "wightage" : 10
+            },
+            {
+                "name" : "Medium",
+                "score" : 0.5,
+                "wightage" : 10
+            },
+            {
+                "name" : "High",
+                "score" : 1,
+                "wightage" : 10
+            }
+        ]
+        
+        project_type = [
+            {
+                "name" : "Type -1",
+                "score" : 0.4,
+                "wightage" : 15
+            },
+            {
+                "name" : "Type -2",
+                "score" : 0.6,
+                "wightage" : 15
+            },
+            {
+                "name" : "Type -3",
+                "score" : 0.8,
+                "wightage" : 15
+            },
+            {
+                "name" : "Type -4",
+                "score" : 1,
+                "wightage" : 15
+            }
+        ]
+        
 
     async def assign_project_leader(
         self, opportunity_id: PydanticObjectId, employee_id: PydanticObjectId
@@ -87,7 +270,7 @@ class OppurtunityService:
                     "data": None,
                 },
             )
-        opportunity.set({"project_leader": employee, "status": Status.PL_APPROVED})
+        opportunity.set({"project_leader": employee, "status": Status.PROJECT_ASSIGN_PENDING_HOD})
 
         await opportunity.save()
         return opportunity
@@ -149,8 +332,9 @@ class OppurtunityService:
         results = await Opportunity.aggregate(filter).to_list()
         return len(results)
 
-    async def delete(self, id: str):
-        opportunity = await Opportunity.find_one(Opportunity.opportunity_id == id)
+    async def delete(self, id: PydanticObjectId):
+        print(id)
+        opportunity = await Opportunity.get(id)
         if not opportunity:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -164,9 +348,9 @@ class OppurtunityService:
         await opportunity.delete()
         return opportunity
 
-    async def update(self, data: OpportunityRequest, id: str):
+    async def update(self, data: OpportunityRequest, id: PydanticObjectId):
         values = data.model_dump(exclude_none=True)
-        opportunity = await Opportunity.find_one(Opportunity.opportunity_id == id)
+        opportunity = await Opportunity.get(id)
         if not opportunity:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,

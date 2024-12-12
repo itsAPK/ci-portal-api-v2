@@ -43,17 +43,17 @@ class Opportunity(BaseDocument, BaseModel):
     company : str
     department : str
     bussiness_unit : str
-    division: str
+    plant: str
     category : str
     statement : str
-    project_type : str
-    project_nature : str
-    internal_customer_impact : str
-    external_customer_impact  : str
-    data_analysis : str
-    cross_ratio : str
-    expected_savings : str
-    baseline : str
+    expected_savings : str 
+    project_type : str | None = None
+    project_nature : str | None = None
+    internal_customer_impact : str | None = None
+    external_customer_impact  : str | None = None
+    data_analysis : str | None = None
+    cross_ratio : str | None = None
+    baseline : str | None = None
     status : Optional[Status] = Field(default=Status.OPEN_FOR_ASSIGNING)
     project_score : Optional[float] = Field(default=0.0)
     project_impact : Optional[str] = None
@@ -71,29 +71,32 @@ class Opportunity(BaseDocument, BaseModel):
     control_phase : Optional['ControlPhase'] = None
     improvement_phase : Optional['ImprovementPhase'] = None
     measure_analysis_phase : Optional['MeasureAnalysisPhase'] = None
-    
+    approved_hod : Optional[Employee] = None
+    approved_cihead : Optional[Employee] = None
     
 class OpportunityRequest(BaseModel):
     company : str
     department : str
     bussiness_unit : str
-    division: str
+    plant: str
     category : str
     statement : str
-    project_type : str
-    project_nature : str
-    internal_customer_impact : str
-    external_customer_impact  : str
-    data_analysis : str
-    cross_ratio : str
+    project_type : Optional[str] = None
+    project_nature : Optional[str] = None
+    internal_customer_impact : Optional[str] = None
+    external_customer_impact  : Optional[str] = None
+    data_analysis : Optional[str] = None
+    cross_ratio : Optional[str] = None
+    project_impact : Optional[str] = None
+    project_score : Optional[float] = None
     expected_savings : str
-    baseline : str
+    baseline : Optional[str] = None
     
 class OpportunityUpdate(BaseModel):
     company : Optional[str] = None
     department : Optional[str] = None
     bussiness_unit : Optional[str] = None
-    division: Optional[str] = None
+    plant: Optional[str] = None
     category : Optional[str] = None
     statement : Optional[str] = None
     project_type : Optional[str] = None
@@ -119,6 +122,10 @@ class ActionPlanStatus(str, Enum):
     COMPLETED = "Completed"
     DEFERRED = "Deferred"
     FOR_INFO = "For Info"
+    
+class AssignProjectLeaderRequest(BaseModel):
+    opportunity_id :  PydanticObjectId
+    employee_id : PydanticObjectId
     
 class ActionPlan(Document):
     id: PydanticObjectId = Field(default_factory=ObjectId, alias="_id")

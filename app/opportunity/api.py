@@ -5,6 +5,7 @@ from app.employee.models import Employee, Role
 from app.opportunity.models import (
     ActionPlanRequest,
     ActionPlanUpdate,
+    AssignProjectLeaderRequest,
     DefinePhaseRequest,
     DefinePhaseUpdate,
     OpportunityRequest,
@@ -54,21 +55,12 @@ class OpportunityRouter:
             data=result,
         )
 
-    @opportunity_router.get(
-        "/assign-project-leader/{opportunity_id}", status_code=status.HTTP_200_OK
+    @opportunity_router.post(
+        "/assign-project-leader", status_code=status.HTTP_200_OK
     )
-    async def assign_project_leader(self, opportunity_id: str):
-        if self.user.role != Role.project_leader:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail={
-                    "message": "Only project lead can assign project lead",
-                    "success": False,
-                    "status": ResponseStatus.DATA_NOT_FOUND.value,
-                    "data": None,
-                },
-            )
-        result = await self._service.assign_project_leader(opportunity_id, self.user.id)
+    async def assign_project_leader(self, data: AssignProjectLeaderRequest):
+         
+        result = await self._service.assign_project_leader(data.opportunity_id, data.employee_id)
         return Response(
             message="Assign Project Leader Successfully",
             success=True,
@@ -77,7 +69,7 @@ class OpportunityRouter:
         )
 
     @opportunity_router.patch("/{id}", status_code=status.HTTP_200_OK)
-    async def update(self, id: str, opportunity: OpportunityUpdate):
+    async def update(self, id: PydanticObjectId, opportunity: OpportunityUpdate):
         result = await self._service.update(opportunity, id)
         return Response(
             message="Opportunity Updated Successfully",
@@ -87,7 +79,8 @@ class OpportunityRouter:
         )
 
     @opportunity_router.delete("/{id}", status_code=status.HTTP_200_OK)
-    async def delete(self, id: str):
+    async def delete(self, id: PydanticObjectId):
+        print(id)
         result = await self._service.delete(id)
         return Response(
             message="Opportunity Deleted Successfully",
@@ -97,7 +90,7 @@ class OpportunityRouter:
         )
 
     @opportunity_router.get("/{id}", status_code=status.HTTP_200_OK)
-    async def get(self, id: str):
+    async def get(self, id: PydanticObjectId):
         result = await self._service.get(id)
         return Response(
             message="Opportunity Retrieved Successfully",
@@ -129,7 +122,7 @@ class OpportunityRouter:
     @opportunity_router.post(
         "/action-plan/{opportunity_id}", status_code=status.HTTP_201_CREATED
     )
-    async def create_action_plan(self, data: ActionPlanRequest, opportunity_id: str):
+    async def create_action_plan(self, data: ActionPlanRequest, opportunity_id: PydanticObjectId):
         result = await self._action_plan_service.create(data, opportunity_id)
         return Response(
             message="Action Plan Created Successfully",
@@ -139,7 +132,7 @@ class OpportunityRouter:
         )
 
     @opportunity_router.get("/action-plan/{id}", status_code=status.HTTP_200_OK)
-    async def get_action_plan(self, id: str):
+    async def get_action_plan(self, id: PydanticObjectId):
         result = await self._action_plan_service.get(id)
         print(result)
         return Response(
@@ -152,7 +145,7 @@ class OpportunityRouter:
     @opportunity_router.patch(
         "/action-plan/{action_plan_id}", status_code=status.HTTP_200_OK
     )
-    async def update_action_plan(self, action_plan_id: str, data: ActionPlanUpdate):
+    async def update_action_plan(self, action_plan_id: PydanticObjectId, data: ActionPlanUpdate):
         result = await self._action_plan_service.update(data, action_plan_id)
         return Response(
             message="Action Plan Updated Successfully",
@@ -162,7 +155,7 @@ class OpportunityRouter:
         )
 
     @opportunity_router.delete("/action-plan/{id}", status_code=status.HTTP_200_OK)
-    async def delete_action_plan(self, id: str):
+    async def delete_action_plan(self, id: PydanticObjectId):
         result = await self._action_plan_service.delete(id)
         return Response(
             message="Action Plan Deleted Successfully",
@@ -174,7 +167,7 @@ class OpportunityRouter:
     @opportunity_router.post(
         "/schedule/{opportunity_id}", status_code=status.HTTP_201_CREATED
     )
-    async def create_schedule(self, opportunity_id: str, data: ScheduleRequest):
+    async def create_schedule(self, opportunity_id: PydanticObjectId, data: ScheduleRequest):
         result = await self._schedule_service.create(data, opportunity_id)
         return Response(
             message="Schedule Created Successfully",
@@ -184,7 +177,7 @@ class OpportunityRouter:
         )
 
     @opportunity_router.get("/schedule/{schedule_id}", status_code=status.HTTP_200_OK)
-    async def get_schedule(self, schedule_id: str):
+    async def get_schedule(self, schedule_id: PydanticObjectId):
         result = await self._schedule_service.get(schedule_id)
         return Response(
             message="Schedule Retrieved Successfully",
@@ -194,7 +187,7 @@ class OpportunityRouter:
         )
 
     @opportunity_router.patch("/schedule/{schedule_id}", status_code=status.HTTP_200_OK)
-    async def update_schedule(self, schedule_id: str, data: ScheduleUpdate):
+    async def update_schedule(self, schedule_id: PydanticObjectId, data: ScheduleUpdate):
         result = await self._schedule_service.update(data, schedule_id)
         return Response(
             message="Schedule Updated Successfully",
@@ -206,7 +199,7 @@ class OpportunityRouter:
     @opportunity_router.delete(
         "/schedule/{schedule_id}", status_code=status.HTTP_200_OK
     )
-    async def delete_schedule(self, schedule_id: str):
+    async def delete_schedule(self, schedule_id: PydanticObjectId):
         result = await self._schedule_service.delete(schedule_id)
         return Response(
             message="Schedule Deleted Successfully",
@@ -230,7 +223,7 @@ class OpportunityRouter:
     @opportunity_router.get(
         "/team-member/{team_member_id}", status_code=status.HTTP_200_OK
     )
-    async def get_team_member(self, team_member_id: str):
+    async def get_team_member(self, team_member_id: PydanticObjectId):
         result = await self._team_member_service.get(team_member_id)
         return Response(
             message="Team Member Retrieved Successfully",
@@ -242,7 +235,7 @@ class OpportunityRouter:
     @opportunity_router.patch(
         "/team-member/{team_member_id}", status_code=status.HTTP_200_OK
     )
-    async def update_team_member(self, team_member_id: str, data: TeamMemberRequest):
+    async def update_team_member(self, team_member_id: PydanticObjectId, data: TeamMemberRequest):
         result = await self._team_member_service.update(data, team_member_id)
         return Response(
             message="Team Member Updated Successfully",
@@ -254,7 +247,7 @@ class OpportunityRouter:
     @opportunity_router.delete(
         "/team-member/{team_member_id}", status_code=status.HTTP_200_OK
     )
-    async def delete_team_member(self, team_member_id: str):
+    async def delete_team_member(self, team_member_id: PydanticObjectId):
         result = await self._team_member_service.delete(team_member_id)
         return Response(
             message="Team Member Deleted Successfully",
