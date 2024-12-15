@@ -76,3 +76,13 @@ class ToolsRouter:
                 status=ResponseStatus.RETRIEVED,
                 data=result,
             )
+            
+    @tools_router.post("/export", status_code=status.HTTP_200_OK)
+    async def export(self,  data: FilterRequest):
+        result = await self._service.query_export(data.filter)
+        return Response(
+            message="Tools Retrieved Successfully",
+            success=True,
+            status=ResponseStatus.RETRIEVED,
+            data=result,
+        )

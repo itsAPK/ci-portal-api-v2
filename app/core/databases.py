@@ -19,7 +19,24 @@ from app.employee.models import Employee
 from app.plant.models import Plant
 from app.department.models import Department
 from app.tools.models import Tools
-from app.opportunity.models import ActionPlan, Opportunity, SSVTool, SSVToolBase, TeamMember, Schedule, DefinePhase, ControlPhase, ImprovementPhase, MeasureAnalysisPhase
+from app.opportunity.models import (
+    ActionPlan,
+    ControlBase,
+    ControlCost,
+    ControlResponse,
+    ImprovementBase,
+    MeasureAnalysisBase,
+    Opportunity,
+    ProjectClosure,
+    SSVTool,
+    SSVToolBase,
+    TeamMember,
+    Schedule,
+    DefinePhase,
+    ControlPhase,
+    ImprovementPhase,
+    MeasureAnalysisPhase,
+)
 from app.training.models import Training
 
 
@@ -42,18 +59,21 @@ async def init_db():
             Schedule,
             DefinePhase,
             ControlPhase,
+            ControlCost,
+            ControlResponse,
+            ControlBase,
+            ImprovementBase,
             ImprovementPhase,
             MeasureAnalysisPhase,
+            MeasureAnalysisBase,
             SSVTool,
             SSVToolBase,
             BussinessUnit,
-            Training
+            Training,
+            ProjectClosure,
         ],
     )
 
 
-
 def parse_json(documents):
     return json.loads(json_util.dumps(documents))
-
-

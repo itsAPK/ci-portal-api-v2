@@ -12,20 +12,17 @@ from enum import Enum
 
 class Status(str, Enum):
     OPEN_FOR_ASSIGNING = "Open for Assigning"
-    PROJECT_ASSIGN_PENDING_CIHEAD = "Project Assign Pending (CIHead)"
-    PROJECT_ASSIGN_PENDING_HOD = "Project Assign Pending (HOD)"
-    PL_APPROVED = "PL Approved"
+    PROJECT_ASSIGNED = "Project Assigned"
     DETAILS_UPDATED = "Details Updated"
     TEAMS_UPDATED = "Teams Updated"
     OPPORTUNITY_COMPLETED = "Opportunity Completed"
-    DEFINE_COMPLETED = "Define Completed"
     REVOKE = "Revoke"
-    DEFINE_PHASE_PENDING = "Define Phase Pending"
     DEFINE_PHASE_COMPLETED = "Define Phase Completed"
-    MEASURE_ANALYZE_PHASE_PENDING = "Measure/Analyze Phase Pending"
-    MEASURE_ANALYZE_PHASE_COMPLETED = "Measure/Analyze Phase Completed"
-    IMPROVE_PHASE_PENDING = "Improve Phase Pending"
-    IMPROVE_PHASE_COMPLETED = "Improve Phase Completed"
+    SSV_TOOLS_UPDATED = "SSV's Tools Updated"
+    MEASURE_ANALYZE_PHASE_PENDING = "Measure & Analyze Phase Pending"
+    MEASURE_ANALYZE_PHASE_COMPLETED = "Measure & Analyze Phase Completed"
+    IMPROVE_PHASE_PENDING = "Improvement Phase Pending"
+    IMPROVE_PHASE_COMPLETED = "Improvement Phase Completed"
     CONTROL_PHASE_PENDING = "Control Phase Pending"
     CONTROL_PHASE_COMPLETED = "Control Phase Completed"
     CLOSURE_COMPLETED = "Closure Completed"
@@ -71,8 +68,8 @@ class Opportunity(BaseDocument, BaseModel):
     control_phase : Optional['ControlPhase'] = None
     improvement_phase : Optional['ImprovementPhase'] = None
     measure_analysis_phase : Optional['MeasureAnalysisPhase'] = None
-    approved_hod : Optional[Employee] = None
-    approved_cihead : Optional[Employee] = None
+    project_closure : Optional['ProjectClosure'] = None
+    
     
 class OpportunityRequest(BaseModel):
     company : str
@@ -120,7 +117,7 @@ class OpportunityUpdate(BaseModel):
 class ActionPlanStatus(str, Enum):
     IN_PROCESS = "In Process"
     COMPLETED = "Completed"
-    DEFERRED = "Deferred"
+    REFERRED = "Referred"
     FOR_INFO = "For Info"
     
 class AssignProjectLeaderRequest(BaseModel):
@@ -158,7 +155,7 @@ class TeamMember(Document):
     role: TeamMemberRole = TeamMemberRole.TEAM_MEMBER
     
 class TeamMemberRequest(BaseModel):
-    employee_id: str
+    employee_id: PydanticObjectId
     role: TeamMemberRole = TeamMemberRole.TEAM_MEMBER
 
 
@@ -188,18 +185,17 @@ class ScheduleUpdate(BaseModel):
 class DefinePhase(Document):
     id: PydanticObjectId = Field(default_factory=ObjectId, alias="_id")
     part_no : str
-    baseline : int 
-    target : int
+    baseline : str 
+    target : str
     part_having_problem : str
     part_not_having_problem : str
     suspected_phenomenon : str
     last_manufacturing : str
-    no_line : int
+    no_machines : int
     no_streams : int
-    base_uom : str
-    target_uom : str
     response_type : str
     process_stage : str
+    specification : Optional[str] = None
     max_value_of_baseline : int
     min_value_of_baseline : int
     conculsion : str
@@ -208,24 +204,25 @@ class DefinePhase(Document):
     max_month : str
     min_month : str
     is_iso_plot : bool
+    is_p_chart_done : bool
     department_kpi_path :Optional[str] = None
     process_flow_diagram : Optional[str] = None
     last_six_months_trend : Optional[str] = None
     iso_plot : Optional[str] = None
     concentration_chart : Optional[str] = None
+    p_chart : Optional[str] = None
    
 class DefinePhaseRequest(BaseModel):
     part_no : str
-    baseline : int 
-    target : int
+    baseline : str 
+    target : str
     part_having_problem : str
     part_not_having_problem : str
     suspected_phenomenon : str
     last_manufacturing : str
-    no_line : int
+    no_machines : int
+    specification : Optional[str] = None
     no_streams : int
-    base_uom : str
-    target_uom : str
     response_type : str
     process_stage : str
     max_value_of_baseline : int
@@ -236,11 +233,14 @@ class DefinePhaseRequest(BaseModel):
     max_month : str
     min_month : str
     is_iso_plot : bool
+    is_p_chart_done : bool
     department_kpi_path :Optional[str] = None
     process_flow_diagram : Optional[str] = None
     last_six_months_trend : Optional[str] = None
     iso_plot : Optional[str] = None
     concentration_chart : Optional[str] = None
+    p_chart : Optional[str] = None
+    iso_plot : Optional[str] = None
 
 class DefinePhaseUpdate(BaseModel):
     part_no : Optional[str] = None
@@ -250,8 +250,9 @@ class DefinePhaseUpdate(BaseModel):
     part_not_having_problem : Optional[str] = None
     suspected_phenomenon : Optional[str] = None
     last_manufacturing : Optional[str] = None
-    no_line : Optional[int] = None
+    no_machines : Optional[int] = None
     no_streams : Optional[int] = None
+    specification : Optional[str] = None
     base_uom : Optional[str] = None
     target_uom : Optional[str] = None
     response_type : Optional[str] = None
@@ -269,6 +270,7 @@ class DefinePhaseUpdate(BaseModel):
     iso_plot : Optional[str] = None
     concentration_chart : Optional[str] = None
     is_iso_plot : Optional[bool] = None
+    p_chart : Optional[str] = None
     
 class SSVToolBase( Document):
     id: PydanticObjectId = Field(default_factory=ObjectId, alias="_id")
@@ -292,7 +294,8 @@ class MeasureAnalysisBase( Document):
     id: PydanticObjectId = Field(default_factory=ObjectId, alias="_id")
     suspected_source : str
     tools : str
-    root_cause : str
+    root_cause : Optional[str] = None
+    tool_id : PydanticObjectId
     
 class MeasureAnalysisPhase( Document):
     id: PydanticObjectId = Field(default_factory=ObjectId, alias="_id")
@@ -302,7 +305,9 @@ class MeasureAnalysisPhase( Document):
 class MeasureAnalysisRequest(BaseModel):
     suspected_source : str
     tools : str
-    root_cause : str
+    root_cause : Optional[str] = None
+    tool_id : PydanticObjectId
+
 
 class MeasureAnalysisUpdate(BaseModel):
     suspected_source : Optional[str] = None
@@ -313,38 +318,39 @@ class MeasureAnalysisUpdate(BaseModel):
 class ImprovementBase( Document):
     id: PydanticObjectId = Field(default_factory=ObjectId, alias="_id")
     confirmed_cause : str
-    action_taken : str
-    type_of_action : str
+    measure_analysis_id : PydanticObjectId
+    action_taken : Optional[str] = None
+    type_of_action : Optional[str] = None
     
 class ImprovementPhase( Document):
     id: PydanticObjectId = Field(default_factory=ObjectId, alias="_id")
     data : list["ImprovementBase"] = []
-    is_b_vs_c : bool
+    is_b_vs_c : Optional[bool] = None
     document : Optional[str] = None
     
 class ImprovementRequest(BaseModel):
     confirmed_cause : str
-    action_taken : str
-    type_of_action : str
-
-class ImprovementUpdate(BaseModel):
-    confirmed_cause : Optional[str] = None
     action_taken : Optional[str] = None
     type_of_action : Optional[str] = None
+    measure_analysis_id : PydanticObjectId
+
+class ImprovementUpdate(BaseModel):
+  
     is_b_vs_c : Optional[bool] = None
-    document : Optional[str] = None
+ 
     
 class ControlBase( Document):
     id: PydanticObjectId = Field(default_factory=ObjectId, alias="_id")
     confirmed_cause : str
-    mechanism : str
-    contol_tools : str
+    mechanism : Optional[str] = None
+    contol_tools : Optional[str] = None
+    improvement_id : PydanticObjectId
     
 class ControlResponse( Document):
     id: PydanticObjectId = Field(default_factory=ObjectId, alias="_id")
-    baseline : int
-    target : int
-    action : int
+    baseline : str
+    target : str
+    actual : str
     uom : str
 
 class ControlCost( Document):
@@ -355,7 +361,19 @@ class ControlCost( Document):
     
 class ControlPhase( Document):
     id: PydanticObjectId = Field(default_factory=ObjectId, alias="_id")
-    data : list[ControlBase] = []
+    data : list["ControlBase"] = []
+    control_response : Optional["ControlResponse"] = None
+    control_cost : Optional["ControlCost"] = None
+    document : Optional[str] = None
+    
+class ControlRequest(BaseModel):
+    confirmed_cause : str
+    mechanism : Optional[str] = None
+    contol_tools : Optional[str] = None
+    improvement_id : PydanticObjectId
+    
+class ControlUpdate(BaseModel):
+    data : Optional[list["ControlBase"]] = None
     control_response : Optional["ControlResponse"] = None
     control_cost : Optional["ControlCost"] = None
     document : Optional[str] = None
@@ -366,11 +384,41 @@ class ProjectClosure( Document):
     suspected_cause : list[str] = []
     pin_pointed_root_cause : list[str] = []
     actions_implemented : list[str] = []
-    tools_used : str
+    tools_used : list[str] = []
     tangible_benifits : str
     intangible_benifits : str
     horizantal_deployment : str
     standardization : str
-    closure_document : str
-    before_improvement : str
-    after_improvement : str
+    estimated_savings : str
+    closure_document : Optional[str] = None
+    before_improvement :  Optional[str] = None
+    after_improvement :  Optional[str] = None
+    success_rate : str
+    
+    
+class ProjectClosureRequest(BaseModel):
+    suspected_cause : list[str] = []
+    pin_pointed_root_cause : list[str] = []
+    actions_implemented : list[str] = []
+    tools_used : list[str] = []
+    tangible_benifits : str
+    intangible_benifits : str
+    horizantal_deployment : str
+    standardization : str
+    estimated_savings : str 
+    success_rate : str
+    
+class ProjectClosureUpdate(BaseModel):
+    suspected_cause : Optional[list[str]] = None
+    pin_pointed_root_cause : Optional[list[str]] = None
+    actions_implemented : Optional[list[str]] = None
+    tools_used : Optional[list[str]] = None
+    tangible_benifits : Optional[str] = None
+    intangible_benifits : Optional[str] = None
+    horizantal_deployment : Optional[str] = None
+    standardization : Optional[str] = None
+    estimated_savings : Optional[str] = None
+    closure_document : Optional[str] = None
+    before_improvement : Optional[str] = None
+    after_improvement : Optional[str] = None
+    estimated_savings : Optional[str] = None

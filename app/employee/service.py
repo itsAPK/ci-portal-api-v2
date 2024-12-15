@@ -40,7 +40,7 @@ class EmployeeService:
                     "data": None,
                 },
             )
-        p = values["password"] if values["password"] else "amaraja"
+        p = values["password"] if values["password"] else "amararaja"
         password = get_password_hash(p)
         values.pop("password")
         employee = Employee(**values, password=password)

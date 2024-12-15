@@ -14,6 +14,7 @@ class Role(str, Enum):
     project_leader = "project_leader"
     lof="lof"
     cs_head="cs_head"
+    ci_team = 'ci_team'
     employee = "employee"
     
     

@@ -11,11 +11,25 @@ from app.opportunity.models import (
     ActionPlan,
     ActionPlanRequest,
     ActionPlanUpdate,
+    ControlBase,
+    ControlPhase,
+    ControlRequest,
+    ControlUpdate,
     DefinePhase,
     DefinePhaseRequest,
     DefinePhaseUpdate,
+    ImprovementBase,
+    ImprovementPhase,
+    ImprovementRequest,
+    ImprovementUpdate,
+    MeasureAnalysisBase,
+    MeasureAnalysisPhase,
+    MeasureAnalysisRequest,
     Opportunity,
     OpportunityRequest,
+    ProjectClosure,
+    ProjectClosureRequest,
+    ProjectClosureUpdate,
     SSVTool,
     SSVToolBase,
     SSVToolRequest,
@@ -39,6 +53,13 @@ LAST_SIX_TREND_PATH = "uploads/define-phase/last-six-trend"
 ISO_PLOT_PATH = "uploads/define-phase/iso-plot"
 CONCENTRATION_CHART_PATH = "uploads/define-phase/concentration-chart"
 PROCESS_FLOW_DIAGRAM_PATH = "uploads/define-phase/process-flow-diagram"
+P_CHART = "uploads/define-phase/p-chart"
+SSV_TOOL_PATH = "uploads/ssv-tool"
+MEASURE_ANALYSIS_PATH = "uploads/measure-analysis"
+IMPROVEMENT_PATH = "uploads/improvement"
+CONTROL_PATH = "uploads/control"
+PROJECT_CLOSURE_PATH = "uploads/project-closure"
+
 
 class OppurtunityService:
     def __init__(self):
@@ -61,194 +82,11 @@ class OppurtunityService:
         )
         await opportunity.insert()
         return opportunity
-    
-    async def calculate_impact_score(self, opportunity : OpportunityRequest):
-        baseline = [
-            {
-                "name": "<=10,000 ppm",
-                "score" : 0.2,
-                "weightage" : 15
-            },
-            {
-                "name": ">10,000 and <=30,000 ppm",
-                "score" : 0.6,
-                "weightage" : 15
-            },
-            {
-                "name": ">30,000 and <=100,000 ppm",
-                "score" : 0.8,
-                "weightage" : 15
-            },
-            {
-                "name": ">100,000 ppm",
-                "score" : 1.0,
-                "weightage" : 15
-            }
-        ]
-        
-        cross_function_rating = [
-            {
-                "name": "Low",
-                "score" : 0.2,
-                "weightage" : 10
-            },
-            {
-                "name": "Medium",
-                "score" : 0.5,
-                "weightage" : 10
-            },
-            {
-                "name": "High",
-                "score" : 1,
-                "weightage" : 10
-            },
-        ]
-        
-        data_analysis = [
-            {
-                "name": "No Data",
-                "score" : 0.1,
-                "weightage" : 15
-            },
-            {
-                "name": "Less Data",
-                "score" : 0.4,
-                "weightage" : 15
-            },
-            {
-                "name": "Medium Data",
-                "score" : 0.7,
-                "weightage" : 15
-            },
-            {
-                "name": "Data Intensive",
-                "score" : 1,
-                "weightage" : 15
-            }
-        ]
-        
-        project_nature = [
-            {
-                "name": "Problem Solving",
-                "score" : 0.2,
-                "weightage" : 10
-            },
-            {
-                "name": "Process Optimization",
-                "score" : 0.6,
-                "weightage" : 10
-            },
-            {
-                "name": "Innovation",
-                "score" : 0.8,
-                "weightage" : 10
-            },
-            {
-                "name": "Perceived Quality",
-                "score" : 1,
-                "weightage" : 10
-            }
-        ]
-        
-        expected_savings = [
-            {
-                "name": "<= 1 Lakh",
-                "score" : 0.2,
-                "weightage" : 10
-            },
-            {
-                "name": ">1 and <=5 Lakh",
-                "score" : 0.6,
-                "weightage" : 10
-            },
-            {
-                "name": ">5 and <=10 Lakh",
-                "score" : 0.8,
-                "weightage" : 10
-            },
-            {
-                "name" : ">10 Lakh",
-                "score" : 1,
-                "wightage" : 10
-                
-            }
-            
-        ]
-        
-        external_customer = [
-            {
-                "name" : "Nil",
-                "score" : 0,
-                "wightage" : 0
-            },
-            {
-                "name" : "Low",
-                "score" : 0.2,
-                "wightage" : 10
-            },
-            {
-                "name" : "Medium",
-                "score" : 0.5,
-                "wightage" : 10
-            },
-            {
-                "name" : "High",
-                "score" : 1,
-                "wightage" : 10
-            }
-        ]
-        
-        internal_customer = [
-            {
-                "name" : "Nil",
-                "score" : 0,
-                "wightage" : 0
-            },
-            {
-                "name" : "Low",
-                "score" : 0.2,
-                "wightage" : 10
-            },
-            {
-                "name" : "Medium",
-                "score" : 0.5,
-                "wightage" : 10
-            },
-            {
-                "name" : "High",
-                "score" : 1,
-                "wightage" : 10
-            }
-        ]
-        
-        project_type = [
-            {
-                "name" : "Type -1",
-                "score" : 0.4,
-                "wightage" : 15
-            },
-            {
-                "name" : "Type -2",
-                "score" : 0.6,
-                "wightage" : 15
-            },
-            {
-                "name" : "Type -3",
-                "score" : 0.8,
-                "wightage" : 15
-            },
-            {
-                "name" : "Type -4",
-                "score" : 1,
-                "wightage" : 15
-            }
-        ]
-        
 
     async def assign_project_leader(
         self, opportunity_id: PydanticObjectId, employee_id: PydanticObjectId
     ):
-        opportunity = await Opportunity.find_one(Opportunity.id == opportunity_id)
+        opportunity = await Opportunity.get(opportunity_id)
         if not opportunity:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -259,7 +97,7 @@ class OppurtunityService:
                     "data": None,
                 },
             )
-        employee = await Employee.find_one(Employee.id == employee_id)
+        employee = await Employee.get(employee_id)
         if not employee:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -270,14 +108,15 @@ class OppurtunityService:
                     "data": None,
                 },
             )
-        opportunity.set({"project_leader": employee, "status": Status.PROJECT_ASSIGN_PENDING_HOD})
+        await opportunity.set(
+            {"project_leader": employee, "status": Status.PROJECT_ASSIGNED}
+        )
 
         await opportunity.save()
         return opportunity
 
     async def get(self, opportunity_id: PydanticObjectId):
-        opportunity = await Opportunity.find_one(
-            Opportunity.opportunity_id == opportunity_id
+        opportunity = await Opportunity.get(opportunity_id
         )
         if not opportunity:
             raise HTTPException(
@@ -318,7 +157,6 @@ class OppurtunityService:
         ).to_list()
         total_pages = (total_items + page_size - 1) // page_size
         remaining_items = max(0, total_items - (skip + len(results)))
-        print(results)
         return {
             "total_items": total_items,
             "total_pages": total_pages,
@@ -419,24 +257,52 @@ class ActionPlanService:
         return res[0]
 
     async def update(self, data: ActionPlanUpdate, action_plan_id: PydanticObjectId):
-        values = data.model_dump(exclude_none=True)
-        print(values)
-        data = await Opportunity.find_one(
+        updated_values = data.model_dump(exclude_none=True)
+        print("Updated Values:", updated_values)
+
+        opportunity = await Opportunity.find_one(
             ElemMatch(
                 Opportunity.action_plan, ActionPlan.id == ObjectId(action_plan_id)
             )
         )
-        action_plan = None
-        for res in data.action_plan:
-            if str(res.id) == action_plan_id:
 
-                for key, value in values.items():
-                    if value is not None and hasattr(res, key):
-                        setattr(res, key, value)
-                action_plan = res
+        if not opportunity:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "message": "opportunity not found",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
 
-        await data.save()
-        return action_plan
+        print("Opportunity:", opportunity)
+
+        for index, action_plan in enumerate(opportunity.action_plan):
+            print("Checking Action Plan:", action_plan)
+            if str(action_plan.id) == str(action_plan_id):
+                print("Found Matching Action Plan ID:", action_plan.id)
+
+                for key, value in updated_values.items():
+                    if hasattr(action_plan, key):
+                        setattr(action_plan, key, value)
+
+                opportunity.action_plan[index] = action_plan
+                break
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "message": "action plan not found",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+
+        await opportunity.save()
+        return opportunity.action_plan[index]
 
     async def delete(self, action_plan_id: PydanticObjectId):
         res = await Opportunity.find_one(
@@ -549,11 +415,9 @@ class TeamMemberService:
     def __init__(self):
         pass
 
-    async def create(self, data: TeamMemberRequest, opportunity_id: str):
+    async def create(self, data: TeamMemberRequest, opportunity_id: PydanticObjectId):
         values = data.model_dump()
-        employee = await Employee.find_one(
-            Employee.employee_id == values["employee_id"]
-        )
+        employee = await Employee.get(values["employee_id"])
         if not employee:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -579,7 +443,7 @@ class TeamMemberService:
         team_member = TeamMember(**values, employee=employee)
         if len(opportunity.team_members) == 0:
             await opportunity.set({"status": Status.TEAMS_UPDATED})
-        await opportunity.team_members.append(team_member)
+        opportunity.team_members.append(team_member)
         await opportunity.save()
         return team_member
 
@@ -668,12 +532,10 @@ class DefinePhaseService:
             )
         define_phase = DefinePhase(**values)
         await opportunity.set(
-            {"define_phase": define_phase, "status": Status.DEFINE_PHASE_PENDING}
+            {"define_phase": define_phase, "status": Status.DEFINE_PHASE_COMPLETED}
         )
         await opportunity.save()
         return opportunity.define_phase
-    
-
 
     async def get(self, opportunity_id: PydanticObjectId):
         print(id)
@@ -692,7 +554,7 @@ class DefinePhaseService:
 
     async def update(self, data: DefinePhaseUpdate, opportunity_id: str):
         values = data.model_dump(exclude_none=True)
-        opportunity = await Opportunity.find_one(Opportunity.id == opportunity_id)
+        opportunity = await Opportunity.get(opportunity_id)
         if not opportunity:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -710,16 +572,17 @@ class DefinePhaseService:
         await opportunity.save()
         print(opportunity.define_phase)
         return opportunity.define_phase
-    
-    
+
 
 class SSVToolService:
     def __init__(self):
         pass
-    
-    async def create(self, data: SSVToolRequest, opportunity_id: PydanticObjectId):
-        values = data.model_dump()
-        opportunity = await Opportunity.find_one(Opportunity.id == opportunity_id)
+
+    async def create(
+        self, data: list[SSVToolRequest], opportunity_id: PydanticObjectId
+    ):
+        values = [i.model_dump() for i in data]
+        opportunity = await Opportunity.get(opportunity_id)
         if not opportunity:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -731,20 +594,560 @@ class SSVToolService:
                 },
             )
         if not opportunity.ssv_tools:
-            data = SSVToolBase(**values)
-            await opportunity.set({"ssv_tools": SSVTool(
-                data=[data],
-                ), "status": Status.DEFINE_PHASE_COMPLETED})
-            
+            data = [SSVToolBase(**value) for value in values]
+            await opportunity.set(
+                {
+                    "ssv_tools": SSVTool(
+                        data=data,
+                    ),
+                    "status": Status.SSV_TOOLS_UPDATED,
+                }
+            )
+
             await opportunity.save()
             return data
         else:
             data = opportunity.ssv_tools.data
-            data.append(SSVToolBase(**values))
-            await opportunity.set({"ssv_tools": SSVTool(
-                data=data,
-                ), "status": Status.DEFINE_PHASE_COMPLETED})
-            
+            for value in values:
+                data.append(SSVToolBase(**value))
+            await opportunity.set(
+                {
+                    "ssv_tools": SSVTool(
+                        data=data,
+                    ),
+                    "status": Status.SSV_TOOLS_UPDATED,
+                }
+            )
+
             await opportunity.save()
             return data
-       
+
+    async def update(
+        self,
+        tool_id: PydanticObjectId,
+        updated_data: SSVToolRequest,
+        opportunity_id: PydanticObjectId,
+    ):
+        """Updates an existing SSVTool."""
+        opportunity = await Opportunity.get(opportunity_id)
+        if not opportunity:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "message": "opportunity not found",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+
+        if not opportunity.ssv_tools:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={
+                    "message": "No SSV tools found for this opportunity",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+
+        updated = False
+        for tool in opportunity.ssv_tools.data:
+            if tool.id == tool_id:
+                for key, value in updated_data.model_dump().items():
+                    setattr(tool, key, value)
+                updated = True
+                break
+
+        if not updated:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={
+                    "message": "SSV tool not found",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+
+        await opportunity.save()
+        return opportunity.ssv_tools
+
+    async def delete(self, tool_id: PydanticObjectId, opportunity_id: PydanticObjectId):
+        """Deletes an SSVTool from an opportunity."""
+        opportunity = await Opportunity.get(opportunity_id)
+        if not opportunity:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "message": "opportunity not found",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+
+        if not opportunity.ssv_tools:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={
+                    "message": "No SSV tools found for this opportunity",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+
+        updated_data = [
+            tool for tool in opportunity.ssv_tools.data if tool.id != tool_id
+        ]
+
+        if len(updated_data) == len(opportunity.ssv_tools.data):
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={
+                    "message": "SSV tool not found",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+
+        opportunity.ssv_tools.data = updated_data
+        await opportunity.save()
+        return {"message": "SSV tool deleted successfully", "success": True}
+
+    async def update_document(self, opportunity_id: PydanticObjectId, document: str):
+        opportunity = await Opportunity.get(opportunity_id)
+        if not opportunity:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "message": "opportunity not found",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+
+        opportunity.ssv_tools.document = document
+        await opportunity.save()
+        return opportunity.ssv_tools
+
+
+class MeasureAnalysisService:
+    def __init__(self):
+        pass
+
+    async def create(
+        self,
+        data: list[MeasureAnalysisRequest],
+        opportunity_id: PydanticObjectId,
+        status: str,
+    ):
+        values = [i.model_dump() for i in data]
+        print(values)
+        opportunity = await Opportunity.get(opportunity_id)
+        if not opportunity:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "message": "opportunity not found",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+        data = [MeasureAnalysisBase(**value) for value in values]
+
+        await opportunity.set(
+            {
+                "measure_analysis_phase": MeasureAnalysisPhase(
+                    data=data,
+                    document=opportunity.measure_analysis_phase.document if opportunity.measure_analysis_phase else None,
+                ),
+                "status": (
+                    Status.MEASURE_ANALYZE_PHASE_PENDING
+                    if status == "Pending"
+                    else Status.MEASURE_ANALYZE_PHASE_COMPLETED
+                ),
+            }
+        )
+
+        await opportunity.save()
+        return data
+
+    async def update(
+        self,
+        data: MeasureAnalysisRequest,
+        opportunity_id: PydanticObjectId,
+        tool_id: PydanticObjectId,
+    ):
+        values = data.model_dump(exclude_none=True)
+        opportunity = await Opportunity.get(opportunity_id)
+        if not opportunity:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "message": "opportunity not found",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+
+        if not opportunity.measure_analysis_phase:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={
+                    "message": "No Measure Analysis found for this opportunity",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+
+        updated = False
+        for tool in opportunity.measure_analysis_phase.data:
+            if tool.id == tool_id:
+                for key, value in values.items():
+                    setattr(tool, key, value)
+                updated = True
+                break
+
+        if not updated:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={
+                    "message": "Measure Analysis not found",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+
+        await opportunity.save()
+        return opportunity.measure_analysis_phase
+
+    async def delete(self, tool_id: PydanticObjectId, opportunity_id: PydanticObjectId):
+        opportunity = await Opportunity.get(opportunity_id)
+        if not opportunity:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "message": "opportunity not found",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+
+        if not opportunity.measure_analysis_phase:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={
+                    "message": "No Measure Analysis found for this opportunity",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+
+        updated_data = [
+            tool
+            for tool in opportunity.measure_analysis_phase.data
+            if tool.id != tool_id
+        ]
+
+        if len(updated_data) == len(opportunity.measure_analysis_phase.data):
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={
+                    "message": "Measure Analysis not found",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+
+        opportunity.measure_analysis_phase.data = updated_data
+        await opportunity.save()
+        return {"message": "Measure Analysis deleted successfully", "success": True}
+
+    async def update_document(self, opportunity_id: PydanticObjectId, document: str):
+        opportunity = await Opportunity.get(opportunity_id)
+        if not opportunity:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "message": "opportunity not found",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+
+        await opportunity.set(
+            {
+                "measure_analysis_phase": MeasureAnalysisPhase(
+                    document=document, data=opportunity.measure_analysis_phase.data
+                ),
+            }
+        )
+        await opportunity.save()
+        return opportunity
+
+
+class ImprovementService:
+    def __init__(self):
+        pass
+
+    async def create(
+        self,
+        data: list[ImprovementRequest],
+        opportunity_id: PydanticObjectId,
+        status: str,
+    ):
+        values = [i.model_dump() for i in data]
+        print(values)
+        opportunity = await Opportunity.get(opportunity_id)
+        if not opportunity:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "message": "opportunity not found",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+        data = [ImprovementBase(**value) for value in values]
+
+        await opportunity.set(
+            {
+                "improvement_phase": ImprovementPhase(
+                    data=data,
+                    document=opportunity.improvement_phase.document if opportunity.improvement_phase else None,
+                ),
+                "status": (
+                    Status.IMPROVE_PHASE_PENDING
+                    if status == "Pending"
+                    else Status.IMPROVE_PHASE_COMPLETED
+                ),
+            }
+        )
+
+        await opportunity.save()
+        return data
+
+    async def update(
+        self,
+        data: ImprovementUpdate,
+        opportunity_id: PydanticObjectId,
+    ):
+        values = data.model_dump(exclude_none=True)
+        print(values)
+        opportunity = await Opportunity.get(opportunity_id)
+        if not opportunity:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "message": "opportunity not found",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+
+        await opportunity.set(
+            {
+                "improvement_phase": ImprovementPhase(
+                    **values,
+                    document=opportunity.improvement_phase.document,
+                    data=opportunity.improvement_phase.data,
+                ),
+            }
+        )
+
+    async def update_document(self, opportunity_id: PydanticObjectId, document: str):
+        opportunity = await Opportunity.get(opportunity_id)
+        if not opportunity:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "message": "opportunity not found",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+
+        await opportunity.set(
+            {
+                "improvement_phase": ImprovementPhase(
+                    document=document,
+                    data=opportunity.improvement_phase.data,
+                    is_b_vs_c=opportunity.improvement_phase.is_b_vs_c,
+                ),
+            }
+        )
+        await opportunity.save()
+        return opportunity
+
+
+class ControlService:
+    def __init__(self):
+        pass
+
+    async def create(
+        self,
+        data: list[ControlRequest],
+        opportunity_id: PydanticObjectId,
+        status: str,
+    ):
+        values = [i.model_dump() for i in data]
+        print(values)
+        opportunity = await Opportunity.get(opportunity_id)
+        if not opportunity:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "message": "opportunity not found",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+        data = [ControlBase(**value) for value in values]
+        print(data)
+        await opportunity.set(
+            {
+                "control_phase": ControlPhase(
+                    data=data,
+                    document=opportunity.control_phase.document if opportunity.control_phase else None,
+                    control_response=opportunity.control_phase.control_response if opportunity.control_phase else None,
+                    control_cost=opportunity.control_phase.control_cost if opportunity.control_phase else None,
+                ),
+                "status": (
+                    Status.CONTROL_PHASE_PENDING
+                    if status == "Pending"
+                    else Status.CONTROL_PHASE_COMPLETED
+                ),
+            }
+        )
+        print(opportunity.control_phase)
+        await opportunity.save()
+        return opportunity.control_phase
+    
+    
+    async def update(
+        self,
+        data: ControlUpdate,
+        opportunity_id: PydanticObjectId,
+    ):
+        values = data.model_dump(exclude_none=True)
+        print(values)
+        opportunity = await Opportunity.get(opportunity_id)
+        if not opportunity:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "message": "opportunity not found",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+
+        await opportunity.set(
+            {
+                "control_phase": ControlPhase(
+                    **values,
+                    data=opportunity.control_phase.data,
+                    document=opportunity.control_phase.document,
+                ),
+            }
+        )
+
+        await opportunity.save()
+        return opportunity
+
+    async def update_document(self, opportunity_id: PydanticObjectId, document: str):
+        opportunity = await Opportunity.get(opportunity_id)
+        if not opportunity:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "message": "opportunity not found",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+
+        await opportunity.set(
+            {
+                "control_phase": ControlPhase(
+                    document=document,
+                    data=opportunity.control_phase.data,
+                    control_response=opportunity.control_phase.control_response,
+                    control_cost=opportunity.control_phase.control_cost,
+                ),
+            }
+        )
+        await opportunity.save()
+        return opportunity
+    
+class ProjectClosureService:
+    def __init__(self):
+        pass
+
+    async def create(self, data: ProjectClosureRequest, opportunity_id: PydanticObjectId):
+        values = data.model_dump()
+        
+        opportunity = await Opportunity.get(opportunity_id)
+        if not opportunity:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "message": "opportunity not found",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+        print(data)
+        await opportunity.set(
+            {
+                "project_closure": ProjectClosure(
+                    **values,
+                ),
+                "status": (
+                    Status.PROJECT_CLOSURE_PENDING_CIHEAD
+                    
+                ),
+            }
+        )
+        
+    async def update(self, data: ProjectClosureUpdate, opportunity_id: PydanticObjectId):
+        values = data.model_dump(exclude_none=True)
+        print(values)
+        opportunity = await Opportunity.get(opportunity_id)
+        if not opportunity:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "message": "opportunity not found",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+
+        for key, value in values.items():
+            if value is not None and hasattr(data, key):
+                setattr(opportunity.project_closure, key, value)
+
+        await opportunity.save()
+        return opportunity.project_closure
