@@ -5,6 +5,7 @@ from datetime import datetime
 
 from app.core.databases import parse_json
 from app.employee.models import (
+   
     EmployeeModel,
     EmployeeUpdate,
     Employee,
@@ -111,11 +112,11 @@ class EmployeeService:
         }
 
     async def export_query(self, filter: list[dict]):
-
+        print(filter)
         query = [] + filter
         total_items = await self.query_count(query)
         results = await Employee.aggregate(query).to_list()
-
+        print(results)
         return {
             "total_items": total_items,
             "data": parse_json(results),
@@ -429,3 +430,4 @@ class EmployeeService:
 
         await plant_change.set({"status": PlantChangeStatus.rejected})
         return plant_change
+    

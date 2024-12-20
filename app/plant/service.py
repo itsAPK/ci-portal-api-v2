@@ -1,7 +1,8 @@
 from beanie import PydanticObjectId
 import pandas as pd
 from fastapi import HTTPException, status
-from app.plant.models import Plant, PlantModel, PlantUpdate
+from app.employee.models import Employee
+from app.plant.models import AssignCIHeadUser, Plant, PlantModel, PlantUpdate
 from app.schemas.api import Response
 from app.schemas.api import ResponseStatus
 
@@ -120,3 +121,89 @@ class PlantService:
                     "data":None,
                 },
             )
+            
+            
+    async def assign_ci_head(self, data : AssignCIHeadUser):
+        values = data.model_dump(exclude_none=True)
+        print(data)
+        plant = await Plant.get(values.get("plant_id"))
+        if not plant:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "message":'Plant not found',
+                    "success":False,
+                    "status":ResponseStatus.DATA_NOT_FOUND.value,
+                    "data":None,
+                },
+            )
+        if data.ci_head:
+            ci_head = await Employee.get(data.ci_head)
+            if not ci_head:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail={
+                        "message":'CI Head not found',
+                        "success":False,
+                        "status":ResponseStatus.DATA_NOT_FOUND.value,
+                        "data":None,
+                    },
+                )
+            plant.ci_head = ci_head
+        if data.ci_team:
+            ci_team = await Employee.get(data.ci_team)
+            if not ci_team:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail={
+                        "message":'CI Team not found',
+                        "success":False,
+                        "status":ResponseStatus.DATA_NOT_FOUND.value,
+                        "data":None,
+                    },
+                )
+            plant.ci_team = ci_team
+        if data.cs_head:
+            cs_head = await Employee.get(data.cs_head)
+            if not cs_head:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail={
+                        "message":'CI Team not found',
+                        "success":False,
+                        "status":ResponseStatus.DATA_NOT_FOUND.value,
+                        "data":None,
+                    },
+                )
+            plant.cs_head = cs_head
+        if data.lof:
+            lof = await Employee.get(data.lof)
+            if not lof:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail={
+                        "message":'LOF not found',
+                        "success":False,
+                        "status":ResponseStatus.DATA_NOT_FOUND.value,
+                        "data":None,
+                    },
+                )
+            print(lof)
+            plant.lof = lof
+            
+        if data.hod:
+            hod = await Employee.get(data.hod)
+            if not hod:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail={
+                        "message":'CI Team not found',
+                        "success":False,
+                        "status":ResponseStatus.DATA_NOT_FOUND.value,
+                        "data":None,
+                    },
+                )
+            plant.hod = hod
+            
+        await plant.save()
+        return plant

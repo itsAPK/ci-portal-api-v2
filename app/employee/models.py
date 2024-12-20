@@ -4,7 +4,6 @@ from typing import Optional
 from beanie import Document, PydanticObjectId
 from pydantic import BaseModel, Field
 
-from app.plant.models import Plant
 from app.schemas.db import BaseDocument
 
 class Role(str, Enum):
@@ -39,6 +38,7 @@ class EmployeeModel(BaseModel):
     working_location : Optional[str] = None
     designation : Optional[str] = None
     bussiness_unit : Optional[str] = None
+    plant_list : Optional[list[str]] = None
 
 class Employee(Document, EmployeeModel):
     pass
@@ -59,8 +59,11 @@ class EmployeeUpdate(BaseModel):
     working_location : Optional[str] = None
     designation : Optional[str] = None
     bussiness_unit : Optional[str] = None
+    plant_list : Optional[list[str]] = None
+
     
-    
+
+from app.plant.models import Plant
     
 class PlantChangeModel(BaseModel):
     employee : Employee
@@ -75,3 +78,8 @@ class PlantChange(PlantChangeModel, BaseDocument):
 class PlantChangeRequest(BaseModel):
     requested_plant_id : PydanticObjectId
     employee_id : Optional[PydanticObjectId] = None
+    
+    
+
+    
+    

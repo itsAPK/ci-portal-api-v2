@@ -6,6 +6,7 @@ from beanie import Document, Indexed, PydanticObjectId
 from datetime import datetime
 
 from app.employee.models import Employee
+from app.plant.models import Plant
 from app.schemas.db import BaseDocument
 
 from enum import Enum
@@ -40,7 +41,7 @@ class Opportunity(BaseDocument, BaseModel):
     company : str
     department : str
     bussiness_unit : str
-    plant: str
+    plant: Plant
     category : str
     statement : str
     expected_savings : str 
@@ -69,13 +70,17 @@ class Opportunity(BaseDocument, BaseModel):
     improvement_phase : Optional['ImprovementPhase'] = None
     measure_analysis_phase : Optional['MeasureAnalysisPhase'] = None
     project_closure : Optional['ProjectClosure'] = None
-    
+    file : Optional[str] = None
+    is_approved_by_ci_head : Optional[bool] = None
+    is_approved_by_hod : Optional[bool] = None
+    is_approved_by_lof : Optional[bool] = None
+    is_approved_by_cs_head : Optional[bool] = None
     
 class OpportunityRequest(BaseModel):
     company : str
     department : str
     bussiness_unit : str
-    plant: str
+    plant: PydanticObjectId
     category : str
     statement : str
     project_type : Optional[str] = None
@@ -93,7 +98,7 @@ class OpportunityUpdate(BaseModel):
     company : Optional[str] = None
     department : Optional[str] = None
     bussiness_unit : Optional[str] = None
-    plant: Optional[str] = None
+    plant: Optional[PydanticObjectId] = None
     category : Optional[str] = None
     statement : Optional[str] = None
     project_type : Optional[str] = None
@@ -112,6 +117,7 @@ class OpportunityUpdate(BaseModel):
     remarks : Optional[str] = None
     savings_type : Optional[str] = None
     status : Optional[Status] = None
+    file : Optional[str] = None
     
 
 class ActionPlanStatus(str, Enum):

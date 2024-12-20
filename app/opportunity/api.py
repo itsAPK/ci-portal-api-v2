@@ -29,6 +29,7 @@ from app.opportunity.service import (
     ISO_PLOT_PATH,
     LAST_SIX_TREND_PATH,
     MEASURE_ANALYSIS_PATH,
+    OPPORTUNITY_CATEGORY_PATH,
     P_CHART,
     PROCESS_FLOW_DIAGRAM_PATH,
     SSV_TOOL_PATH,
@@ -141,6 +142,38 @@ class OpportunityRouter:
             status=ResponseStatus.SUCCESS,
             data=result,
         )
+        
+    @opportunity_router.get("/approve/{opportunity_id}", status_code=status.HTTP_200_OK)
+    async def approve(self, opportunity_id: PydanticObjectId,role : str):
+        result = await self._service.approve(opportunity_id,self.user.id,role)
+        return Response(
+            message="Opportunity Approved Successfully",
+            success=True,
+            status=ResponseStatus.UPDATED,
+            data=result,
+        )
+        
+    @opportunity_router.post(
+        "/upload/{opportunity_id}",
+        status_code=status.HTTP_201_CREATED,
+    )
+    async def upload_opportunity_file(
+        self,
+        opportunity_id: PydanticObjectId,
+        file: UploadFile = File(...),
+    ):
+        file_path = save_file(file.file, OPPORTUNITY_CATEGORY_PATH, filename=file.filename)
+        result = await self._service.update(
+            data=OpportunityUpdate(file=file_path),
+            id=opportunity_id,
+        )
+        return Response(
+            message="Define Phase Document Uploaded Successfully",
+            success=True,
+            status=ResponseStatus.CREATED,
+            data=result,
+        )
+        
 
     @opportunity_router.post(
         "/action-plan/{opportunity_id}", status_code=status.HTTP_201_CREATED

@@ -2,7 +2,7 @@ from beanie import PydanticObjectId
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, UploadFile, status
 
 from app.core.security import authenticate
-from app.employee.models import Employee, EmployeeModel, EmployeeUpdate, PlantChangeRequest, Role
+from app.employee.models import  Employee, EmployeeModel, EmployeeUpdate, PlantChangeRequest, Role
 from app.employee.service import EmployeeService
 from app.schemas.api import FilterRequest, Response, ResponseStatus
 from app.utils.class_based_views import cbv
@@ -180,3 +180,9 @@ class EmployeeRouter:
             status=ResponseStatus.UPDATED,
             data=result,
         )
+        
+
+    
+    
+    
+    

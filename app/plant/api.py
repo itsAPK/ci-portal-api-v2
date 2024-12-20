@@ -2,7 +2,7 @@ from fastapi import UploadFile,APIRouter, Depends,status
 from beanie import PydanticObjectId
 from app.core.security import authenticate
 from app.employee.models import Employee
-from app.plant.models import PlantModel, PlantUpdate
+from app.plant.models import AssignCIHeadUser, PlantModel, PlantUpdate
 from app.plant.service import PlantService
 from app.utils.class_based_views import cbv
 from app.schemas.api import ResponseStatus,Response
@@ -68,3 +68,13 @@ class PlantRouter:
     @plant_router.post("/upload", status_code=status.HTTP_201_CREATED)
     async def upload_plants(self, file: UploadFile):
         return await self._service.upload_excel(await file.read())
+    
+    @plant_router.post("/assign-ci-head", status_code=status.HTTP_201_CREATED)
+    async def assign_ci_head(self, data : AssignCIHeadUser):
+        results = await self._service.assign_ci_head(data)
+        return Response(
+            message="Plant Assigned Successfully",
+            success=True,
+            status=ResponseStatus.CREATED,
+            data=results,
+        )

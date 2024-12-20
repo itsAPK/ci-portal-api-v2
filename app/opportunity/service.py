@@ -27,6 +27,7 @@ from app.opportunity.models import (
     MeasureAnalysisRequest,
     Opportunity,
     OpportunityRequest,
+    OpportunityUpdate,
     ProjectClosure,
     ProjectClosureRequest,
     ProjectClosureUpdate,
@@ -40,11 +41,13 @@ from app.opportunity.models import (
     TeamMember,
     TeamMemberRequest,
 )
+from app.plant.models import Plant
 from app.schemas.api import ResponseStatus
 from beanie.operators import ElemMatch
 
 from bson import ObjectId, json_util
 
+from app.utils import get_initials
 from app.utils.upload import save_file
 
 
@@ -59,7 +62,7 @@ MEASURE_ANALYSIS_PATH = "uploads/measure-analysis"
 IMPROVEMENT_PATH = "uploads/improvement"
 CONTROL_PATH = "uploads/control"
 PROJECT_CLOSURE_PATH = "uploads/project-closure"
-
+OPPORTUNITY_CATEGORY_PATH = "uploads/opportunity-category"
 
 class OppurtunityService:
     def __init__(self):
@@ -67,18 +70,30 @@ class OppurtunityService:
 
     async def create(self, data: OpportunityRequest, created_by: Employee):
         values = data.model_dump()
-        print(values)
+        plant = await Plant.get(values["plant"])
+        if not plant:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "message": "plant not found",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
         count = await Opportunity.find(
-            Opportunity.plant == values["plant"],
+            Opportunity.plant.id == plant.id,
             Opportunity.opportunity_year
             == f"{datetime.now().year}-{datetime.now().year + 1}",
         ).count()
-        opportunity_id = f"{values['plant']}/{values['category']}/{datetime.now().year}-{datetime.now().year + 1}/{count + 1}"
+        values.pop("plant")
+        opportunity_id = f"{plant.name.strip()}/{get_initials(values['category'])}/{datetime.now().year}-{datetime.now().year + 1}/{count + 1}"
         opportunity = Opportunity(
             **values,
             opportunity_id=opportunity_id,
             created_by=created_by,
-            status=Status.OPEN_FOR_ASSIGNING,
+            plant = plant,
+            status=Status.OPEN_FOR_ASSIGNING if values['category'] == 'Black Belt' else Status.OPPORTUNITY_COMPLETED,
         )
         await opportunity.insert()
         return opportunity
@@ -186,8 +201,34 @@ class OppurtunityService:
         await opportunity.delete()
         return opportunity
 
-    async def update(self, data: OpportunityRequest, id: PydanticObjectId):
+    async def update(self, data: OpportunityUpdate, id: PydanticObjectId):
         values = data.model_dump(exclude_none=True)
+        opportunity = await Opportunity.get(id)
+       
+        if not opportunity:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "message": "opportunity not found",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+        if(data.plant):
+           plant = await Plant.get(values['plant'])
+       
+           values.pop("plant")
+           opportunity.plant = plant
+        for key, value in values.items():
+            if value is not None and hasattr(opportunity, key):
+                setattr(opportunity, key, value)
+                
+        
+        await opportunity.save()
+        return opportunity
+    
+    async def approve(self, id: PydanticObjectId,user_id : PydanticObjectId,role : str):
         opportunity = await Opportunity.get(id)
         if not opportunity:
             raise HTTPException(
@@ -199,12 +240,92 @@ class OppurtunityService:
                     "data": None,
                 },
             )
-        for key, value in values.items():
-            if value is not None and hasattr(opportunity, key):
-                setattr(opportunity, key, value)
-
+        head = await Employee.get(user_id)
+        if not head:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "message": "head not found",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+        if head.plant != opportunity.plant.name:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail={
+                        "message": "You don't have permission to approve this opportunity",
+                        "success": False,
+                        "status": ResponseStatus.DATA_NOT_FOUND.value,
+                        "data": None,
+                    },
+                )
+            
+        if role == 'ci_head':
+            if head.role != 'ci_head' :
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail={
+                        "message": "Role is not ci head",
+                        "success": False,
+                        "status": ResponseStatus.DATA_NOT_FOUND.value,
+                        "data": None,
+                    },
+                )
+            
+            
+            opportunity.is_approved_by_ci_head = True
+            opportunity.status = Status.PROJECT_CLOSURE_PENDING_HOD
+            
+        elif role == 'hod':
+            if head.role != 'hod' :
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail={
+                        "message": "Role is not hod",
+                        "success": False,
+                        "status": ResponseStatus.DATA_NOT_FOUND.value,
+                        "data": None,
+                    },
+                )
+            
+            opportunity.is_approved_by_hod = True
+            opportunity.status = Status.PROJECT_CLOSURE_PENDING_LOF
+            
+        elif role == 'lof':
+            if head.role != 'lof' :
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail={
+                        "message": "Role is not lof",
+                        "success": False,
+                        "status": ResponseStatus.DATA_NOT_FOUND.value,
+                        "data": None,
+                    },
+                )
+            
+            opportunity.is_approved_by_lof = True
+            opportunity.status = Status.PROJECT_CLOSURE_PENDING_COSTING_HEAD
+            
+        elif role == 'cs_head':
+            if head.role != 'cs_head' :
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail={
+                        "message": "Role is not cs head",
+                        "success": False,
+                        "status": ResponseStatus.DATA_NOT_FOUND.value,
+                        "data": None,
+                    },
+                )
+            
+            opportunity.is_approved_by_cs_head = True
+            opportunity.status = Status.OPPORTUNITY_COMPLETED
         await opportunity.save()
         return opportunity
+        
+            
 
 
 class ActionPlanService:
@@ -441,8 +562,7 @@ class TeamMemberService:
             )
         values.pop("employee_id")
         team_member = TeamMember(**values, employee=employee)
-        if len(opportunity.team_members) == 0:
-            await opportunity.set({"status": Status.TEAMS_UPDATED})
+        
         opportunity.team_members.append(team_member)
         await opportunity.save()
         return team_member
