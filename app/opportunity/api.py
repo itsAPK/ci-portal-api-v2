@@ -1,6 +1,14 @@
 from typing import Optional
 from beanie import PydanticObjectId
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
+from fastapi import (
+    APIRouter,
+    BackgroundTasks,
+    Depends,
+    File,
+    HTTPException,
+    UploadFile,
+    status,
+)
 from app.employee.models import Employee, Role
 from app.opportunity.models import (
     ActionPlanRequest,
@@ -44,8 +52,7 @@ from app.opportunity.service import (
     ProjectScheduleService,
     SSVToolService,
     TeamMemberService,
-    ImprovementService
-    
+    ImprovementService,
 )
 from app.schemas.api import FilterRequest, Response, ResponseStatus
 from app.utils.class_based_views import cbv
@@ -67,11 +74,16 @@ class OpportunityRouter:
     _measure_analysis_service: MeasureAnalysisService = Depends(MeasureAnalysisService)
     _improvement_service: ImprovementService = Depends(ImprovementService)
     _control_service: ControlService = Depends(ControlService)
-    _project_closure_service : ProjectClosureService = Depends(ProjectClosureService)
+    _project_closure_service: ProjectClosureService = Depends(ProjectClosureService)
+
     @opportunity_router.post("/", status_code=status.HTTP_201_CREATED)
-    async def create(self, opportunity: OpportunityRequest):
+    async def create(
+        self, opportunity: OpportunityRequest, background_tasks: BackgroundTasks
+    ):
         print(self.user)
-        result = await self._service.create(opportunity, created_by=self.user)
+        result = await self._service.create(
+            opportunity, created_by=self.user, background_tasks=background_tasks
+        )
         return Response(
             message="Opportunity Created Successfully",
             success=True,
@@ -79,12 +91,14 @@ class OpportunityRouter:
             data=result,
         )
 
-    @opportunity_router.post(
-        "/assign-project-leader", status_code=status.HTTP_200_OK
-    )
-    async def assign_project_leader(self, data: AssignProjectLeaderRequest):
-         
-        result = await self._service.assign_project_leader(data.opportunity_id, data.employee_id)
+    @opportunity_router.post("/assign-project-leader", status_code=status.HTTP_200_OK)
+    async def assign_project_leader(
+        self, data: AssignProjectLeaderRequest, background_tasks: BackgroundTasks
+    ):
+
+        result = await self._service.assign_project_leader(
+            data.opportunity_id, data.employee_id, background_tasks=background_tasks
+        )
         return Response(
             message="Assign Project Leader Successfully",
             success=True,
@@ -143,16 +157,26 @@ class OpportunityRouter:
             data=result,
         )
         
+    @opportunity_router.post("/export", status_code=status.HTTP_200_OK)
+    async def export(self, data: FilterRequest, page: int = 1, page_size: int = 10):
+        result = await self._service.export_query(data.filter)
+        return Response(
+            message="Opportunity Retrieved Successfully",
+            success=True,
+            status=ResponseStatus.SUCCESS,
+            data=result,
+        )
+
     @opportunity_router.get("/approve/{opportunity_id}", status_code=status.HTTP_200_OK)
-    async def approve(self, opportunity_id: PydanticObjectId,role : str):
-        result = await self._service.approve(opportunity_id,self.user.id,role)
+    async def approve(self, opportunity_id: PydanticObjectId, role: str,background_tasks: BackgroundTasks):
+        result = await self._service.approve(opportunity_id, self.user.id, role,background_tasks)
         return Response(
             message="Opportunity Approved Successfully",
             success=True,
             status=ResponseStatus.UPDATED,
             data=result,
         )
-        
+
     @opportunity_router.post(
         "/upload/{opportunity_id}",
         status_code=status.HTTP_201_CREATED,
@@ -162,7 +186,9 @@ class OpportunityRouter:
         opportunity_id: PydanticObjectId,
         file: UploadFile = File(...),
     ):
-        file_path = save_file(file.file, OPPORTUNITY_CATEGORY_PATH, filename=file.filename)
+        file_path = save_file(
+            file.file, OPPORTUNITY_CATEGORY_PATH, filename=file.filename
+        )
         result = await self._service.update(
             data=OpportunityUpdate(file=file_path),
             id=opportunity_id,
@@ -173,12 +199,13 @@ class OpportunityRouter:
             status=ResponseStatus.CREATED,
             data=result,
         )
-        
 
     @opportunity_router.post(
         "/action-plan/{opportunity_id}", status_code=status.HTTP_201_CREATED
     )
-    async def create_action_plan(self, data: ActionPlanRequest, opportunity_id: PydanticObjectId):
+    async def create_action_plan(
+        self, data: ActionPlanRequest, opportunity_id: PydanticObjectId
+    ):
         result = await self._action_plan_service.create(data, opportunity_id)
         return Response(
             message="Action Plan Created Successfully",
@@ -201,7 +228,9 @@ class OpportunityRouter:
     @opportunity_router.patch(
         "/action-plan/{action_plan_id}", status_code=status.HTTP_200_OK
     )
-    async def update_action_plan(self, action_plan_id: PydanticObjectId, data: ActionPlanUpdate):
+    async def update_action_plan(
+        self, action_plan_id: PydanticObjectId, data: ActionPlanUpdate
+    ):
         result = await self._action_plan_service.update(data, action_plan_id)
         return Response(
             message="Action Plan Updated Successfully",
@@ -223,7 +252,9 @@ class OpportunityRouter:
     @opportunity_router.post(
         "/schedule/{opportunity_id}", status_code=status.HTTP_201_CREATED
     )
-    async def create_schedule(self, opportunity_id: PydanticObjectId, data: ScheduleRequest):
+    async def create_schedule(
+        self, opportunity_id: PydanticObjectId, data: ScheduleRequest
+    ):
         result = await self._schedule_service.create(data, opportunity_id)
         return Response(
             message="Schedule Created Successfully",
@@ -243,7 +274,9 @@ class OpportunityRouter:
         )
 
     @opportunity_router.patch("/schedule/{schedule_id}", status_code=status.HTTP_200_OK)
-    async def update_schedule(self, schedule_id: PydanticObjectId, data: ScheduleUpdate):
+    async def update_schedule(
+        self, schedule_id: PydanticObjectId, data: ScheduleUpdate
+    ):
         result = await self._schedule_service.update(data, schedule_id)
         return Response(
             message="Schedule Updated Successfully",
@@ -267,8 +300,15 @@ class OpportunityRouter:
     @opportunity_router.post(
         "/team-member/{opportunity_id}", status_code=status.HTTP_201_CREATED
     )
-    async def create_team_member(self, data: TeamMemberRequest, opportunity_id: PydanticObjectId):
-        result = await self._team_member_service.create(data, opportunity_id)
+    async def create_team_member(
+        self,
+        data: TeamMemberRequest,
+        opportunity_id: PydanticObjectId,
+        background_tasks: BackgroundTasks,
+    ):
+        result = await self._team_member_service.create(
+            data=data, opportunity_id=opportunity_id, background_tasks=background_tasks
+        )
         return Response(
             message="Team Member Created Successfully",
             success=True,
@@ -291,7 +331,9 @@ class OpportunityRouter:
     @opportunity_router.patch(
         "/team-member/{team_member_id}", status_code=status.HTTP_200_OK
     )
-    async def update_team_member(self, team_member_id: PydanticObjectId, data: TeamMemberRequest):
+    async def update_team_member(
+        self, team_member_id: PydanticObjectId, data: TeamMemberRequest
+    ):
         result = await self._team_member_service.update(data, team_member_id)
         return Response(
             message="Team Member Updated Successfully",
@@ -372,7 +414,7 @@ class OpportunityRouter:
             status=ResponseStatus.CREATED,
             data=result,
         )
-        
+
     @opportunity_router.post(
         "/define-phase/upload/p-chart/{opportunity_id}",
         status_code=status.HTTP_201_CREATED,
@@ -498,10 +540,9 @@ class OpportunityRouter:
             status=ResponseStatus.CREATED,
             data=result,
         )
-    
+
     @opportunity_router.patch(
-        "/ssv-tool/{opportunity_id}/{tool_id}",
-        status_code=status.HTTP_200_OK
+        "/ssv-tool/{opportunity_id}/{tool_id}", status_code=status.HTTP_200_OK
     )
     async def update_ssv_tool(
         self,
@@ -516,10 +557,9 @@ class OpportunityRouter:
             status=ResponseStatus.UPDATED,
             data=result,
         )
-    
+
     @opportunity_router.delete(
-        "/ssv-tool/{opportunity_id}/{tool_id}",
-        status_code=status.HTTP_200_OK
+        "/ssv-tool/{opportunity_id}/{tool_id}", status_code=status.HTTP_200_OK
     )
     async def delete_ssv_tool(
         self,
@@ -533,7 +573,7 @@ class OpportunityRouter:
             status=ResponseStatus.DELETED,
             data=result,
         )
-        
+
     @opportunity_router.post(
         "/ssv-tool/upload/{opportunity_id}",
         status_code=status.HTTP_201_CREATED,
@@ -554,7 +594,7 @@ class OpportunityRouter:
             status=ResponseStatus.CREATED,
             data=result,
         )
-        
+
     @opportunity_router.post(
         "/measure-analysis/{opportunity_id}",
         status_code=status.HTTP_201_CREATED,
@@ -565,14 +605,16 @@ class OpportunityRouter:
         data: list[MeasureAnalysisRequest],
         status: str,
     ):
-        result = await self._measure_analysis_service.create(data, opportunity_id, status)
+        result = await self._measure_analysis_service.create(
+            data, opportunity_id, status
+        )
         return Response(
             message="Measure Analysis Created Successfully",
             success=True,
             status=ResponseStatus.CREATED,
             data=result,
         )
-    
+
     @opportunity_router.patch(
         "/measure-analysis/{opportunity_id}/{tool_id}",
         status_code=status.HTTP_200_OK,
@@ -583,14 +625,16 @@ class OpportunityRouter:
         tool_id: PydanticObjectId,
         data: MeasureAnalysisRequest,
     ):
-        result = await self._measure_analysis_service.update(data, opportunity_id, tool_id)
+        result = await self._measure_analysis_service.update(
+            data, opportunity_id, tool_id
+        )
         return Response(
             message="Measure Analysis Updated Successfully",
             success=True,
             status=ResponseStatus.UPDATED,
             data=result,
         )
-    
+
     @opportunity_router.delete(
         "/measure-analysis/{opportunity_id}/{tool_id}",
         status_code=status.HTTP_200_OK,
@@ -607,7 +651,7 @@ class OpportunityRouter:
             status=ResponseStatus.DELETED,
             data=result,
         )
-        
+
     @opportunity_router.post(
         "/measure-analysis/upload/{opportunity_id}",
         status_code=status.HTTP_201_CREATED,
@@ -620,7 +664,6 @@ class OpportunityRouter:
         file_path = save_file(file.file, MEASURE_ANALYSIS_PATH, filename=file.filename)
         result = await self._measure_analysis_service.update_document(
             opportunity_id=opportunity_id,
-          
             document=file_path,
         )
         return Response(
@@ -629,8 +672,7 @@ class OpportunityRouter:
             status=ResponseStatus.CREATED,
             data=result,
         )
-      
-      
+
     @opportunity_router.post(
         "/improvement/{opportunity_id}",
         status_code=status.HTTP_201_CREATED,
@@ -648,7 +690,7 @@ class OpportunityRouter:
             status=ResponseStatus.CREATED,
             data=result,
         )
-    
+
     @opportunity_router.patch(
         "/improvement/{opportunity_id}",
         status_code=status.HTTP_200_OK,
@@ -665,7 +707,7 @@ class OpportunityRouter:
             status=ResponseStatus.UPDATED,
             data=result,
         )
-    
+
     @opportunity_router.post(
         "/improvement/upload/{opportunity_id}",
         status_code=status.HTTP_201_CREATED,
@@ -686,8 +728,7 @@ class OpportunityRouter:
             status=ResponseStatus.CREATED,
             data=result,
         )
-        
-        
+
     @opportunity_router.post(
         "/control/{opportunity_id}",
         status_code=status.HTTP_201_CREATED,
@@ -705,7 +746,7 @@ class OpportunityRouter:
             status=ResponseStatus.CREATED,
             data=result,
         )
-    
+
     @opportunity_router.patch(
         "/control/{opportunity_id}",
         status_code=status.HTTP_200_OK,
@@ -722,7 +763,7 @@ class OpportunityRouter:
             status=ResponseStatus.UPDATED,
             data=result,
         )
-    
+
     @opportunity_router.post(
         "/control/upload/{opportunity_id}",
         status_code=status.HTTP_201_CREATED,
@@ -742,8 +783,8 @@ class OpportunityRouter:
             success=True,
             status=ResponseStatus.CREATED,
             data=result,
-        )   
-        
+        )
+
     @opportunity_router.post(
         "/project-closure/{opportunity_id}",
         status_code=status.HTTP_201_CREATED,
@@ -752,8 +793,9 @@ class OpportunityRouter:
         self,
         opportunity_id: PydanticObjectId,
         data: ProjectClosureRequest,
+        background_tasks: BackgroundTasks,
     ):
-        result = await self._project_closure_service.create(data, opportunity_id)
+        result = await self._project_closure_service.create(data, opportunity_id, background_tasks=background_tasks)
         return Response(
             message="Project Closure Created Successfully",
             success=True,
@@ -777,7 +819,7 @@ class OpportunityRouter:
             status=ResponseStatus.UPDATED,
             data=result,
         )
-        
+
     @opportunity_router.post(
         "/project-closure/upload/closure-document/{opportunity_id}",
         status_code=status.HTTP_201_CREATED,
@@ -798,7 +840,7 @@ class OpportunityRouter:
             status=ResponseStatus.CREATED,
             data=result,
         )
-        
+
     @opportunity_router.post(
         "/project-closure/upload/before-improvement/{opportunity_id}",
         status_code=status.HTTP_201_CREATED,
@@ -819,7 +861,7 @@ class OpportunityRouter:
             status=ResponseStatus.CREATED,
             data=result,
         )
-        
+
     @opportunity_router.post(
         "/project-closure/upload/after-improvement/{opportunity_id}",
         status_code=status.HTTP_201_CREATED,

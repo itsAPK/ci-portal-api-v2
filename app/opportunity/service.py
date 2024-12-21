@@ -4,8 +4,9 @@ import os
 import shutil
 from typing import Optional
 from beanie import PydanticObjectId
-from fastapi import File, HTTPException, UploadFile, status
+from fastapi import BackgroundTasks, File, HTTPException, UploadFile, status
 from app.core.databases import parse_json
+from app.core.mail import send_email
 from app.employee.models import Employee
 from app.opportunity.models import (
     ActionPlan,
@@ -49,6 +50,7 @@ from bson import ObjectId, json_util
 
 from app.utils import get_initials
 from app.utils.upload import save_file
+from app.core.config import settings
 
 
 DEPARTMENT_KPI_PATH = "uploads/define-phase/department-kpi"
@@ -64,11 +66,17 @@ CONTROL_PATH = "uploads/control"
 PROJECT_CLOSURE_PATH = "uploads/project-closure"
 OPPORTUNITY_CATEGORY_PATH = "uploads/opportunity-category"
 
+
 class OppurtunityService:
     def __init__(self):
         pass
 
-    async def create(self, data: OpportunityRequest, created_by: Employee):
+    async def create(
+        self,
+        data: OpportunityRequest,
+        created_by: Employee,
+        background_tasks: BackgroundTasks,
+    ):
         values = data.model_dump()
         plant = await Plant.get(values["plant"])
         if not plant:
@@ -92,14 +100,22 @@ class OppurtunityService:
             **values,
             opportunity_id=opportunity_id,
             created_by=created_by,
-            plant = plant,
-            status=Status.OPEN_FOR_ASSIGNING if values['category'] == 'Black Belt' else Status.OPPORTUNITY_COMPLETED,
+            plant=plant,
+            status=(
+                Status.OPEN_FOR_ASSIGNING
+                if values["category"] == "Black Belt"
+                else Status.OPPORTUNITY_COMPLETED
+            ),
         )
         await opportunity.insert()
+
         return opportunity
 
     async def assign_project_leader(
-        self, opportunity_id: PydanticObjectId, employee_id: PydanticObjectId
+        self,
+        opportunity_id: PydanticObjectId,
+        employee_id: PydanticObjectId,
+        background_tasks: BackgroundTasks,
     ):
         opportunity = await Opportunity.get(opportunity_id)
         if not opportunity:
@@ -128,11 +144,23 @@ class OppurtunityService:
         )
 
         await opportunity.save()
+        background_tasks.add_task(
+            send_email,
+            ["apoorva@niranthra.in"],
+            "CIRTS Portal: New Opportunity Assigned ",
+            {
+                "user": f"{employee.name}",
+                "message": (
+                    f"<p>You have been assigned to Opportunity <strong>{opportunity.opportunity_id}</strong>.</p>"
+                    f"<p>Please take a moment to review the details and start by updating the savings type and estimated savings.</p>"
+                ),
+                "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.opportunity_id}",
+            },
+        )
         return opportunity
 
     async def get(self, opportunity_id: PydanticObjectId):
-        opportunity = await Opportunity.get(opportunity_id
-        )
+        opportunity = await Opportunity.get(opportunity_id)
         if not opportunity:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -184,6 +212,18 @@ class OppurtunityService:
     async def query_count(self, filter):
         results = await Opportunity.aggregate(filter).to_list()
         return len(results)
+    
+    async def export_query(self, filter: list[dict]):
+        print(filter)
+        query = [] + filter
+        total_items = await self.query_count(query)
+        results = await Opportunity.aggregate(query).to_list()
+        print(results)
+        return {
+            "total_items": total_items,
+            "data": parse_json(results),
+        }
+
 
     async def delete(self, id: PydanticObjectId):
         print(id)
@@ -204,7 +244,7 @@ class OppurtunityService:
     async def update(self, data: OpportunityUpdate, id: PydanticObjectId):
         values = data.model_dump(exclude_none=True)
         opportunity = await Opportunity.get(id)
-       
+
         if not opportunity:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -215,20 +255,25 @@ class OppurtunityService:
                     "data": None,
                 },
             )
-        if(data.plant):
-           plant = await Plant.get(values['plant'])
-       
-           values.pop("plant")
-           opportunity.plant = plant
+        if data.plant:
+            plant = await Plant.get(values["plant"])
+
+            values.pop("plant")
+            opportunity.plant = plant
         for key, value in values.items():
             if value is not None and hasattr(opportunity, key):
                 setattr(opportunity, key, value)
-                
-        
+
         await opportunity.save()
         return opportunity
-    
-    async def approve(self, id: PydanticObjectId,user_id : PydanticObjectId,role : str):
+
+    async def approve(
+        self,
+        id: PydanticObjectId,
+        user_id: PydanticObjectId,
+        role: str,
+        background_tasks: BackgroundTasks,
+    ):
         opportunity = await Opportunity.get(id)
         if not opportunity:
             raise HTTPException(
@@ -252,18 +297,18 @@ class OppurtunityService:
                 },
             )
         if head.plant != opportunity.plant.name:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail={
-                        "message": "You don't have permission to approve this opportunity",
-                        "success": False,
-                        "status": ResponseStatus.DATA_NOT_FOUND.value,
-                        "data": None,
-                    },
-                )
-            
-        if role == 'ci_head':
-            if head.role != 'ci_head' :
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "message": "You don't have permission to approve this opportunity",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+
+        if role == "ci_head":
+            if head.role != "ci_head":
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail={
@@ -273,13 +318,40 @@ class OppurtunityService:
                         "data": None,
                     },
                 )
-            
-            
+
             opportunity.is_approved_by_ci_head = True
             opportunity.status = Status.PROJECT_CLOSURE_PENDING_HOD
+
+            background_tasks.add_task(
+                send_email,
+                ["apoorva@niranthra.in"],
+                f"CIRTS Portal : Approval Requested For Opportunity {opportunity.opportunity_id} (CIRTS Portal) ",
+                {
+                    "user": f"{opportunity.plant.hod.name}",
+                    "message": (
+                        f"<p>The project closure has been submitted for Opportunity <strong>{opportunity.opportunity_id}</strong> by <strong>{opportunity.project_leader.name}</strong> "
+                        f"({opportunity.project_leader.designation}).</p>"
+                        f"<p>We kindly ask you to take a moment to review the details and approve the opportunity at your earliest convenience.</p>"
+                    ),
+                    "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.opportunity_id}",
+                },)
+                
+            background_tasks.add_task(
+                    send_email,
+                    ["apoorva@niranthra.in"],
+                    f"CIRTS Portal : Opportunity ( {opportunity.opportunity_id} ) Approved",
+                    {
+                        "user": f"{opportunity.project_leader.name}",
+                        "message": (
+                            f"Opportunity <strong>{opportunity.opportunity_id}</strong> has been approved by CI Head {opportunity.plant.ci_head.name}.</p>"
+                        ),
+                        "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.opportunity_id}",
+                    },
+                ),
             
-        elif role == 'hod':
-            if head.role != 'hod' :
+
+        elif role == "hod":
+            if head.role != "hod":
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail={
@@ -289,12 +361,40 @@ class OppurtunityService:
                         "data": None,
                     },
                 )
-            
+
             opportunity.is_approved_by_hod = True
             opportunity.status = Status.PROJECT_CLOSURE_PENDING_LOF
             
-        elif role == 'lof':
-            if head.role != 'lof' :
+            background_tasks.add_task(
+                send_email,
+                ["apoorva@niranthra.in"],
+                f"CIRTS Portal : Approval Requested For Opportunity {opportunity.opportunity_id} (CIRTS Portal) ",
+                {
+                    "user": f"{opportunity.plant.lof.name}",
+                    "message": (
+                        f"<p>The project closure has been submitted for Opportunity <strong>{opportunity.opportunity_id}</strong> by <strong>{opportunity.project_leader.name}</strong> "
+                        f"({opportunity.project_leader.designation}).</p>"
+                        f"<p>We kindly ask you to take a moment to review the details and approve the opportunity at your earliest convenience.</p>"
+                    ),
+                    "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.opportunity_id}",
+                },)
+                
+            background_tasks.add_task(
+                    send_email,
+                    ["apoorva@niranthra.in"],
+                    f"CIRTS Portal : Opportunity ( {opportunity.opportunity_id} ) Approved",
+                    {
+                        "user": f"{opportunity.plant.project_leader.name}",
+                        "message": (
+                            f"Opportunity <strong>{opportunity.opportunity_id}</strong> has been approved by HOD {opportunity.plant.hod.name}.</p>"
+                        ),
+                        "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.opportunity_id}",
+                    },
+                ),
+            
+
+        elif role == "lof":
+            if head.role != "lof":
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail={
@@ -304,12 +404,40 @@ class OppurtunityService:
                         "data": None,
                     },
                 )
-            
+
             opportunity.is_approved_by_lof = True
             opportunity.status = Status.PROJECT_CLOSURE_PENDING_COSTING_HEAD
             
-        elif role == 'cs_head':
-            if head.role != 'cs_head' :
+            background_tasks.add_task(
+                send_email,
+                ["apoorva@niranthra.in"],
+                f"CIRTS Portal : Approval Requested For Opportunity {opportunity.opportunity_id} (CIRTS Portal) ",
+                {
+                    "user": f"{opportunity.plant.cs_head.name}",
+                    "message": (
+                        f"<p>The project closure has been submitted for Opportunity <strong>{opportunity.opportunity_id}</strong> by <strong>{opportunity.project_leader.name}</strong> "
+                        f"({opportunity.project_leader.designation}).</p>"
+                        f"<p>We kindly ask you to take a moment to review the details and approve the opportunity at your earliest convenience.</p>"
+                    ),
+                    "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.opportunity_id}",
+                },)
+                
+            background_tasks.add_task(
+                    send_email,
+                    ["apoorva@niranthra.in"],
+                    f"CIRTS Portal : Opportunity ( {opportunity.opportunity_id} ) Approved",
+                    {
+                        "user": f"{opportunity.project_leader.name}",
+                        "message": (
+                            f"Opportunity <strong>{opportunity.opportunity_id}</strong> has been approved by LOF {opportunity.plant.lof.name}.</p>"
+                        ),
+                        "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.opportunity_id}",
+                    },
+                ),
+            
+
+        elif role == "cs_head":
+            if head.role != "cs_head":
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail={
@@ -319,13 +447,38 @@ class OppurtunityService:
                         "data": None,
                     },
                 )
-            
+
             opportunity.is_approved_by_cs_head = True
             opportunity.status = Status.OPPORTUNITY_COMPLETED
+            background_tasks.add_task(
+                    send_email,
+                    ["apoorva@niranthra.in"],
+                    f"CIRTS Portal : Opportunity ( {opportunity.opportunity_id} ) Approved",
+                    {
+                        "user": f"{opportunity.project_leader.name}",
+                        "message": (
+                            f"Opportunity <strong>{opportunity.opportunity_id}</strong> has been approved by CS Head {opportunity.plant.cs_head.name}.</p>"
+                        ),
+                        "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.opportunity_id}",
+                    },
+            )
+            background_tasks.add_task(
+                    send_email,
+                    ["apoorva@niranthra.in"],
+                    f"CIRTS Portal : Opportunity ( {opportunity.opportunity_id} ) Completed",
+                    {
+                        "user": f"{opportunity.project_leader.name}",
+                        "message": (
+                            f"<p>Opportunity <strong>{opportunity.opportunity_id}</strong> has been successfully completed in the CIRTS Portal.</p>"
+                        ),
+                        "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.opportunity_id}",
+                    },
+                ),
+            
+
+            
         await opportunity.save()
         return opportunity
-        
-            
 
 
 class ActionPlanService:
@@ -536,7 +689,12 @@ class TeamMemberService:
     def __init__(self):
         pass
 
-    async def create(self, data: TeamMemberRequest, opportunity_id: PydanticObjectId):
+    async def create(
+        self,
+        data: TeamMemberRequest,
+        opportunity_id: PydanticObjectId,
+        background_tasks: BackgroundTasks,
+    ):
         values = data.model_dump()
         employee = await Employee.get(values["employee_id"])
         if not employee:
@@ -562,9 +720,22 @@ class TeamMemberService:
             )
         values.pop("employee_id")
         team_member = TeamMember(**values, employee=employee)
-        
+
         opportunity.team_members.append(team_member)
         await opportunity.save()
+        background_tasks.add_task(
+            send_email,
+            ["apoorva@niranthra.in"],
+            "CIRTS Portal : New Opportunity Assigned ",
+            {
+                "user": f"{employee.name}",
+                "message": (
+                    f"<p>You have been assigned to Opportunity <strong>{opportunity.opportunity_id}</strong> as a <strong>{team_member.role.upper()}</strong> by {opportunity.project_leader.name}({opportunity.project_leader.designation}).</p>"
+                    f"<p>Please take a moment to review the details.</p>"
+                ),
+                "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.opportunity_id}",
+            },
+        )
         return team_member
 
     async def get(self, team_member_id: PydanticObjectId):
@@ -885,7 +1056,11 @@ class MeasureAnalysisService:
             {
                 "measure_analysis_phase": MeasureAnalysisPhase(
                     data=data,
-                    document=opportunity.measure_analysis_phase.document if opportunity.measure_analysis_phase else None,
+                    document=(
+                        opportunity.measure_analysis_phase.document
+                        if opportunity.measure_analysis_phase
+                        else None
+                    ),
                 ),
                 "status": (
                     Status.MEASURE_ANALYZE_PHASE_PENDING
@@ -1048,7 +1223,11 @@ class ImprovementService:
             {
                 "improvement_phase": ImprovementPhase(
                     data=data,
-                    document=opportunity.improvement_phase.document if opportunity.improvement_phase else None,
+                    document=(
+                        opportunity.improvement_phase.document
+                        if opportunity.improvement_phase
+                        else None
+                    ),
                 ),
                 "status": (
                     Status.IMPROVE_PHASE_PENDING
@@ -1145,9 +1324,21 @@ class ControlService:
             {
                 "control_phase": ControlPhase(
                     data=data,
-                    document=opportunity.control_phase.document if opportunity.control_phase else None,
-                    control_response=opportunity.control_phase.control_response if opportunity.control_phase else None,
-                    control_cost=opportunity.control_phase.control_cost if opportunity.control_phase else None,
+                    document=(
+                        opportunity.control_phase.document
+                        if opportunity.control_phase
+                        else None
+                    ),
+                    control_response=(
+                        opportunity.control_phase.control_response
+                        if opportunity.control_phase
+                        else None
+                    ),
+                    control_cost=(
+                        opportunity.control_phase.control_cost
+                        if opportunity.control_phase
+                        else None
+                    ),
                 ),
                 "status": (
                     Status.CONTROL_PHASE_PENDING
@@ -1159,8 +1350,7 @@ class ControlService:
         print(opportunity.control_phase)
         await opportunity.save()
         return opportunity.control_phase
-    
-    
+
     async def update(
         self,
         data: ControlUpdate,
@@ -1218,14 +1408,20 @@ class ControlService:
         )
         await opportunity.save()
         return opportunity
-    
+
+
 class ProjectClosureService:
     def __init__(self):
         pass
 
-    async def create(self, data: ProjectClosureRequest, opportunity_id: PydanticObjectId):
+    async def create(
+        self,
+        data: ProjectClosureRequest,
+        opportunity_id: PydanticObjectId,
+        background_tasks: BackgroundTasks,
+    ):
         values = data.model_dump()
-        
+
         opportunity = await Opportunity.get(opportunity_id)
         if not opportunity:
             raise HTTPException(
@@ -1243,14 +1439,30 @@ class ProjectClosureService:
                 "project_closure": ProjectClosure(
                     **values,
                 ),
-                "status": (
-                    Status.PROJECT_CLOSURE_PENDING_CIHEAD
-                    
-                ),
+                "status": (Status.PROJECT_CLOSURE_PENDING_CIHEAD),
             }
         )
-        
-    async def update(self, data: ProjectClosureUpdate, opportunity_id: PydanticObjectId):
+
+        background_tasks.add_task(
+            send_email,
+            ["apoorva@niranthra.in"],
+            f"CIRTS Portal : Approval Requested For Opportunity {opportunity.opportunity_id} (CIRTS Portal) ",
+            {
+                "user": f"{opportunity.plant.ci_head.name}",
+                "message": (
+                    f"<p>The project closure has been submitted for Opportunity <strong>{opportunity.opportunity_id}</strong> by <strong>{opportunity.project_leader.name}</strong> "
+                    f"({opportunity.project_leader.designation}).</p>"
+                    f"<p>We kindly ask you to take a moment to review the details and approve the opportunity at your earliest convenience.</p>"
+                ),
+                "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.opportunity_id}",
+            },
+        )
+
+        return opportunity
+
+    async def update(
+        self, data: ProjectClosureUpdate, opportunity_id: PydanticObjectId
+    ):
         values = data.model_dump(exclude_none=True)
         print(values)
         opportunity = await Opportunity.get(opportunity_id)

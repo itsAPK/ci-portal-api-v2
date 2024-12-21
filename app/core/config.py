@@ -24,6 +24,7 @@ class Settings(BaseSettings):
     MAIL_PORT: int
     MAIL_SERVER: str
     MAIL_FROM_NAME: str
+    FRONTEND_URL: str
     class Config:
         # Place your .env file under this path
         env_file = ".env"

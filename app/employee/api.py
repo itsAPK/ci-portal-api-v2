@@ -181,6 +181,16 @@ class EmployeeRouter:
             data=result,
         )
         
+        
+    @employee_router.get("/count/", status_code=status.HTTP_200_OK)
+    async def count(self):
+        result = await self._service.count()
+        return Response(
+            message="Employee Retrieved Successfully",
+            success=True,
+            status=ResponseStatus.RETRIEVED,
+            data={"employee" : result},
+        )
 
     
     
