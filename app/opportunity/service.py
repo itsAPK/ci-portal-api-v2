@@ -296,17 +296,7 @@ class OppurtunityService:
                     "data": None,
                 },
             )
-        if head.plant != opportunity.plant.name:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail={
-                    "message": "You don't have permission to approve this opportunity",
-                    "success": False,
-                    "status": ResponseStatus.DATA_NOT_FOUND.value,
-                    "data": None,
-                },
-            )
-
+       
         if role == "ci_head":
             if head.role != "ci_head":
                 raise HTTPException(
