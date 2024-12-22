@@ -6,11 +6,11 @@ from app.core.config import settings
 
 
 conf = ConnectionConfig(
-    MAIL_USERNAME=settings.MAIL_USERNAME,
-    MAIL_PASSWORD=settings.MAIL_PASSWORD,
-    MAIL_FROM="send@imapk.xyz",
-    MAIL_PORT=settings.MAIL_PORT,
-    MAIL_SERVER=settings.MAIL_SERVER,
+    MAIL_USERNAME='MS_TG8oUk@niranthra.online',
+    MAIL_PASSWORD='q1sosCjeWQAuLUAR',
+    MAIL_FROM="MS_TG8oUk@niranthra.online",
+    MAIL_PORT=587,
+    MAIL_SERVER='smtp.mailersend.net',
     MAIL_FROM_NAME=settings.MAIL_FROM_NAME,
     MAIL_STARTTLS=True,
     MAIL_SSL_TLS=False,
@@ -21,13 +21,18 @@ conf = ConnectionConfig(
 
 
 async def send_email(to: list[str], subject: str, context: dict):
-    message = MessageSchema(
-        subject=subject,
-        recipients=to,
-        template_body=dict(**context, current_year=datetime.now().year),
-        subtype=MessageType.html,
-    )
+    try:
+        print(context)
+        message = MessageSchema(
+            subject=subject,
+            recipients=to,
+            template_body=dict(**context, current_year=datetime.now().year),
+            subtype=MessageType.html,
+        )
 
-    fm = FastMail(conf)
+        fm = FastMail(conf)
 
-    await fm.send_message(message, template_name="base.html")
+        await fm.send_message(message, template_name="base.html")
+    except Exception as e:
+        print(e)
+        return False

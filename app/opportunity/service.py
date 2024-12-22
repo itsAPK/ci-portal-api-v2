@@ -154,7 +154,7 @@ class OppurtunityService:
                     f"<p>You have been assigned to Opportunity <strong>{opportunity.opportunity_id}</strong>.</p>"
                     f"<p>Please take a moment to review the details and start by updating the savings type and estimated savings.</p>"
                 ),
-                "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.opportunity_id}",
+                "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.id}",
             },
         )
         return opportunity
@@ -286,6 +286,7 @@ class OppurtunityService:
                 },
             )
         head = await Employee.get(user_id)
+
         if not head:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -323,7 +324,7 @@ class OppurtunityService:
                         f"({opportunity.project_leader.designation}).</p>"
                         f"<p>We kindly ask you to take a moment to review the details and approve the opportunity at your earliest convenience.</p>"
                     ),
-                    "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.opportunity_id}",
+                    "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.id}",
                 },)
                 
             background_tasks.add_task(
@@ -335,7 +336,7 @@ class OppurtunityService:
                         "message": (
                             f"Opportunity <strong>{opportunity.opportunity_id}</strong> has been approved by CI Head {opportunity.plant.ci_head.name}.</p>"
                         ),
-                        "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.opportunity_id}",
+                        "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.id}",
                     },
                 ),
             
@@ -354,11 +355,11 @@ class OppurtunityService:
 
             opportunity.is_approved_by_hod = True
             opportunity.status = Status.PROJECT_CLOSURE_PENDING_LOF
-            
+           
             background_tasks.add_task(
                 send_email,
                 ["apoorva@niranthra.in"],
-                f"CIRTS Portal : Approval Requested For Opportunity {opportunity.opportunity_id} (CIRTS Portal) ",
+                f"CIRTS Portal : Approval Requested For Opportunity {opportunity.opportunity_id} ",
                 {
                     "user": f"{opportunity.plant.lof.name}",
                     "message": (
@@ -366,19 +367,19 @@ class OppurtunityService:
                         f"({opportunity.project_leader.designation}).</p>"
                         f"<p>We kindly ask you to take a moment to review the details and approve the opportunity at your earliest convenience.</p>"
                     ),
-                    "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.opportunity_id}",
+                    "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.id}",
                 },)
-                
+           
             background_tasks.add_task(
                     send_email,
                     ["apoorva@niranthra.in"],
                     f"CIRTS Portal : Opportunity ( {opportunity.opportunity_id} ) Approved",
                     {
-                        "user": f"{opportunity.plant.project_leader.name}",
+                        "user": f"{opportunity.project_leader.name}",
                         "message": (
                             f"Opportunity <strong>{opportunity.opportunity_id}</strong> has been approved by HOD {opportunity.plant.hod.name}.</p>"
                         ),
-                        "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.opportunity_id}",
+                        "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.id}",
                     },
                 ),
             
@@ -409,7 +410,7 @@ class OppurtunityService:
                         f"({opportunity.project_leader.designation}).</p>"
                         f"<p>We kindly ask you to take a moment to review the details and approve the opportunity at your earliest convenience.</p>"
                     ),
-                    "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.opportunity_id}",
+                    "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.id}",
                 },)
                 
             background_tasks.add_task(
@@ -421,7 +422,7 @@ class OppurtunityService:
                         "message": (
                             f"Opportunity <strong>{opportunity.opportunity_id}</strong> has been approved by LOF {opportunity.plant.lof.name}.</p>"
                         ),
-                        "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.opportunity_id}",
+                        "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.id}",
                     },
                 ),
             
@@ -449,7 +450,7 @@ class OppurtunityService:
                         "message": (
                             f"Opportunity <strong>{opportunity.opportunity_id}</strong> has been approved by CS Head {opportunity.plant.cs_head.name}.</p>"
                         ),
-                        "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.opportunity_id}",
+                        "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.id}",
                     },
             )
             background_tasks.add_task(
@@ -461,7 +462,7 @@ class OppurtunityService:
                         "message": (
                             f"<p>Opportunity <strong>{opportunity.opportunity_id}</strong> has been successfully completed in the CIRTS Portal.</p>"
                         ),
-                        "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.opportunity_id}",
+                        "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.id}",
                     },
                 ),
             
@@ -723,7 +724,7 @@ class TeamMemberService:
                     f"<p>You have been assigned to Opportunity <strong>{opportunity.opportunity_id}</strong> as a <strong>{team_member.role.upper()}</strong> by {opportunity.project_leader.name}({opportunity.project_leader.designation}).</p>"
                     f"<p>Please take a moment to review the details.</p>"
                 ),
-                "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.opportunity_id}",
+                "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.id}",
             },
         )
         return team_member
@@ -1444,7 +1445,7 @@ class ProjectClosureService:
                     f"({opportunity.project_leader.designation}).</p>"
                     f"<p>We kindly ask you to take a moment to review the details and approve the opportunity at your earliest convenience.</p>"
                 ),
-                "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.opportunity_id}",
+                "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.id}",
             },
         )
 
