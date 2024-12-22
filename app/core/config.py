@@ -20,11 +20,13 @@ class Settings(BaseSettings):
     RESET_TOKEN_EXPIRE_MINUTES: str = 60
     MAIL_USERNAME: str
     MAIL_PASSWORD: str
-    MAIL_FROM: EmailStr
+    MAIL_FROM: EmailStr | None = None
     MAIL_PORT: int
     MAIL_SERVER: str
     MAIL_FROM_NAME: str
     FRONTEND_URL: str
+    TELEGRAM_BOT_TOKEN: str
+    TELEGRAM_CHAT_ID: str
     class Config:
         # Place your .env file under this path
         env_file = ".env"

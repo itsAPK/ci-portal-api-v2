@@ -6,6 +6,7 @@ from fastapi.responses import RedirectResponse
 
 from app.core.config import settings
 from app.core.databases import init_db
+from app.middlewares.telegram_error import TelegramErrorMiddleware
 from app.router import router
 
 
@@ -52,6 +53,12 @@ if settings.USE_CORRELATION_ID:
     from app.middlewares.correlation import CorrelationMiddleware
 
     app.add_middleware(CorrelationMiddleware)
+
+app.add_middleware(
+    TelegramErrorMiddleware,
+    telegram_bot_token=settings.TELEGRAM_BOT_TOKEN,
+    telegram_chat_id=settings.TELEGRAM_CHAT_ID,
+)
 
 app.include_router(router)
 
