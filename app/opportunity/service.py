@@ -146,7 +146,7 @@ class OppurtunityService:
         await opportunity.save()
         background_tasks.add_task(
             send_email,
-            ["apoorva@niranthra.in"],
+            [opportunity.project_leader.email],
             "CIRTS Portal: New Opportunity Assigned ",
             {
                 "user": f"{employee.name}",
@@ -212,7 +212,7 @@ class OppurtunityService:
     async def query_count(self, filter):
         results = await Opportunity.aggregate(filter).to_list()
         return len(results)
-    
+
     async def export_query(self, filter: list[dict]):
         print(filter)
         query = [] + filter
@@ -223,7 +223,6 @@ class OppurtunityService:
             "total_items": total_items,
             "data": parse_json(results),
         }
-
 
     async def delete(self, id: PydanticObjectId):
         print(id)
@@ -297,7 +296,7 @@ class OppurtunityService:
                     "data": None,
                 },
             )
-       
+
         if role == "ci_head":
             if head.role != "ci_head":
                 raise HTTPException(
@@ -315,7 +314,7 @@ class OppurtunityService:
 
             background_tasks.add_task(
                 send_email,
-                ["apoorva@niranthra.in"],
+                [opportunity.plant.hod.email],
                 f"CIRTS Portal : Approval Requested For Opportunity {opportunity.opportunity_id} (CIRTS Portal) ",
                 {
                     "user": f"{opportunity.plant.hod.name}",
@@ -325,21 +324,21 @@ class OppurtunityService:
                         f"<p>We kindly ask you to take a moment to review the details and approve the opportunity at your earliest convenience.</p>"
                     ),
                     "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.id}",
-                },)
-                
+                },
+            )
+
             background_tasks.add_task(
-                    send_email,
-                    ["apoorva@niranthra.in"],
-                    f"CIRTS Portal : Opportunity ( {opportunity.opportunity_id} ) Approved",
-                    {
-                        "user": f"{opportunity.project_leader.name}",
-                        "message": (
-                            f"Opportunity <strong>{opportunity.opportunity_id}</strong> has been approved by CI Head {opportunity.plant.ci_head.name}.</p>"
-                        ),
-                        "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.id}",
-                    },
-                ),
-            
+                send_email,
+                [opportunity.project_leader.email],
+                f"CIRTS Portal : Opportunity ( {opportunity.opportunity_id} ) Approved",
+                {
+                    "user": f"{opportunity.project_leader.name}",
+                    "message": (
+                        f"Opportunity <strong>{opportunity.opportunity_id}</strong> has been approved by CI Head {opportunity.plant.ci_head.name}.</p>"
+                    ),
+                    "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.id}",
+                },
+            ),
 
         elif role == "hod":
             if head.role != "hod":
@@ -355,10 +354,10 @@ class OppurtunityService:
 
             opportunity.is_approved_by_hod = True
             opportunity.status = Status.PROJECT_CLOSURE_PENDING_LOF
-           
+
             background_tasks.add_task(
                 send_email,
-                ["apoorva@niranthra.in"],
+                [opportunity.plant.lof.email],
                 f"CIRTS Portal : Approval Requested For Opportunity {opportunity.opportunity_id} ",
                 {
                     "user": f"{opportunity.plant.lof.name}",
@@ -368,21 +367,21 @@ class OppurtunityService:
                         f"<p>We kindly ask you to take a moment to review the details and approve the opportunity at your earliest convenience.</p>"
                     ),
                     "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.id}",
-                },)
-           
+                },
+            )
+
             background_tasks.add_task(
-                    send_email,
-                    ["apoorva@niranthra.in"],
-                    f"CIRTS Portal : Opportunity ( {opportunity.opportunity_id} ) Approved",
-                    {
-                        "user": f"{opportunity.project_leader.name}",
-                        "message": (
-                            f"Opportunity <strong>{opportunity.opportunity_id}</strong> has been approved by HOD {opportunity.plant.hod.name}.</p>"
-                        ),
-                        "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.id}",
-                    },
-                ),
-            
+                send_email,
+                [opportunity.project_leader.email],
+                f"CIRTS Portal : Opportunity ( {opportunity.opportunity_id} ) Approved",
+                {
+                    "user": f"{opportunity.project_leader.name}",
+                    "message": (
+                        f"Opportunity <strong>{opportunity.opportunity_id}</strong> has been approved by HOD {opportunity.plant.hod.name}.</p>"
+                    ),
+                    "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.id}",
+                },
+            ),
 
         elif role == "lof":
             if head.role != "lof":
@@ -398,10 +397,10 @@ class OppurtunityService:
 
             opportunity.is_approved_by_lof = True
             opportunity.status = Status.PROJECT_CLOSURE_PENDING_COSTING_HEAD
-            
+
             background_tasks.add_task(
                 send_email,
-                ["apoorva@niranthra.in"],
+                [opportunity.plant.cs_head.email],
                 f"CIRTS Portal : Approval Requested For Opportunity {opportunity.opportunity_id} (CIRTS Portal) ",
                 {
                     "user": f"{opportunity.plant.cs_head.name}",
@@ -411,21 +410,21 @@ class OppurtunityService:
                         f"<p>We kindly ask you to take a moment to review the details and approve the opportunity at your earliest convenience.</p>"
                     ),
                     "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.id}",
-                },)
-                
+                },
+            )
+
             background_tasks.add_task(
-                    send_email,
-                    ["apoorva@niranthra.in"],
-                    f"CIRTS Portal : Opportunity ( {opportunity.opportunity_id} ) Approved",
-                    {
-                        "user": f"{opportunity.project_leader.name}",
-                        "message": (
-                            f"Opportunity <strong>{opportunity.opportunity_id}</strong> has been approved by LOF {opportunity.plant.lof.name}.</p>"
-                        ),
-                        "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.id}",
-                    },
-                ),
-            
+                send_email,
+                [opportunity.project_leader.email],
+                f"CIRTS Portal : Opportunity ( {opportunity.opportunity_id} ) Approved",
+                {
+                    "user": f"{opportunity.project_leader.name}",
+                    "message": (
+                        f"Opportunity <strong>{opportunity.opportunity_id}</strong> has been approved by LOF {opportunity.plant.lof.name}.</p>"
+                    ),
+                    "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.id}",
+                },
+            ),
 
         elif role == "cs_head":
             if head.role != "cs_head":
@@ -442,32 +441,30 @@ class OppurtunityService:
             opportunity.is_approved_by_cs_head = True
             opportunity.status = Status.OPPORTUNITY_COMPLETED
             background_tasks.add_task(
-                    send_email,
-                    ["apoorva@niranthra.in"],
-                    f"CIRTS Portal : Opportunity ( {opportunity.opportunity_id} ) Approved",
-                    {
-                        "user": f"{opportunity.project_leader.name}",
-                        "message": (
-                            f"Opportunity <strong>{opportunity.opportunity_id}</strong> has been approved by CS Head {opportunity.plant.cs_head.name}.</p>"
-                        ),
-                        "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.id}",
-                    },
+                send_email,
+                [opportunity.project_leader.email],
+                f"CIRTS Portal : Opportunity ( {opportunity.opportunity_id} ) Approved",
+                {
+                    "user": f"{opportunity.project_leader.name}",
+                    "message": (
+                        f"Opportunity <strong>{opportunity.opportunity_id}</strong> has been approved by CS Head {opportunity.plant.cs_head.name}.</p>"
+                    ),
+                    "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.id}",
+                },
             )
             background_tasks.add_task(
-                    send_email,
-                    ["apoorva@niranthra.in"],
-                    f"CIRTS Portal : Opportunity ( {opportunity.opportunity_id} ) Completed",
-                    {
-                        "user": f"{opportunity.project_leader.name}",
-                        "message": (
-                            f"<p>Opportunity <strong>{opportunity.opportunity_id}</strong> has been successfully completed in the CIRTS Portal.</p>"
-                        ),
-                        "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.id}",
-                    },
-                ),
-            
+                send_email,
+                [opportunity.project_leader.email],
+                f"CIRTS Portal : Opportunity ( {opportunity.opportunity_id} ) Completed",
+                {
+                    "user": f"{opportunity.project_leader.name}",
+                    "message": (
+                        f"<p>Opportunity <strong>{opportunity.opportunity_id}</strong> has been successfully completed in the CIRTS Portal.</p>"
+                    ),
+                    "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.id}",
+                },
+            ),
 
-            
         await opportunity.save()
         return opportunity
 
@@ -716,7 +713,7 @@ class TeamMemberService:
         await opportunity.save()
         background_tasks.add_task(
             send_email,
-            ["apoorva@niranthra.in"],
+            [employee.email],
             "CIRTS Portal : New Opportunity Assigned ",
             {
                 "user": f"{employee.name}",
@@ -1436,7 +1433,7 @@ class ProjectClosureService:
 
         background_tasks.add_task(
             send_email,
-            ["apoorva@niranthra.in"],
+            [opportunity.plant.ci_head.email],
             f"CIRTS Portal : Approval Requested For Opportunity {opportunity.opportunity_id} (CIRTS Portal) ",
             {
                 "user": f"{opportunity.plant.ci_head.name}",
