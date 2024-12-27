@@ -211,12 +211,16 @@ class DefinePhase(Document):
     min_month : str
     is_iso_plot : bool
     is_p_chart_done : bool
+    abnormalities : bool
+    is_audited_tool_conditions : bool
     department_kpi_path :Optional[str] = None
     process_flow_diagram : Optional[str] = None
     last_six_months_trend : Optional[str] = None
     iso_plot : Optional[str] = None
     concentration_chart : Optional[str] = None
     p_chart : Optional[str] = None
+    quick_win_for_abnormalities : Optional[str] = None
+    quick_win_for_tool_conditions : Optional[str] = None
    
 class DefinePhaseRequest(BaseModel):
     part_no : str
@@ -240,6 +244,8 @@ class DefinePhaseRequest(BaseModel):
     min_month : str
     is_iso_plot : bool
     is_p_chart_done : bool
+    abnormalities : bool
+    is_audited_tool_conditions : bool
     department_kpi_path :Optional[str] = None
     process_flow_diagram : Optional[str] = None
     last_six_months_trend : Optional[str] = None
@@ -247,6 +253,8 @@ class DefinePhaseRequest(BaseModel):
     concentration_chart : Optional[str] = None
     p_chart : Optional[str] = None
     iso_plot : Optional[str] = None
+    quick_win_for_abnormalities : Optional[str] = None
+    quick_win_for_tool_conditions : Optional[str] = None
 
 class DefinePhaseUpdate(BaseModel):
     part_no : Optional[str] = None
@@ -277,11 +285,16 @@ class DefinePhaseUpdate(BaseModel):
     concentration_chart : Optional[str] = None
     is_iso_plot : Optional[bool] = None
     p_chart : Optional[str] = None
+    abnormalities : Optional[bool] = None
+    is_audited_tool_conditions : Optional[bool] = None
+    quick_win_for_abnormalities : Optional[str] = None
+    quick_win_for_tool_conditions : Optional[str] = None
     
 class SSVToolBase( Document):
     id: PydanticObjectId = Field(default_factory=ObjectId, alias="_id")
     suspected_source : str
     tools : str
+    type_of_ssv : str
     
 class SSVTool( Document):
     id: PydanticObjectId = Field(default_factory=ObjectId, alias="_id")
@@ -291,10 +304,14 @@ class SSVTool( Document):
 class SSVToolRequest(BaseModel):
     suspected_source : str
     tools : str
+    type_of_ssv : str
+
 
 class SSVToolUpdate(BaseModel):
     suspected_source : Optional[str] = None
     tools : Optional[str] = None
+    type_of_ssv : Optional[str] = None
+
     
 class MeasureAnalysisBase( Document):
     id: PydanticObjectId = Field(default_factory=ObjectId, alias="_id")

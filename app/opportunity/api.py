@@ -31,6 +31,7 @@ from app.opportunity.models import (
     TeamMemberRequest,
 )
 from app.opportunity.service import (
+    ABNORMALITIES_PATH,
     CONCENTRATION_CHART_PATH,
     CONTROL_PATH,
     DEPARTMENT_KPI_PATH,
@@ -43,6 +44,7 @@ from app.opportunity.service import (
     SSV_TOOL_PATH,
     IMPROVEMENT_PATH,
     PROJECT_CLOSURE_PATH,
+    TOOL_CONDITIONS_PATH,
     ProjectClosureService,
     ActionPlanService,
     ControlService,
@@ -515,6 +517,50 @@ class OpportunityRouter:
         )
         result = await self._define_phase_service.update(
             data=DefinePhaseUpdate(concentration_chart=file_path),
+            opportunity_id=opportunity_id,
+        )
+        return Response(
+            message="Define Phase Document Uploaded Successfully",
+            success=True,
+            status=ResponseStatus.CREATED,
+            data=result,
+        )
+        
+    @opportunity_router.post(
+        "/define-phase/upload/abnormalities/{opportunity_id}",
+        status_code=status.HTTP_201_CREATED,
+    )
+    async def upload_abnormalities_document(
+        self,
+        opportunity_id: PydanticObjectId,
+        file: UploadFile = File(...),
+    ):
+        print(file.filename,ABNORMALITIES_PATH)
+        file_path = save_file(file.file, ABNORMALITIES_PATH, filename=file.filename)
+        print(file_path)
+        result = await self._define_phase_service.update(
+            data=DefinePhaseUpdate(quick_win_for_abnormalities=file_path),
+            opportunity_id=opportunity_id,
+        )
+        return Response(
+            message="Define Phase Document Uploaded Successfully",
+            success=True,
+            status=ResponseStatus.CREATED,
+            data=result,
+        )
+        
+    @opportunity_router.post(
+        "/define-phase/upload/tool-conditions/{opportunity_id}",
+        status_code=status.HTTP_201_CREATED,
+    )
+    async def upload_tool_conditions_document(
+        self,
+        opportunity_id: PydanticObjectId,
+        file: UploadFile = File(...),
+    ):
+        file_path = save_file(file.file, TOOL_CONDITIONS_PATH, filename=file.filename)
+        result = await self._define_phase_service.update(
+            data=DefinePhaseUpdate(quick_win_for_tool_conditions=file_path),
             opportunity_id=opportunity_id,
         )
         return Response(

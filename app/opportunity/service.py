@@ -65,7 +65,8 @@ IMPROVEMENT_PATH = "uploads/improvement"
 CONTROL_PATH = "uploads/control"
 PROJECT_CLOSURE_PATH = "uploads/project-closure"
 OPPORTUNITY_CATEGORY_PATH = "uploads/opportunity-category"
-
+ABNORMALITIES_PATH = "uploads/define-phase/abnormalities"
+TOOL_CONDITIONS_PATH = "uploads/define-phase/tool-conditions"
 
 class OppurtunityService:
     def __init__(self):
