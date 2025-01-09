@@ -54,21 +54,36 @@ class TrainingService:
         return training
 
     async def delete_training(self, id: PydanticObjectId):
-        training = await Training.get(id)
-        if not training:
+        try:
+            # Find the training by ID
+            training = await Training.get(id)
+            
+            if not training:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail={
+                        "message": "Training not found",
+                        "success": False,
+                        "status": ResponseStatus().NOT_FOUND,
+                        "data": None,
+                    },
+                )
+
+            # Perform the deletion
+            await training.delete()
+
+            return {"message": "Training successfully deleted", "data": training}
+
+        except Exception as e:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail={
-                    "message": "training not found",
+                    "message": f"Error deleting training: {str(e)}",
                     "success": False,
-                    "status": ResponseStatus.NOT_FOUND.value,
+                    "status": "Error",
                     "data": None,
                 },
             )
-        training.is_active = False
-        await training.save()
-        return training
-
     async def count_training(self):
         return await Training.find().count()
 
@@ -140,22 +155,27 @@ class TrainingService:
             df = pd.read_excel(file)
 
             for _, row in df.iterrows():
-                training_data = TrainingModel(
-                    employee_id=str(row["Employee No."]),
-                    name=row["Name"],
-                    department=row["Department"],
-                    grade=row["Grade"],
-                    working_location=row["Working Location"],
-                    bussiness_unit=row["Business Unit"],
-                    plant=row["Plant"],
-                    company=row["Company"],
-                    batch=row["Batch"],
-                    year=row["Year"],
-                    trainer=row["Trainer"],
-                    category=row["Category"],
-                )
+                try:
+                    training_data = TrainingModel(
+                        employee_id=str(row["Employee No."]),
+                        name=row["Name"],
+                        department=row["Department"],
+                        grade=row["Grade"],
+                        working_location=row["Working Location"],
+                        bussiness_unit=row["Bussiness Unit"],
+                        plant=row["Plant"],
+                        company=row["Company"],
+                        batch=row["Batch"],
+                        year=row["Year"],
+                        trainer=row["Trainer"],
+                        category=row["Category"],
+                    )
+                
 
-                await self.create_training(training_data)
+                    await self.create_training(training_data)
+                except Exception as e:
+                    print('error-training-upload', e)
+                    continue
 
             return Response(
                 message="training imported from Excel file successfully",

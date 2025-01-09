@@ -179,94 +179,86 @@ class EmployeeService:
             "remaining_items": remaining_items,
         }
 
+    
     async def upload_excel(self, file: bytes):
-        try:
-            df = pd.read_excel(file)
+            try:
+                print("Starting the Excel upload process.")
+                df = pd.read_excel(file)
+                print(f"Successfully read the Excel file with {len(df)} rows.")
 
-            for _, row in df.iterrows():
-                try:
-                    employee_data = EmployeeModel(
-                        name=row["Name"],
-                        employee_id=str(row["Employee No."]),
-                        plant=row["Plant"],
-                        company=row["Company"],
-                        department=row["Department"],
-                        email=str(row["E-Mail"]),
-                        date_of_birth=(
-                            row["Date of Birth"].to_pydatetime()
-                            if hasattr(row["Date of Birth"], "to_pydatetime")
-                            else parser.parse(str(row["Date of Birth"]))
-                        ),
-                        date_of_joining=(
-                            row["Date of Joining"].to_pydatetime()
-                            if hasattr(row["Date of Joining"], "to_pydatetime")
-                            else (
-                                parser.parse(str(row["Date of Joining"]))
-                                if row["Date of Joining"]
-                                else None
-                            )
-                        ),
-                        grade=row["Grade"],
-                        role=process_role(row["Role"]),
-                        designation=row["Designation"],
-                        working_location=row["Working Location"],
-                        bussiness_unit=row["Business Unit"],
-                    )
-                    employee = await Employee.find_one(
-                        Employee.employee_id == employee_data.employee_id
-                    )
-                    if employee:
-                        await employee.set(
-                            {
-                                "name": employee_data.name,
-                                "employee_id": employee_data.employee_id,
-                                "plant": employee_data.plant,
-                                "company": employee_data.company,
-                                "department": employee_data.department,
-                                "email": employee_data.email,
-                                "date_of_birth": employee_data.date_of_birth,
-                                "date_of_joining": employee_data.date_of_joining,
-                                "grade": employee_data.grade,
-                                "role": employee_data.role,
-                                "designation": employee_data.designation,
-                                "bussiness_unit": employee_data.bussiness_unit,
-                                "working_location": employee_data.working_location,
-                            }
+                for _, row in df.iterrows():
+               
+                        # Create the employee data object
+                        employee_data = EmployeeModel(
+                            name=row["Name"],
+                            employee_id=str(row["Employee Id"]),
+                            plant=row["Plant"],
+                            company=row["Company"],
+                            department=row["Department"],
+                            email=str(row["Email"]),
+                            date_of_birth=(
+                                row["Date Of Birth"].to_pydatetime()
+                                if hasattr(row["Date Of Birth"], "to_pydatetime")
+                                else parser.parse(str(row["Date of Birth"]))
+                            ),
+                            date_of_joining=(
+                                row["Date Of Joining"].to_pydatetime()
+                                if hasattr(row["Date Of Joining"], "to_pydatetime")
+                                else (
+                                    parser.parse(str(row["Date of Joining"]))
+                                    if row["Date of Joining"]
+                                    else None
+                                )
+                            ),
+                            grade=row["Grade"],
+                            role=process_role(row["Role"]),
+                            designation=row["Designation"],
+                            working_location=row["Working Location"],
+                            bussiness_unit=row["Bussiness Unit"],
                         )
-                    else:
-                        await self.create(employee_data)
-                except Exception as e:
-                    print(e)
-                    continue
 
-            return Response(
-                message="employee imported from Excel file successfully",
-                success=True,
-                status=ResponseStatus.CREATED,
-                data=None,
-            )
-        except Exception as e:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail={
-                    "message": str(e),
-                    "success": False,
-                    "status": ResponseStatus.FAILED.value,
-                    "data": None,
-                },
-            )
+                        print(f"Processing employee: {employee_data.employee_id}")
 
-    async def upload_excel_in_background(
-        self, background_tasks: BackgroundTasks, file: bytes
-    ):
+                        # Check if employee exists
+                        employee = await Employee.find_one(Employee.employee_id == employee_data.employee_id)
+
+                        if employee:
+                            print(f"Employee {employee_data.employee_id} found. Updating data.")
+                            await employee.replace(employee_data)
+                        else:
+                            print(f"Employee {employee_data.employee_id} not found. Creating new record.")
+                            await self.create(employee_data)
+
+                    
+
+                return Response(
+                    message="Employee data imported from Excel file successfully",
+                    success=True,
+                    status=ResponseStatus.CREATED,
+                    data=None,
+                )
+            
+            except Exception as e:
+                print(f"Error in Excel upload process: {str(e)}")
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail={
+                        "message": str(e),
+                        "success": False,
+                        "status": ResponseStatus.FAILED,
+                        "data": None,
+                    },
+                )
+
+    async def upload_excel_in_background(self, background_tasks: BackgroundTasks, file: bytes):
         background_tasks.add_task(self.upload_excel, file)
+        print("Excel file upload started in the background.")
         return Response(
             message="Excel file upload is in progress.",
             success=True,
             status=ResponseStatus.ACCEPTED,
             data=None,
         )
-
     async def create_plant_change(self, data: PlantChangeRequest):
         if not data.employee_id:
             raise HTTPException(

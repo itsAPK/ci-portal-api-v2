@@ -81,6 +81,7 @@ class TrainingRouter:
     @training_router.delete("/{id}", status_code=status.HTTP_200_OK)
     async def delete(self, id : PydanticObjectId):
         result = await self._service.delete_training(id)
+        print(result)
         return Response(
             message="Training Deleted Successfully",
             success=True,
