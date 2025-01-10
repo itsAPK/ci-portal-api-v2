@@ -14,7 +14,7 @@ employee_router = APIRouter()
 @cbv(employee_router)
 class EmployeeRouter:
     _service: EmployeeService = Depends(EmployeeService)
-    user : Employee = Depends(authenticate)
+  
 
     @employee_router.post("/", status_code=status.HTTP_201_CREATED)
     async def create(self, employee: EmployeeModel):

@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     UVICORN_PORT: int
     USE_CORRELATION_ID: bool = True
     LOG_LEVEL: str = LogLevel.INFO
-    MONGODB_URI: str = "mongodb://db:27017/"  # type: ignore[assignment]
+    MONGODB_URI: str = "mongodb://mongo:ciportal@116.203.117.55:27012"  # type: ignore[assignment]
     MONGODB_DB_NAME: str = "ci-portal"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 1  # 60 minutes * 24 hours * 1 = 1 day
     SECRET_KEY: str = secrets.token_urlsafe(32)

@@ -41,7 +41,7 @@ from app.training.models import Training
 
 
 async def init_db():
-    client = AsyncIOMotorClient(settings.MONGODB_URI)
+    client = AsyncIOMotorClient('mongodb://mongo:ciportal@116.203.117.55:27012')
     await init_beanie(
         database=client.get_database(settings.MONGODB_DB_NAME),
         document_models=[
