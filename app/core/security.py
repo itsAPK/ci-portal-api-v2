@@ -64,6 +64,7 @@ async def authenticate(credentials : HTTPAuthorizationCredentials = Depends(HTTP
     try:
         payload = jwt.decode(credentials.credentials, settings.SECRET_KEY, algorithms=[ALGORITHM])
         employee_id: str = payload.get("sub")
+        print(employee_id)
         if not employee_id:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
