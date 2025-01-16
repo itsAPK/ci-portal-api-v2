@@ -19,4 +19,4 @@ ENV PATH="${PATH}:${POETRY_VENV}/bin"
 COPY pyproject.toml ./
 RUN poetry install
 COPY . .
-CMD ["poetry","run","uvicorn","app.main:app","--host", "0.0.0.0", "--port", "8000"]
+CMD ["poetry","run","uvicorn","app.main:app","--host", "0.0.0.0", "--port", "3240"]
