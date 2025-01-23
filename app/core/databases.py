@@ -26,6 +26,7 @@ from app.opportunity.models import (
     ControlResponse,
     ImprovementBase,
     MeasureAnalysisBase,
+    MonthlySavings,
     Opportunity,
     ProjectClosure,
     SSVTool,
@@ -71,6 +72,7 @@ async def init_db():
             BussinessUnit,
             Training,
             ProjectClosure,
+            MonthlySavings
         ],
     )
 

@@ -1,5 +1,5 @@
 from beanie import PydanticObjectId
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status,BackgroundTasks
 import pandas as pd
 
 from app.bussiness_unit.models import (
@@ -115,3 +115,15 @@ class BussinessUnitService:
             )
         except Exception as e:
             print(e)
+
+
+    async def upload_excel_in_background(self, background_tasks: BackgroundTasks, file: bytes):
+        background_tasks.add_task(self.upload_excel, file)
+        print("Excel file upload started in the background.")
+        return Response(
+            message="Excel file upload is in progress.",
+            success=True,
+            status=ResponseStatus.ACCEPTED,
+            data=None,
+        )
+            

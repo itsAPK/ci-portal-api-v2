@@ -1,5 +1,5 @@
 from beanie import PydanticObjectId
-from fastapi import APIRouter, Depends, UploadFile, status
+from fastapi import APIRouter, Depends, UploadFile, status,BackgroundTasks
 from app.company.models import CompanyModel, CompanyUpdate
 from app.company.service import CompanyService
 from app.core.security import authenticate
@@ -67,5 +67,11 @@ class CompanyRouter:
         )
 
     @company_router.post("/upload", status_code=status.HTTP_201_CREATED)
-    async def upload_companies(self, file: UploadFile):
-        return await self._service.upload_excel(await file.read())
+    async def upload_companies(self, file: UploadFile,background_tasks: BackgroundTasks):
+        result = await self._service.upload_excel_in_background(background_tasks, await file.read())
+        return Response(
+            message="Company are uploading, It will take sometime..",
+            success=True,
+            status=ResponseStatus.CREATED,
+            data=result,
+        )

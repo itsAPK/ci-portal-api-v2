@@ -81,7 +81,7 @@ class EmployeeRouter:
     async def upload(self, file: UploadFile,background_tasks: BackgroundTasks):
         result = await self._service.upload_excel_in_background(background_tasks, await file.read())
         return Response(
-            message="Employee Uploaded Successfully",
+            message="Employees are uploading, It will take sometime..",
             success=True,
             status=ResponseStatus.CREATED,
             data=result,

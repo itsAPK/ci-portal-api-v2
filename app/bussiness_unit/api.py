@@ -1,11 +1,5 @@
-
-
-
-
-
-
 from beanie import PydanticObjectId
-from fastapi import APIRouter, Depends, UploadFile,status
+from fastapi import APIRouter, Depends, UploadFile, status, BackgroundTasks
 
 from app.bussiness_unit.models import BussinessUnitRequest
 from app.bussiness_unit.service import BussinessUnitService
@@ -21,8 +15,7 @@ bussiness_unit_router = APIRouter()
 @cbv(bussiness_unit_router)
 class bussiness_unitRouter:
     _service: BussinessUnitService = Depends(BussinessUnitService)
-    
-    
+
     @bussiness_unit_router.post("/", status_code=status.HTTP_201_CREATED)
     async def create(self, bussiness_unit: BussinessUnitRequest):
         result = await self._service.create(bussiness_unit)
@@ -35,12 +28,12 @@ class bussiness_unitRouter:
 
     @bussiness_unit_router.patch("/{id}", status_code=status.HTTP_200_OK)
     async def update(self, id: PydanticObjectId, bussiness_unit: BussinessUnitRequest):
-        result = await self._service.update(bussiness_unit,id)
+        result = await self._service.update(bussiness_unit, id)
         return Response(
             message="bussiness_unit Updated Successfully",
             success=True,
             status=ResponseStatus.UPDATED,
-            data=result
+            data=result,
         )
 
     @bussiness_unit_router.delete("/{id}", status_code=status.HTTP_200_OK)
@@ -74,6 +67,15 @@ class bussiness_unitRouter:
         )
 
     @bussiness_unit_router.post("/upload", status_code=status.HTTP_201_CREATED)
-    async def upload_bussiness_units(self, file: UploadFile):
-        return await self._service.upload_excel(await file.read())
-
+    async def upload_bussiness_units(
+        self, file: UploadFile, background_tasks: BackgroundTasks
+    ):
+        result = await self._service.upload_excel_in_background(
+            background_tasks, await file.read()
+        )
+        return Response(
+            message="Company are uploading, It will take sometime..",
+            success=True,
+            status=ResponseStatus.CREATED,
+            data=result,
+        )

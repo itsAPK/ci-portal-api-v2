@@ -5,10 +5,11 @@ description = ""
 authors = ["Niranthra <support@niranthra.in>"]
 readme = "README.md"
 
+
 [tool.poetry.dependencies]
 python = "^3.12"
 fastapi = {extras = ["all"], version = "^0.115.4"}
-beanie = "^1.27.0"
+beanie = "^1.29.0"
 pydantic = "2.10.1"
 pydantic-settings = "^2.6.1"
 pyjwt = "^2.9.0"
@@ -29,3 +30,4 @@ pytailwindcss = "^0.2.0"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+

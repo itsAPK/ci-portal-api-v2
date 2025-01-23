@@ -16,17 +16,22 @@ class ArchiveModel(BaseModel):
     baseline : str
     target : str
     result : str
+    plant : str
     
 
 class Archive(ArchiveModel, BaseDocument):
     uploaded_by : Employee
     file_path : str
+    project_leader :Employee
+
+
 
 
 
 class ArchiveRequest(ArchiveModel,BaseModel):
     file_path : str
     uploaded_by : PydanticObjectId
+    project_leader : PydanticObjectId
     
 
 
@@ -40,4 +45,5 @@ class ArchiveUpdate(BaseModel):
     target : Optional[str] = None
     result : Optional[str] = None
     file_path : Optional[str] = None
-    uploaded_by : Optional[Link[Employee]] = None
+    uploaded_by : Optional[PydanticObjectId] = None
+    project_leader : Optional[PydanticObjectId] = None

@@ -27,14 +27,16 @@ class ArchiveRouter:
         
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
-        archive_data = json.loads(archive)  
-        archive_model = ArchiveModel(**archive_data) 
+        archive_data = json.loads(archive) 
+        print(archive_data) 
 
         result = await self._service.create(ArchiveRequest(
-            **archive_model.model_dump(),
+            **archive_data,
             uploaded_by=PydanticObjectId(self.user.id),
             file_path=file_path,
         ))
+        
+  
         
         return Response(
             message="Archive Created Successfully",

@@ -26,6 +26,8 @@ from app.opportunity.models import (
     MeasureAnalysisBase,
     MeasureAnalysisPhase,
     MeasureAnalysisRequest,
+    MonthlySavings,
+    MonthlySavingsRequest,
     Opportunity,
     OpportunityRequest,
     OpportunityUpdate,
@@ -67,6 +69,7 @@ PROJECT_CLOSURE_PATH = "uploads/project-closure"
 OPPORTUNITY_CATEGORY_PATH = "uploads/opportunity-category"
 ABNORMALITIES_PATH = "uploads/define-phase/abnormalities"
 TOOL_CONDITIONS_PATH = "uploads/define-phase/tool-conditions"
+
 
 class OppurtunityService:
     def __init__(self):
@@ -141,27 +144,37 @@ class OppurtunityService:
                 },
             )
         await opportunity.set(
-            {"project_leader": employee, "status": Status.PROJECT_ASSIGNED}
+            {
+                "project_leader": employee,
+                "status": (
+                    Status.PROJECT_ASSIGNED
+                    if opportunity.category == "Black Belt"
+                    else Status.OPPORTUNITY_COMPLETED
+                ),
+            }
         )
 
         await opportunity.save()
-        background_tasks.add_task(
-            send_email,
-            [opportunity.project_leader.email],
-            "CIRTS Portal: New Opportunity Assigned ",
-            {
-                "user": f"{employee.name}",
-                "message": (
-                    f"<p>You have been assigned to Opportunity <strong>{opportunity.opportunity_id}</strong>.</p>"
-                    f"<p>Please take a moment to review the details and start by updating the savings type and estimated savings.</p>"
-                ),
-                "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.id}",
-            },
-        )
+        
+        if opportunity.category == "Black Belt":
+            background_tasks.add_task(
+                send_email,
+                [opportunity.project_leader.email],
+                "CIRTS Portal: New Opportunity Assigned ",
+                {
+                    "user": f"{employee.name}",
+                    "message": (
+                        f"<p>You have been assigned to Opportunity <strong>{opportunity.opportunity_id}</strong>.</p>"
+                        f"<p>Please take a moment to review the details and start by updating the savings type and estimated savings.</p>"
+                    ),
+                    "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.id}",
+                },
+            )
         return opportunity
 
     async def get(self, opportunity_id: PydanticObjectId):
         opportunity = await Opportunity.get(opportunity_id)
+        print(opportunity)
         if not opportunity:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -712,19 +725,20 @@ class TeamMemberService:
 
         opportunity.team_members.append(team_member)
         await opportunity.save()
-        background_tasks.add_task(
-            send_email,
-            [employee.email],
-            "CIRTS Portal : New Opportunity Assigned ",
-            {
-                "user": f"{employee.name}",
-                "message": (
-                    f"<p>You have been assigned to Opportunity <strong>{opportunity.opportunity_id}</strong> as a <strong>{team_member.role.upper()}</strong> by {opportunity.project_leader.name}({opportunity.project_leader.designation}).</p>"
-                    f"<p>Please take a moment to review the details.</p>"
-                ),
-                "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.id}",
-            },
-        )
+        if opportunity.category == "Black Belt":
+            background_tasks.add_task(
+                send_email,
+                [employee.email],
+                "CIRTS Portal : New Opportunity Assigned ",
+                {
+                    "user": f"{employee.name}",
+                    "message": (
+                        f"<p>You have been assigned to Opportunity <strong>{opportunity.opportunity_id}</strong> as a <strong>{team_member.role.upper()}</strong> by {opportunity.project_leader.name}({opportunity.project_leader.designation}).</p>"
+                        f"<p>Please take a moment to review the details.</p>"
+                    ),
+                    "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.id}",
+                },
+            )
         return team_member
 
     async def get(self, team_member_id: PydanticObjectId):
@@ -1472,3 +1486,30 @@ class ProjectClosureService:
 
         await opportunity.save()
         return opportunity.project_closure
+
+
+class MonthlySavingsService:
+    def __init__(self):
+        pass
+
+    async def create(
+        self, data: MonthlySavingsRequest, opportunity_id: PydanticObjectId
+    ):
+        values = data.model_dump()
+        opportunity = await Opportunity.get(opportunity_id)
+        if not opportunity:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "message": "opportunity not found",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+        print(opportunity.monthly_savings)
+
+        monthly_savings = MonthlySavings(**values)
+        opportunity.monthly_savings.append(monthly_savings)
+        await opportunity.save()
+        return monthly_savings

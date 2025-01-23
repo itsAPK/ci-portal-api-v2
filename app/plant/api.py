@@ -1,4 +1,4 @@
-from fastapi import UploadFile,APIRouter, Depends,status
+from fastapi import UploadFile,APIRouter, Depends,status,BackgroundTasks
 from beanie import PydanticObjectId
 from app.core.security import authenticate
 from app.employee.models import Employee
@@ -66,8 +66,14 @@ class PlantRouter:
         )
 
     @plant_router.post("/upload", status_code=status.HTTP_201_CREATED)
-    async def upload_plants(self, file: UploadFile):
-        return await self._service.upload_excel(await file.read())
+    async def upload_plants(self, file: UploadFile,background_tasks: BackgroundTasks):
+        result = await self._service.upload_excel_in_background(background_tasks, await file.read())
+        return Response(
+            message="Plants are uploading, It will take sometime..",
+            success=True,
+            status=ResponseStatus.CREATED,
+            data=result,
+        )
     
     @plant_router.post("/assign-ci-head", status_code=status.HTTP_201_CREATED)
     async def assign_ci_head(self, data : AssignCIHeadUser):

@@ -70,11 +70,15 @@ class Opportunity(BaseDocument, BaseModel):
     improvement_phase : Optional['ImprovementPhase'] = None
     measure_analysis_phase : Optional['MeasureAnalysisPhase'] = None
     project_closure : Optional['ProjectClosure'] = None
+    monthly_savings : list['MonthlySavings'] = [] 
     file : Optional[str] = None
     is_approved_by_ci_head : Optional[bool] = None
     is_approved_by_hod : Optional[bool] = None
     is_approved_by_lof : Optional[bool] = None
     is_approved_by_cs_head : Optional[bool] = None
+    start_date : Optional[datetime] = None
+    end_date : Optional[datetime] = None
+    sub_category : Optional[str] = None
     
 class OpportunityRequest(BaseModel):
     company : str
@@ -93,6 +97,10 @@ class OpportunityRequest(BaseModel):
     project_score : Optional[float] = None
     expected_savings : str
     baseline : Optional[str] = None
+    start_date : Optional[datetime] = None
+    end_date : Optional[datetime] = None
+    sub_category : Optional[str] = None
+    estimated_savings : Optional[float] = None
     
 class OpportunityUpdate(BaseModel):
     company : Optional[str] = None
@@ -118,6 +126,9 @@ class OpportunityUpdate(BaseModel):
     savings_type : Optional[str] = None
     status : Optional[Status] = None
     file : Optional[str] = None
+    start_date : Optional[datetime] = None
+    end_date : Optional[datetime] = None
+    sub_category : Optional[str] = None
     
 
 class ActionPlanStatus(str, Enum):
@@ -212,6 +223,7 @@ class DefinePhase(Document):
     is_iso_plot : bool
     is_p_chart_done : bool
     abnormalities : bool
+    abnormalities_audited_tool_conditions : Optional[bool] = False
     is_audited_tool_conditions : bool
     department_kpi_path :Optional[str] = None
     process_flow_diagram : Optional[str] = None
@@ -219,6 +231,7 @@ class DefinePhase(Document):
     iso_plot : Optional[str] = None
     concentration_chart : Optional[str] = None
     p_chart : Optional[str] = None
+    
     quick_win_for_abnormalities : Optional[str] = None
     quick_win_for_tool_conditions : Optional[str] = None
    
@@ -245,6 +258,7 @@ class DefinePhaseRequest(BaseModel):
     is_iso_plot : bool
     is_p_chart_done : bool
     abnormalities : bool
+    abnormalities_audited_tool_conditions :bool
     is_audited_tool_conditions : bool
     department_kpi_path :Optional[str] = None
     process_flow_diagram : Optional[str] = None
@@ -255,6 +269,7 @@ class DefinePhaseRequest(BaseModel):
     iso_plot : Optional[str] = None
     quick_win_for_abnormalities : Optional[str] = None
     quick_win_for_tool_conditions : Optional[str] = None
+    
 
 class DefinePhaseUpdate(BaseModel):
     part_no : Optional[str] = None
@@ -289,11 +304,11 @@ class DefinePhaseUpdate(BaseModel):
     is_audited_tool_conditions : Optional[bool] = None
     quick_win_for_abnormalities : Optional[str] = None
     quick_win_for_tool_conditions : Optional[str] = None
-    
+    abnormalities_audited_tool_conditions : Optional[bool] = None
 class SSVToolBase( Document):
     id: PydanticObjectId = Field(default_factory=ObjectId, alias="_id")
     suspected_source : str
-    tools : str
+    tools : list[str] 
     type_of_ssv : str
     
 class SSVTool( Document):
@@ -303,20 +318,20 @@ class SSVTool( Document):
     
 class SSVToolRequest(BaseModel):
     suspected_source : str
-    tools : str
+    tools : list[str] 
     type_of_ssv : str
 
 
 class SSVToolUpdate(BaseModel):
     suspected_source : Optional[str] = None
-    tools : Optional[str] = None
+    tools : Optional[list[str]] = None
     type_of_ssv : Optional[str] = None
 
     
 class MeasureAnalysisBase( Document):
     id: PydanticObjectId = Field(default_factory=ObjectId, alias="_id")
     suspected_source : str
-    tools : str
+    tools : list[str] 
     root_cause : Optional[str] = None
     tool_id : PydanticObjectId
     
@@ -327,14 +342,14 @@ class MeasureAnalysisPhase( Document):
     
 class MeasureAnalysisRequest(BaseModel):
     suspected_source : str
-    tools : str
+    tools : list[str] 
     root_cause : Optional[str] = None
     tool_id : PydanticObjectId
 
 
 class MeasureAnalysisUpdate(BaseModel):
     suspected_source : Optional[str] = None
-    tools : Optional[str] = None
+    tools : Optional[list[str]] = None
     root_cause : Optional[str] = None
     document : Optional[str] = None
     
@@ -445,3 +460,20 @@ class ProjectClosureUpdate(BaseModel):
     before_improvement : Optional[str] = None
     after_improvement : Optional[str] = None
     estimated_savings : Optional[str] = None
+    
+    
+class MonthlySavings(Document):
+    id: PydanticObjectId = Field(default_factory=ObjectId, alias="_id")
+    year : str
+    month : str
+    savings : str
+    
+class MonthlySavingsRequest(BaseModel):
+    year : str
+    month : str
+    savings : str
+    
+class MonthlySavingsUpdate(BaseModel):
+    year : Optional[str] = None
+    month : Optional[str] = None
+    savings : Optional[str] = None

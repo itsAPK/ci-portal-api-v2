@@ -11,6 +11,7 @@ class ArchiveService:
         pass
 
     async def create(self, data: ArchiveRequest):
+        print(data)
         employee = await Employee.get(data.uploaded_by)
         if not employee:
             raise HTTPException(
@@ -22,9 +23,29 @@ class ArchiveService:
                     "data": None,
                 },
             )
+        print(employee)
+        project_leader = await Employee.get(data.project_leader)
+      
+        if not project_leader:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "message": "Project Leader not found",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
         data.uploaded_by = employee
-        archive = Archive(**data.model_dump())
-        await archive.insert()
+        data.project_leader = project_leader
+        print(project_leader)
+        try:
+            archive = Archive(
+                **data.model_dump()
+            )
+            await archive.insert()
+        except Exception as e:
+            print(e)
         return archive
     
     

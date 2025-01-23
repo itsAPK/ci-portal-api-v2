@@ -1,4 +1,4 @@
-from fastapi import UploadFile,APIRouter, Depends,status
+from fastapi import UploadFile,APIRouter, Depends,status,BackgroundTasks
 from beanie import PydanticObjectId
 from app.core.security import authenticate
 from app.department.models import DepartmentModel, DepartmentUpdate
@@ -65,5 +65,11 @@ class DepartmentRouter:
         )
 
     @department_router.post("/upload", status_code=status.HTTP_201_CREATED)
-    async def upload_departments(self, file: UploadFile):
-        return await self._service.upload_excel(await file.read())
+    async def upload_departments(self, file: UploadFile,background_tasks: BackgroundTasks):
+        result = await self._service.upload_excel_in_background(background_tasks, await file.read())
+        return Response(
+            message="Department are uploading, It will take sometime..",
+            success=True,
+            status=ResponseStatus.CREATED,
+            data=result,
+        )

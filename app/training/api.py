@@ -93,7 +93,7 @@ class TrainingRouter:
     async def upload(self, file : UploadFile,background_tasks: BackgroundTasks):
         result = await self._service.upload_training_in_background(background_tasks, await file.read())
         return Response(
-            message="Training Uploaded Successfully",
+            message="Certified Belts are uploading, It will take sometime..",
             success=True,
             status=ResponseStatus.CREATED,
             data=result,

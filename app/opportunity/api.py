@@ -21,6 +21,7 @@ from app.opportunity.models import (
     ImprovementRequest,
     ImprovementUpdate,
     MeasureAnalysisRequest,
+    MonthlySavingsRequest,
     OpportunityRequest,
     OpportunityUpdate,
     ProjectClosureRequest,
@@ -45,6 +46,7 @@ from app.opportunity.service import (
     IMPROVEMENT_PATH,
     PROJECT_CLOSURE_PATH,
     TOOL_CONDITIONS_PATH,
+    MonthlySavingsService,
     ProjectClosureService,
     ActionPlanService,
     ControlService,
@@ -77,6 +79,7 @@ class OpportunityRouter:
     _improvement_service: ImprovementService = Depends(ImprovementService)
     _control_service: ControlService = Depends(ControlService)
     _project_closure_service: ProjectClosureService = Depends(ProjectClosureService)
+    _monthly_savings_service: MonthlySavingsService = Depends(MonthlySavingsService)
 
     @opportunity_router.post("/", status_code=status.HTTP_201_CREATED)
     async def create(
@@ -924,6 +927,19 @@ class OpportunityRouter:
         )
         return Response(
             message="After Improvement Document Uploaded Successfully",
+            success=True,
+            status=ResponseStatus.CREATED,
+            data=result,
+        )
+
+
+    @opportunity_router.post("/monthly-savings/{opportunity_id}", status_code=status.HTTP_201_CREATED)
+    async def create_monthly_savings(
+        self, data: MonthlySavingsRequest, opportunity_id: PydanticObjectId
+    ):
+        result = await self._monthly_savings_service.create(data,opportunity_id)
+        return Response(
+            message="Monthly Savings Created Successfully",
             success=True,
             status=ResponseStatus.CREATED,
             data=result,
