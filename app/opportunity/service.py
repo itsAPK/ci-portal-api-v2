@@ -28,6 +28,7 @@ from app.opportunity.models import (
     MeasureAnalysisRequest,
     MonthlySavings,
     MonthlySavingsRequest,
+    MonthlySavingsUpdate,
     Opportunity,
     OpportunityRequest,
     OpportunityUpdate,
@@ -1513,3 +1514,60 @@ class MonthlySavingsService:
         opportunity.monthly_savings.append(monthly_savings)
         await opportunity.save()
         return monthly_savings
+    
+    
+    
+    async def get_monthly_savings(self, opportunity_id: PydanticObjectId):
+        opportunity = await Opportunity.get(opportunity_id)
+        if not opportunity:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "message": "opportunity not found",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+        print(opportunity.monthly_savings)
+
+        return opportunity.monthly_savings
+    
+    async def update_monthly_savings(self, opportunity_id: PydanticObjectId, monthly_savings_id : PydanticObjectId, data: MonthlySavingsUpdate):
+        opportunity = await Opportunity.get(opportunity_id)
+        if not opportunity:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "message": "opportunity not found",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+        print(opportunity.monthly_savings)
+
+        for index, monthly_savings in enumerate(opportunity.monthly_savings):
+            print("Checking Monthly Savings:", monthly_savings)
+            if str(monthly_savings.id) == str(monthly_savings_id):
+                print("Found Matching Monthly Savings ID:", monthly_savings.id)
+
+                for key, value in data.model_dump().items():
+                    if value is not None and hasattr(monthly_savings, key):
+                        setattr(monthly_savings, key, value)
+                break
+            else:
+                print("Not Matching Monthly Savings ID:", monthly_savings.id)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={
+                    "message": "Monthly Savings not found",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+
+        await opportunity.save()
+        return opportunity.monthly_savings

@@ -467,13 +467,18 @@ class MonthlySavings(Document):
     year : str
     month : str
     savings : str
+    is_approved : bool | None = None
+    actual : str | None = None
     
 class MonthlySavingsRequest(BaseModel):
     year : str
     month : str
     savings : str
     
+    
 class MonthlySavingsUpdate(BaseModel):
     year : Optional[str] = None
     month : Optional[str] = None
     savings : Optional[str] = None
+    is_approved : Optional[bool] = None
+    actual : Optional[str] = None   

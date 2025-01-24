@@ -22,6 +22,7 @@ from app.opportunity.models import (
     ImprovementUpdate,
     MeasureAnalysisRequest,
     MonthlySavingsRequest,
+    MonthlySavingsUpdate,
     OpportunityRequest,
     OpportunityUpdate,
     ProjectClosureRequest,
@@ -942,5 +943,26 @@ class OpportunityRouter:
             message="Monthly Savings Created Successfully",
             success=True,
             status=ResponseStatus.CREATED,
+            data=result,
+        )
+        
+        
+    @opportunity_router.get("/monthly-savings/{opportunity_id}", status_code=status.HTTP_200_OK)
+    async def get_monthly_savings(self, opportunity_id: PydanticObjectId):
+        result = await self._monthly_savings_service.get_monthly_savings(opportunity_id)
+        return Response(
+            message="Monthly Savings Retrieved Successfully",
+            success=True,
+            status=ResponseStatus.RETRIEVED,
+            data=result,
+        )
+        
+    @opportunity_router.patch("/monthly-savings/{opportunity_id}/{monthly_savings_id}", status_code=status.HTTP_200_OK)
+    async def update_monthly_savings(self, opportunity_id: PydanticObjectId, monthly_savings_id : PydanticObjectId, data: MonthlySavingsUpdate):
+        result = await self._monthly_savings_service.update_monthly_savings(opportunity_id, monthly_savings_id, data)
+        return Response(
+            message="Monthly Savings Updated Successfully",
+            success=True,
+            status=ResponseStatus.UPDATED,
             data=result,
         )
