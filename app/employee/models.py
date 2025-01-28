@@ -30,8 +30,8 @@ class EmployeeModel(BaseModel):
     plant : str
     company : str
     department : str
-    date_of_birth : datetime
-    date_of_joining : datetime
+    date_of_birth : Optional[datetime] = None
+    date_of_joining : Optional[datetime] = None
     role  : Optional[Role] = Role.employee
     grade : str
     is_active : Optional[bool] = True

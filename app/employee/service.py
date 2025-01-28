@@ -196,20 +196,6 @@ class EmployeeService:
                             company=row["Company"],
                             department=row["Department"],
                             email=str(row["Email"]),
-                            date_of_birth=(
-                                row["Date Of Birth"].to_pydatetime()
-                                if hasattr(row["Date Of Birth"], "to_pydatetime")
-                                else parser.parse(str(row["Date of Birth"]))
-                            ),
-                            date_of_joining=(
-                                row["Date Of Joining"].to_pydatetime()
-                                if hasattr(row["Date Of Joining"], "to_pydatetime")
-                                else (
-                                    parser.parse(str(row["Date of Joining"]))
-                                    if row["Date of Joining"]
-                                    else None
-                                )
-                            ),
                             grade=row["Grade"],
                             role=process_role(row["Role"]),
                             designation=row["Designation"],
@@ -224,7 +210,7 @@ class EmployeeService:
 
                         if employee:
                             print(f"Employee {employee_data.employee_id} found. Updating data.")
-                            await employee.replace(employee_data)
+                            await employee.set({**employee_data,"password" : employee_data.password if employee_data.password else get_password_hash('amararaja')}).apply()
                         else:
                             print(f"Employee {employee_data.employee_id} not found. Creating new record.")
                             await self.create(employee_data)

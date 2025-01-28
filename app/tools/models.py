@@ -4,7 +4,7 @@ from beanie import Document, Indexed
 
 class ToolsModel(BaseModel):
     name: str  # type: ignore
-    category : str
+    category : list[str]
     status : Optional[bool] = True
 
 class Tools(ToolsModel, Document):
@@ -14,5 +14,5 @@ class Tools(ToolsModel, Document):
 
 class ToolsUpdate(BaseModel):
     name: Optional[str] = None
-    category : Optional[str] = None
+    category : Optional[list[str]] = None
     status : Optional[bool] = None
