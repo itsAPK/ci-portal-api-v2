@@ -210,7 +210,10 @@ class EmployeeService:
 
                         if employee:
                             print(f"Employee {employee_data.employee_id} found. Updating data.")
-                            await employee.set({**employee_data,"password" : employee_data.password if employee_data.password else get_password_hash('amararaja')}).apply()
+                            emp = employee_data.model_dump()
+                        
+                    
+                            await self.update(EmployeeUpdate(**emp), employee.id)
                         else:
                             print(f"Employee {employee_data.employee_id} not found. Creating new record.")
                             await self.create(employee_data)

@@ -30,8 +30,6 @@ class EmployeeModel(BaseModel):
     plant : str
     company : str
     department : str
-    date_of_birth : Optional[datetime] = None
-    date_of_joining : Optional[datetime] = None
     role  : Optional[Role] = Role.employee
     grade : str
     is_active : Optional[bool] = True
@@ -50,8 +48,6 @@ class EmployeeUpdate(BaseModel):
     plant : Optional[str] = None
     company : Optional[str] = None
     department : Optional[str] = None
-    date_of_birth : Optional[datetime] = None
-    date_of_joining : Optional[datetime] = None
     role  : Optional[Role] = None
     grade : Optional[str] = None
     employee_id: Optional[str] = None
