@@ -184,28 +184,36 @@ class OpportunityRouter:
         )
 
     @opportunity_router.post(
-        "/upload/{opportunity_id}",
-        status_code=status.HTTP_201_CREATED,
-    )
-    async def upload_opportunity_file(
+    "/upload/{opportunity_id}",
+    status_code=status.HTTP_201_CREATED,
+)
+    async def upload_opportunity_files(
         self,
         opportunity_id: PydanticObjectId,
-        file: UploadFile = File(...),
+        files: list[UploadFile] = File(...),  # Accept a list of files
     ):
-        file_path = save_file(
-            file.file, OPPORTUNITY_CATEGORY_PATH, filename=file.filename
+        file_paths = []
+        
+        # Loop through the files and save them
+        for file in files:
+            file_path = save_file(
+                file.file, OPPORTUNITY_CATEGORY_PATH, filename=file.filename
+            )
+            file_paths.append(file_path)
+            print(file_path, opportunity_id)
+        
+        # Call the service to upload each file to the opportunity
+        result = await self._service.upload_files_to_opportunity(
+            opportunity_id=opportunity_id,
+            files=file_paths,  # Pass the list of file paths
         )
-        result = await self._service.update(
-            data=OpportunityUpdate(file=file_path),
-            id=opportunity_id,
-        )
+        
         return Response(
-            message="Define Phase Document Uploaded Successfully",
+            message="Documents Uploaded Successfully",
             success=True,
             status=ResponseStatus.CREATED,
-            data=result,
+            data={},
         )
-
     @opportunity_router.post(
         "/action-plan/{opportunity_id}", status_code=status.HTTP_201_CREATED
     )

@@ -6,13 +6,13 @@ from fastapi.responses import RedirectResponse
 
 from app.core.config import settings
 from app.core.databases import init_db
+from app.core.logging import configure_logging
 from app.middlewares.telegram_error import TelegramErrorMiddleware
 from app.router import router
 
 
 @asynccontextmanager
 async def lifespan(application: FastAPI):  # noqa
-    # configure_logging()
     await init_db()
     yield
 

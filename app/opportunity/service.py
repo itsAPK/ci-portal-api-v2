@@ -2,6 +2,7 @@ from datetime import datetime
 import json
 import os
 import shutil
+import traceback
 from typing import Optional
 from beanie import PydanticObjectId
 from fastapi import BackgroundTasks, File, HTTPException, UploadFile, status
@@ -77,30 +78,52 @@ class OppurtunityService:
         pass
 
     async def create(
-        self,
-        data: OpportunityRequest,
-        created_by: Employee,
-        background_tasks: BackgroundTasks,
-    ):
-        values = data.model_dump()
+    self,
+    data: OpportunityRequest,
+    created_by: Employee,
+    background_tasks: BackgroundTasks,
+):
+        values = data.model_dump().copy()  # Create a copy to avoid mutation issues
+
+        # Fetch plant
         plant = await Plant.get(values["plant"])
         if not plant:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail={
-                    "message": "plant not found",
+                    "message": "Plant not found",
                     "success": False,
                     "status": ResponseStatus.DATA_NOT_FOUND.value,
                     "data": None,
                 },
             )
-        count = await Opportunity.find(
-            Opportunity.plant.id == plant.id,
-            Opportunity.opportunity_year
-            == f"{datetime.now().year}-{datetime.now().year + 1}",
-        ).count()
+            
+        print(values['plant'], values["category"])
+        
+        pipeline = [
+            {
+                "$match": {
+                    "plant.name": plant.model_dump()['name'],  # Filter by plant ID 
+                    "category": values["category"],  # Filter by category
+                    "opportunity_year": f"{datetime.now().year}-{datetime.now().year + 1}",  # Filter by year
+                }
+            },
+           
+        ]
+
+        # Count existing opportunities for that plant and year
+        count = await self.query_count(pipeline)
+
+        # Generate unique Opportunity ID
+        opportunity_id = f"{plant.name.strip()}/{get_initials(values['category'])}/{datetime.now().year}-{datetime.now().year + 1}/{str(count + 1).zfill(3)}"
+
+        # Remove plant from values since we assign it separately
         values.pop("plant")
-        opportunity_id = f"{plant.name.strip()}/{get_initials(values['category'])}/{datetime.now().year}-{datetime.now().year + 1}/{count + 1}"
+
+        # Ensure `created_by` is an Employee instance (if necessary)
+        created_by = await Employee.get(created_by) if isinstance(created_by, ObjectId) else created_by
+
+        # Create the Opportunity instance
         opportunity = Opportunity(
             **values,
             opportunity_id=opportunity_id,
@@ -112,9 +135,14 @@ class OppurtunityService:
                 else Status.OPPORTUNITY_COMPLETED
             ),
         )
+
+        # Insert the opportunity into the database
         await opportunity.insert()
 
         return opportunity
+    
+  
+   
 
     async def assign_project_leader(
         self,
@@ -280,6 +308,45 @@ class OppurtunityService:
 
         await opportunity.save()
         return opportunity
+
+    async def upload_files_to_opportunity(self, opportunity_id: PydanticObjectId, files: list[str]):
+        try:
+            print(f"Opportunity ID: {opportunity_id}, Files: {files}")
+
+            # Fetch the opportunity
+            opportunity = await Opportunity.get(opportunity_id)
+            if not opportunity:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail={
+                        "message": "Opportunity not found",
+                        "success": False,
+                        "status": ResponseStatus.DATA_NOT_FOUND.value,
+                        "data": None,
+                    },
+                )
+
+            # Ensure `file` is initialized as a list if it's None
+            if opportunity.file is None:
+                opportunity.file = []
+
+            print(f"Existing Files: {opportunity.file}")
+
+            # Append each file from the list to the existing file list
+            for file in files:
+                opportunity.file.append(file)
+
+            # Save the changes
+            await opportunity.save()
+
+            print(f"Updated Files: {opportunity.file}")
+
+            return opportunity
+
+        except Exception as e:
+            print("Error occurred:", str(e))
+            traceback.print_exc()  # Print full stack trace for debugging
+            raise HTTPException(status_code=500, detail="Internal Server Error")
 
     async def approve(
         self,

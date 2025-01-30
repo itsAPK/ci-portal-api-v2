@@ -59,7 +59,7 @@ class Opportunity(BaseDocument, BaseModel):
     remarks : Optional[str]  = None
     savings_type : Optional[str] = None
     estimated_savings : Optional[float] = Field(default=0.0)
-    opportunity_year : str = Field(default=f"{datetime.now().year}-{datetime.now().year + 1}")
+    opportunity_year: str = Field(default_factory=lambda: f"{datetime.now().year}-{datetime.now().year + 1}")
     created_by : Employee
     action_plan: list["ActionPlan"] = []
     team_members: list["TeamMember"] = []
@@ -71,7 +71,7 @@ class Opportunity(BaseDocument, BaseModel):
     measure_analysis_phase : Optional['MeasureAnalysisPhase'] = None
     project_closure : Optional['ProjectClosure'] = None
     monthly_savings : list['MonthlySavings'] = [] 
-    file : Optional[str] = None
+    file : list[str] = []
     is_approved_by_ci_head : Optional[bool] = None
     is_approved_by_hod : Optional[bool] = None
     is_approved_by_lof : Optional[bool] = None
@@ -125,7 +125,7 @@ class OpportunityUpdate(BaseModel):
     remarks : Optional[str] = None
     savings_type : Optional[str] = None
     status : Optional[Status] = None
-    file : Optional[str] = None
+    file : list[str] = []
     start_date : Optional[datetime] = None
     end_date : Optional[datetime] = None
     sub_category : Optional[str] = None
