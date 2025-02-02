@@ -6,11 +6,11 @@ from app.core.config import settings
 
 
 conf = ConnectionConfig(
-    MAIL_USERNAME='MS_TG8oUk@niranthra.online',
-    MAIL_PASSWORD='q1sosCjeWQAuLUAR',
-    MAIL_FROM="MS_TG8oUk@niranthra.online",
-    MAIL_PORT=587,
-    MAIL_SERVER='smtp.mailersend.net',
+    MAIL_USERNAME='plunk',
+    MAIL_PASSWORD='sk_279fa345155d1bfcadd52fdf675ad0c8dbfd59b4bfb74e3d',
+    MAIL_FROM="support@niranthra.online",
+    MAIL_PORT=465,
+    MAIL_SERVER='smtp.useplunk.com',
     MAIL_FROM_NAME=settings.MAIL_FROM_NAME,
     MAIL_STARTTLS=True,
     MAIL_SSL_TLS=False,
