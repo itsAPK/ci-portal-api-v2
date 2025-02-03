@@ -19,8 +19,8 @@ logger = logging.getLogger(__name__)
 
 # Email Configuration
 conf = ConnectionConfig(
-    MAIL_USERNAME=None,
-    MAIL_PASSWORD=None,
+    MAIL_USERNAME="",
+    MAIL_PASSWORD="",
     MAIL_FROM="EPAM@amararaja.com",
     MAIL_PORT=25,
     MAIL_SERVER='10.120.0.104',
