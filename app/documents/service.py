@@ -47,3 +47,7 @@ class DocumentsService:
             )
         await document.delete()
         return document
+    
+    
+    async def delete_all(self):
+        return await Documents.get_motor_collection().drop()

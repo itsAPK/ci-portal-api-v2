@@ -118,3 +118,7 @@ class ArchiveService:
             )
         await archive.delete()
         return archive
+
+
+    async def delete_all(self):
+        return await Archive.get_motor_collection().drop()

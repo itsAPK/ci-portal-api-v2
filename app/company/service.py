@@ -99,6 +99,7 @@ class CompanyService:
                 company = await Company.find_one(Company.name == company_data.name)
                 if company:
                     await company.set(company_data.model_dump())
+                    await company.save()
                 else:
                     await self.create(company_data)
 
@@ -120,3 +121,7 @@ class CompanyService:
             status=ResponseStatus.ACCEPTED,
             data=None,
         )
+
+
+    async def delete_all_companies(self):
+        return await Company.get_motor_collection().drop()

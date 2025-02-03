@@ -191,6 +191,16 @@ class EmployeeRouter:
             status=ResponseStatus.RETRIEVED,
             data={"employee" : result},
         )
+        
+    @employee_router.post("/erase-all", status_code=status.HTTP_201_CREATED)
+    async def delete_all(self):
+        results = await self._service.get_motor_collection().drop()
+        return Response(
+            message="Employee Deleted Successfully",
+            success=True,
+            status=ResponseStatus.DELETED,
+            data=results,
+        )
 
     
     

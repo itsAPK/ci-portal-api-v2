@@ -84,3 +84,13 @@ class PlantRouter:
             status=ResponseStatus.CREATED,
             data=results,
         )
+        
+    @plant_router.post("/erase-all", status_code=status.HTTP_201_CREATED)
+    async def delete_all(self):
+        results = await self._service.delete_all_plants()
+        return Response(
+            message="All Plants Deleted Successfully",
+            success=True,
+            status=ResponseStatus.CREATED,
+            data=results,
+        )

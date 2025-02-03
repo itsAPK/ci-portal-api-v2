@@ -86,3 +86,14 @@ class ToolsRouter:
             status=ResponseStatus.RETRIEVED,
             data=result,
         )
+        
+        
+    @tools_router.post("/erase-all", status_code=status.HTTP_201_CREATED)
+    async def delete_all(self):
+        results = await self._service.get_motor_collection().drop()
+        return Response(
+            message="All Tools Deleted Successfully",
+            success=True,
+            status=ResponseStatus.CREATED,
+            data=results,
+        )

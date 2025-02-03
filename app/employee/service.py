@@ -12,6 +12,7 @@ from app.employee.models import (
     PlantChange,
     PlantChangeRequest,
     PlantChangeStatus,
+    Role,
 )
 from app.plant.models import Plant
 from app.schemas.api import Response, ResponseStatus
@@ -412,3 +413,8 @@ class EmployeeService:
         await plant_change.set({"status": PlantChangeStatus.rejected})
         return plant_change
     
+
+
+    async def delete_all_employees(self):
+        result = await Employee.find(Employee.role != Role.ADMIN).delete()
+        return result

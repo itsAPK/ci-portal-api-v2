@@ -104,6 +104,7 @@ class BussinessUnitService:
                 )
                 if bussiness_unit:
                     await bussiness_unit.set(bussiness_unit_data.model_dump())
+                    await bussiness_unit.save()
                 else:
                     await self.create(bussiness_unit_data)
 
@@ -127,3 +128,7 @@ class BussinessUnitService:
             data=None,
         )
             
+    
+    async def delete_all_bussiness_unit(self):
+        return await BussinessUnit.get_motor_collection().drop()
+        

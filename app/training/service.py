@@ -14,20 +14,20 @@ class TrainingService:
     async def create_training(self, data: TrainingRequest):
         values = data.model_dump()
 
-        employee = await Employee.find_one(
-            Employee.employee_id == values["employee_id"]
-        )
+        # employee = await Employee.find_one(
+        #     Employee.employee_id == values["employee_id"]
+        # )
 
-        if not employee:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail={
-                    "message": "employee not found",
-                    "success": False,
-                    "status": ResponseStatus.NOT_FOUND.value,
-                    "data": None,
-                },
-            )
+        # if not employee:
+        #     raise HTTPException(
+        #         status_code=status.HTTP_400_BAD_REQUEST,
+        #         detail={
+        #             "message": "employee not found",
+        #             "success": False,
+        #             "status": ResponseStatus.NOT_FOUND.value,
+        #             "data": None,
+        #         },
+        #     )
 
         training = Training(**values)
         await training.insert()
@@ -204,3 +204,7 @@ class TrainingService:
             status=ResponseStatus.ACCEPTED,
             data=None,
         )
+        
+        
+    async def delete_all_trainings(self):
+        return await Training.get_motor_collection().drop()

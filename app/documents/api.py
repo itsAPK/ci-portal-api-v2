@@ -74,3 +74,13 @@ class DocumentRouter:
             status=ResponseStatus.DELETED,
             data=result,
         )
+        
+    @document_router.post("/earse-all",status_code=status.HTTP_200_OK)
+    async def delete_all(self):
+        result = await self._service.delete_all()
+        return Response(
+            message="Document Deleted Successfully",
+            success=True,
+            status=ResponseStatus.DELETED,
+            data=result,
+        )

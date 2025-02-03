@@ -100,7 +100,9 @@ class PlantService:
                 plant = await Plant.find_one(Plant.name == plant_data.name)
                 print(plant)
                 if plant:
-                    await plant.set({Plant.name:plant_data.name,Plant.plant_code:plant_data.plant_code})
+                    plant.name = plant_data.name
+                    plant.plant_code = plant_data.plant_code
+                    await plant.save()
                 else:
                     await self.create(plant_data)
 
@@ -217,3 +219,6 @@ class PlantService:
             
         await plant.save()
         return plant
+    
+    async def delete_all_plants(self):
+        return await Plant.get_motor_collection().drop()

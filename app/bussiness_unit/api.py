@@ -79,3 +79,13 @@ class bussiness_unitRouter:
             status=ResponseStatus.CREATED,
             data=result,
         )
+        
+    @bussiness_unit_router.post("/erase-all", status_code=status.HTTP_200_OK)
+    async def delete_all(self):
+        result = await self._service.delete_all_bussiness_unit()
+        return Response(
+            message="Bussiness Unit deleted successfully",
+            success=True,
+            status=ResponseStatus.ACCEPTED,
+            data={},
+        )

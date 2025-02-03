@@ -99,3 +99,13 @@ class TrainingRouter:
             data=result,
         )
        
+       
+    @training_router.post("/erase-all", status_code=status.HTTP_201_CREATED)
+    async def delete_all(self):
+            results = await self._service.delete_all_trainings()
+            return Response(
+                message="All Trainings Deleted Successfully",
+                success=True,
+                status=ResponseStatus.CREATED,
+                data=results,
+            )

@@ -132,3 +132,7 @@ class ToolsService:
     async def query_count(self, filter):
         results = await Tools.aggregate(filter).to_list()
         return len(results)
+
+
+    async def delete_all(self):
+        return await Tools.get_motor_collection().drop()

@@ -73,3 +73,13 @@ class DepartmentRouter:
             status=ResponseStatus.CREATED,
             data=result,
         )
+        
+    @department_router.post("/erase-all", status_code=status.HTTP_200_OK)
+    async def delete_all(self):
+        result = await self._service.delete_all_departments()
+        return Response(
+            message="Department Deleted Successfully",
+            success=True,
+            status=ResponseStatus.DELETED,
+            data=result,
+        )
