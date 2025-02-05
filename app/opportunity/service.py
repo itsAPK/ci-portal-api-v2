@@ -199,6 +199,23 @@ class OppurtunityService:
                     "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.id}",
                 },
             )
+            
+            admins = await Employee.find_all(Employee.role == "admin")
+            for admin in admins:
+                background_tasks.add_task(
+                send_email,
+                [admin.email],
+                f"CIRTS Portal: Opportunity ({opportunity.opportunity_id}) Assigned",
+                {
+                    "user": f"{admin.name}",
+                    "message": (
+                        f"<p>Opportunity <strong>{opportunity.opportunity_id}</strong> assigned to {employee.name} ({employee.designation} - {employee.department}).</p>"
+                    ),
+                    "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.id}",
+                },
+            )
+            
+            
         return opportunity
 
     async def get(self, opportunity_id: PydanticObjectId):
@@ -421,6 +438,22 @@ class OppurtunityService:
                     "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.id}",
                 },
             ),
+            
+            
+            admins = await Employee.find_all(Employee.role == "admin")
+            for admin in admins:
+                background_tasks.add_task(
+                send_email,
+                [admin.email],
+                f"CIRTS Portal: Opportunity ({opportunity.opportunity_id}) Approved By CI Head",
+                {
+                    "user": f"{admin.name}",
+                    "message": (
+                         f"Opportunity <strong>{opportunity.opportunity_id}</strong> has been approved by CI Head {opportunity.plant.ci_head.name}.</p>"
+                    ),
+                    "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.id}",
+                },
+            )
 
         elif role == "hod":
             if head.role != "hod":
@@ -447,6 +480,22 @@ class OppurtunityService:
                         f"<p>The project closure has been submitted for Opportunity <strong>{opportunity.opportunity_id}</strong> by <strong>{opportunity.project_leader.name}</strong> "
                         f"({opportunity.project_leader.designation}).</p>"
                         f"<p>We kindly ask you to take a moment to review the details and approve the opportunity at your earliest convenience.</p>"
+                    ),
+                    "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.id}",
+                },
+            )
+            
+            
+            admins = await Employee.find_all(Employee.role == "admin")
+            for admin in admins:
+                background_tasks.add_task(
+                send_email,
+                [admin.email],
+                f"CIRTS Portal: Opportunity ({opportunity.opportunity_id}) Approved By HOD",
+                {
+                    "user": f"{admin.name}",
+                    "message": (
+                        f"Opportunity <strong>{opportunity.opportunity_id}</strong> has been approved by HOD {opportunity.plant.hod.name}.</p>"
                     ),
                     "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.id}",
                 },
@@ -507,6 +556,21 @@ class OppurtunityService:
                     "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.id}",
                 },
             ),
+            
+            admins = await Employee.find_all(Employee.role == "admin")
+            for admin in admins:
+                background_tasks.add_task(
+                send_email,
+                [admin.email],
+                f"CIRTS Portal: Opportunity ({opportunity.opportunity_id}) Approved By LOF",
+                {
+                    "user": f"{admin.name}",
+                    "message": (
+                        f"Opportunity <strong>{opportunity.opportunity_id}</strong> has been approved by LOF {opportunity.plant.lof.name}.</p>"
+                    ),
+                    "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.id}",
+                },
+            )
 
         elif role == "cs_head":
             if head.role != "cs_head":
@@ -546,6 +610,22 @@ class OppurtunityService:
                     "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.id}",
                 },
             ),
+            
+            
+            admins = await Employee.find_all(Employee.role == "admin")
+            for admin in admins:
+                background_tasks.add_task(
+                send_email,
+                [admin.email],
+                f"CIRTS Portal: Opportunity ({opportunity.opportunity_id}) Approved By CS Head & Compelted",
+                {
+                    "user": f"{admin.name}",
+                    "message": (
+                        f"Opportunity <strong>{opportunity.opportunity_id}</strong> has been approved by CS Head {opportunity.plant.cs_head.name} and successfully completed .</p>"
+                    ),
+                    "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.id}",
+                },
+            )
 
         await opportunity.save()
         return opportunity
@@ -1600,7 +1680,7 @@ class MonthlySavingsService:
 
         return opportunity.monthly_savings
     
-    async def update_monthly_savings(self, opportunity_id: PydanticObjectId, monthly_savings_id : PydanticObjectId, data: MonthlySavingsUpdate):
+    async def update_monthly_savings(self, opportunity_id: PydanticObjectId, monthly_savings_id : PydanticObjectId, data: MonthlySavingsUpdate,background_tasks : BackgroundTasks):
         opportunity = await Opportunity.get(opportunity_id)
         if not opportunity:
             raise HTTPException(
@@ -1622,6 +1702,20 @@ class MonthlySavingsService:
                 for key, value in data.model_dump().items():
                     if value is not None and hasattr(monthly_savings, key):
                         setattr(monthly_savings, key, value)
+                admins = await Employee.find_all(Employee.role == "admin")
+                for admin in admins:
+                    background_tasks.add_task(
+                    send_email,
+                    [admin.email],
+                    f"CIRTS Portal: Monthy Savings For Opportunity ({opportunity.opportunity_id}) Approved By CS Head",
+                    {
+                        "user": f"{admin.name}",
+                        "message": (
+                            f" Monthy Savings of Rs{data.actual} for Opportunity <strong>{opportunity.opportunity_id}</strong> has been approved by CS Head {opportunity.plant.cs_head.name}.</p>"
+                        ),
+                        "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.id}",
+                    },
+                )
                 break
             else:
                 print("Not Matching Monthly Savings ID:", monthly_savings.id)
