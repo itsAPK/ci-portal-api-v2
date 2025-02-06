@@ -182,11 +182,12 @@ class OppurtunityService:
                 ),
             }
         )
+        print(opportunity)
 
         await opportunity.save()
         
         if opportunity.category == "Black Belt":
-            background_tasks.add_task(
+            a = background_tasks.add_task(
                 send_email,
                 [opportunity.project_leader.email],
                 "CIRTS Portal: New Opportunity Assigned ",
@@ -200,20 +201,23 @@ class OppurtunityService:
                 },
             )
             
-            # admins = await Employee.find_all(Employee.role == "admin").to_list()
-            # for admin in admins:
-            #     background_tasks.add_task(
-            #     send_email,
-            #     [admin.email],
-            #     f"CIRTS Portal: Opportunity ({opportunity.opportunity_id}) Assigned",
-            #     {
-            #         "user": f"{admin.name}",
-            #         "message": (
-            #             f"<p>Opportunity <strong>{opportunity.opportunity_id}</strong> assigned to {employee.name} ({employee.designation} - {employee.department}).</p>"
-            #         ),
-            #         "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.id}",
-            #     },
-            # )
+          
+            
+            admins = await Employee.find(Employee.role == "admin").to_list()
+            print(admins)
+            for admin in admins:
+                background_tasks.add_task(
+                send_email,
+                [admin.email],
+                f"CIRTS Portal: Opportunity ({opportunity.opportunity_id}) Assigned",
+                {
+                    "user": f"{admin.name}",
+                    "message": (
+                        f"<p>Opportunity <strong>{opportunity.opportunity_id}</strong> assigned to {employee.name} ({employee.designation} - {employee.department}).</p>"
+                    ),
+                    "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.id}",
+                },
+            )
             
             
         return opportunity
@@ -305,7 +309,7 @@ class OppurtunityService:
         opportunity = await Opportunity.get(id)
         
         if opportunity.project_leader & employee_id == opportunity.project_leader.employee_id:
-            admins = await Employee.find_all(Employee.role == "admin").to_list()
+            admins = await Employee.find(Employee.role == "admin").to_list()
             for admin in admins:
                 background_tasks.add_task(
                 send_email,
@@ -1718,7 +1722,7 @@ class MonthlySavingsService:
                 for key, value in data.model_dump().items():
                     if value is not None and hasattr(monthly_savings, key):
                         setattr(monthly_savings, key, value)
-                admins = await Employee.find_all(Employee.role == "admin").to_list()
+                admins = await Employee.find(Employee.role == "admin").to_list()
                 for admin in admins:
                     background_tasks.add_task(
                     send_email,

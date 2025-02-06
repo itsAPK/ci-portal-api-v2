@@ -1,0 +1,6 @@
+2025-02-06 11:56:04,012 - INFO - HTTP Request: POST https://api.telegram.org/bot1393190801:AAFSRCGOQAajiyY7SE5kxTDTcaPDecOQAjs/sendMessage "HTTP/1.1 400 Bad Request"
+2025-02-06 11:56:14,422 - INFO - HTTP Request: POST https://api.telegram.org/bot1393190801:AAFSRCGOQAajiyY7SE5kxTDTcaPDecOQAjs/sendMessage "HTTP/1.1 400 Bad Request"
+2025-02-06 11:57:28,973 - INFO - HTTP Request: POST https://api.telegram.org/bot1393190801:AAFSRCGOQAajiyY7SE5kxTDTcaPDecOQAjs/sendMessage "HTTP/1.1 400 Bad Request"
+2025-02-06 11:58:12,915 - INFO - HTTP Request: POST https://api.telegram.org/bot1393190801:AAFSRCGOQAajiyY7SE5kxTDTcaPDecOQAjs/sendMessage "HTTP/1.1 400 Bad Request"
+2025-02-06 11:58:58,129 - INFO - HTTP Request: POST https://api.telegram.org/bot1393190801:AAFSRCGOQAajiyY7SE5kxTDTcaPDecOQAjs/sendMessage "HTTP/1.1 400 Bad Request"
+2025-02-06 12:00:31,329 - INFO - Attempting to send email to: ['rbk2@amararaja.com'] | Subject: CIRTS Portal: New Opportunity Assigned 
