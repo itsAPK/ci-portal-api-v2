@@ -113,8 +113,9 @@ class OpportunityRouter:
         )
 
     @opportunity_router.patch("/{id}", status_code=status.HTTP_200_OK)
-    async def update(self, id: PydanticObjectId, opportunity: OpportunityUpdate):
-        result = await self._service.update(opportunity, id)
+    async def update(self, id: PydanticObjectId, opportunity: OpportunityUpdate,background_tasks:BackgroundTasks):
+        user = self.user.employee_id
+        result = await self._service.update(opportunity, id,user,background_tasks=background_tasks)
         return Response(
             message="Opportunity Updated Successfully",
             success=True,
@@ -966,8 +967,8 @@ class OpportunityRouter:
         )
         
     @opportunity_router.patch("/monthly-savings/{opportunity_id}/{monthly_savings_id}", status_code=status.HTTP_200_OK)
-    async def update_monthly_savings(self, opportunity_id: PydanticObjectId, monthly_savings_id : PydanticObjectId, data: MonthlySavingsUpdate):
-        result = await self._monthly_savings_service.update_monthly_savings(opportunity_id, monthly_savings_id, data)
+    async def update_monthly_savings(self, opportunity_id: PydanticObjectId, monthly_savings_id : PydanticObjectId, data: MonthlySavingsUpdate,background_tasks : BackgroundTasks):
+        result = await self._monthly_savings_service.update_monthly_savings(opportunity_id, monthly_savings_id, data,background_tasks=background_tasks)
         return Response(
             message="Monthly Savings Updated Successfully",
             success=True,

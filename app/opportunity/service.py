@@ -300,9 +300,25 @@ class OppurtunityService:
         await opportunity.delete()
         return opportunity
 
-    async def update(self, data: OpportunityUpdate, id: PydanticObjectId):
+    async def update(self, data: OpportunityUpdate, id: PydanticObjectId,employee_id :str,background_tasks : BackgroundTasks):
         values = data.model_dump(exclude_none=True)
         opportunity = await Opportunity.get(id)
+        
+        if opportunity.project_leader & employee_id == opportunity.project_leader.employee_id:
+            admins = await Employee.find_all(Employee.role == "admin")
+            for admin in admins:
+                background_tasks.add_task(
+                send_email,
+                [admin.email],
+                f"CIRTS Portal: Opportunity ({opportunity.opportunity_id}) is updated",
+                {
+                    "user": f"{admin.name}",
+                    "message": (
+                        f"Opportunity <strong>{opportunity.opportunity_id}</strong> has been updated by Project Leader {opportunity.project_leader.name}.</p>"
+                    ),
+                    "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.id}",
+                },
+            )
 
         if not opportunity:
             raise HTTPException(
