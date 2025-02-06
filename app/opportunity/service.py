@@ -200,20 +200,20 @@ class OppurtunityService:
                 },
             )
             
-            admins = await Employee.find_all(Employee.role == "admin").to_list()
-            for admin in admins:
-                background_tasks.add_task(
-                send_email,
-                [admin.email],
-                f"CIRTS Portal: Opportunity ({opportunity.opportunity_id}) Assigned",
-                {
-                    "user": f"{admin.name}",
-                    "message": (
-                        f"<p>Opportunity <strong>{opportunity.opportunity_id}</strong> assigned to {employee.name} ({employee.designation} - {employee.department}).</p>"
-                    ),
-                    "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.id}",
-                },
-            )
+            # admins = await Employee.find_all(Employee.role == "admin").to_list()
+            # for admin in admins:
+            #     background_tasks.add_task(
+            #     send_email,
+            #     [admin.email],
+            #     f"CIRTS Portal: Opportunity ({opportunity.opportunity_id}) Assigned",
+            #     {
+            #         "user": f"{admin.name}",
+            #         "message": (
+            #             f"<p>Opportunity <strong>{opportunity.opportunity_id}</strong> assigned to {employee.name} ({employee.designation} - {employee.department}).</p>"
+            #         ),
+            #         "frontend_url": f"{settings.FRONTEND_URL}/opportunity/{opportunity.id}",
+            #     },
+            # )
             
             
         return opportunity
