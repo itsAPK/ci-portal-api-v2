@@ -308,7 +308,7 @@ class OppurtunityService:
         values = data.model_dump(exclude_none=True)
         opportunity = await Opportunity.get(id)
         
-        if opportunity.project_leader & employee_id == opportunity.project_leader.employee_id:
+        if opportunity.project_leader != None and employee_id == opportunity.project_leader.employee_id:
             admins = await Employee.find(Employee.role == "admin").to_list()
             for admin in admins:
                 background_tasks.add_task(

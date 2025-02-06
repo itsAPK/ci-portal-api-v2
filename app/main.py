@@ -54,11 +54,11 @@ if settings.USE_CORRELATION_ID:
 
     app.add_middleware(CorrelationMiddleware)
 
-app.add_middleware(
-    TelegramErrorMiddleware,
-    telegram_bot_token=settings.TELEGRAM_BOT_TOKEN,
-    telegram_chat_id=settings.TELEGRAM_CHAT_ID,
-)
+# app.add_middleware(
+#     TelegramErrorMiddleware,
+#     telegram_bot_token=settings.TELEGRAM_BOT_TOKEN,
+#     telegram_chat_id=settings.TELEGRAM_CHAT_ID,
+# )
 
 app.include_router(router)
 
