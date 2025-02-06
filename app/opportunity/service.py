@@ -200,7 +200,7 @@ class OppurtunityService:
                 },
             )
             
-            admins = await Employee.find_all(Employee.role == "admin")
+            admins = await Employee.find_all(Employee.role == "admin").to_list()
             for admin in admins:
                 background_tasks.add_task(
                 send_email,
@@ -305,7 +305,7 @@ class OppurtunityService:
         opportunity = await Opportunity.get(id)
         
         if opportunity.project_leader & employee_id == opportunity.project_leader.employee_id:
-            admins = await Employee.find_all(Employee.role == "admin")
+            admins = await Employee.find_all(Employee.role == "admin").to_list()
             for admin in admins:
                 background_tasks.add_task(
                 send_email,
@@ -1718,7 +1718,7 @@ class MonthlySavingsService:
                 for key, value in data.model_dump().items():
                     if value is not None and hasattr(monthly_savings, key):
                         setattr(monthly_savings, key, value)
-                admins = await Employee.find_all(Employee.role == "admin")
+                admins = await Employee.find_all(Employee.role == "admin").to_list()
                 for admin in admins:
                     background_tasks.add_task(
                     send_email,
