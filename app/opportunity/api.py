@@ -215,6 +215,25 @@ class OpportunityRouter:
             status=ResponseStatus.CREATED,
             data={},
         )
+        
+    @opportunity_router.post("/upload_a3/{opportunity_id}")
+    async def upload_a3(
+        self,
+        opportunity_id: PydanticObjectId,
+        file: UploadFile = File(...),
+    ):
+        file_path = save_file(file.file, OPPORTUNITY_CATEGORY_PATH, filename=file.filename)
+        result = await self._service.upload_a3(
+            file=file_path,
+            id=opportunity_id,
+        )
+        return Response(
+            message="A3 Signed Project Charter Uploaded Successfully",
+            success=True,
+            status=ResponseStatus.CREATED,
+            data=result,
+        )
+        
     @opportunity_router.post(
         "/action-plan/{opportunity_id}", status_code=status.HTTP_201_CREATED
     )

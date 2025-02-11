@@ -303,6 +303,23 @@ class OppurtunityService:
             )
         await opportunity.delete()
         return opportunity
+    
+    async def upload_a3(self, id: PydanticObjectId, file: str):
+        opportunity = await Opportunity.get(id)
+        if not opportunity:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "message": "opportunity not found",
+                    "success": False,
+                    "status": ResponseStatus.DATA_NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+        
+        opportunity.a3_file = file
+        await opportunity.save()
+        return opportunity
 
     async def update(self, data: OpportunityUpdate, id: PydanticObjectId,employee_id :str,background_tasks : BackgroundTasks):
         values = data.model_dump(exclude_none=True)

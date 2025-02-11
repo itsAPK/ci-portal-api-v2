@@ -79,6 +79,7 @@ class Opportunity(BaseDocument, BaseModel):
     start_date : Optional[datetime] = None
     end_date : Optional[datetime] = None
     sub_category : Optional[str] = None
+    a3_file : Optional[str] = None
     
 class OpportunityRequest(BaseModel):
     company : str
@@ -101,6 +102,8 @@ class OpportunityRequest(BaseModel):
     end_date : Optional[datetime] = None
     sub_category : Optional[str] = None
     estimated_savings : Optional[float] = None
+    a3_file : Optional[str] = None
+
     
 class OpportunityUpdate(BaseModel):
     company : Optional[str] = None
@@ -129,6 +132,8 @@ class OpportunityUpdate(BaseModel):
     start_date : Optional[datetime] = None
     end_date : Optional[datetime] = None
     sub_category : Optional[str] = None
+    a3_file : Optional[str] = None
+
     
 
 class ActionPlanStatus(str, Enum):

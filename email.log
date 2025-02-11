@@ -6,3 +6,9 @@
 2025-02-06 12:00:31,329 - INFO - Attempting to send email to: ['rbk2@amararaja.com'] | Subject: CIRTS Portal: New Opportunity Assigned 
 2025-02-06 12:06:33,829 - INFO - Attempting to send email to: ['rbk2@amararaja.com'] | Subject: CIRTS Portal: Opportunity (ABD 3/BB/2025-2026/002) is updated
 2025-02-06 12:06:48,485 - INFO - Attempting to send email to: ['rbk2@amararaja.com'] | Subject: CIRTS Portal: Opportunity (Beverages/BB/2025-2026/001) is updated
+2025-02-11 16:04:56,862 - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
