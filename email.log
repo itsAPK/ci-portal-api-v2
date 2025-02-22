@@ -12,3 +12,15 @@ Traceback (most recent call last):
     version = _bcrypt.__about__.__version__
               ^^^^^^^^^^^^^^^^^
 AttributeError: module 'bcrypt' has no attribute '__about__'
+2025-02-12 21:50:24,939 - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2025-02-21 22:54:40,041 - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'

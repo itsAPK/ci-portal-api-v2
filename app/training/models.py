@@ -38,3 +38,22 @@ class TrainingUpdate(BaseModel):
     year : Optional[str] | None = None
     trainer : Optional[str] | None = None
     category : Optional[str] | None = None
+    
+class CumulativeTrainingBase(BaseModel):
+    year : str
+    total_black_belt : int
+    total_green_belt : int
+    
+    
+class CumulativeTraining(CumulativeTrainingBase, BaseDocument):
+    pass
+
+class CumulativeTrainingRequest(CumulativeTrainingBase):
+    pass    
+
+class CumulativeTrainingUpdate(BaseModel):
+    year : Optional[str] | None = None
+    total_black_belt : Optional[int] | None = None 
+    total_green_belt : Optional[int] | None = None
+    
+    

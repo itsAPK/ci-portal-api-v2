@@ -9,7 +9,7 @@ from beanie import (
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 from bson import ObjectId
 
-from app.archive.models import Archive
+from app.archive.models import Archive, ArchiveCumulative
 from app.bussiness_unit.models import BussinessUnit
 from app.company.models import Company
 from app.core.config import settings
@@ -38,7 +38,7 @@ from app.opportunity.models import (
     ImprovementPhase,
     MeasureAnalysisPhase,
 )
-from app.training.models import Training
+from app.training.models import CumulativeTraining, Training
 
 
 async def init_db():
@@ -72,7 +72,9 @@ async def init_db():
             BussinessUnit,
             Training,
             ProjectClosure,
-            MonthlySavings
+            MonthlySavings,
+            CumulativeTraining,
+            ArchiveCumulative
         ],
     )
 

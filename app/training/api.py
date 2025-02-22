@@ -5,8 +5,8 @@ from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, UploadFile,
 from app.core.security import authenticate
 from app.employee.models import Employee
 from app.schemas.api import FilterRequest, Response, ResponseStatus
-from app.training.models import TrainingRequest
-from app.training.service import TrainingService
+from app.training.models import CumulativeTrainingRequest, CumulativeTrainingUpdate, TrainingRequest
+from app.training.service import CumulativeTrainingService, TrainingService
 from app.utils.class_based_views import cbv
 
 
@@ -16,6 +16,7 @@ training_router = APIRouter()
 class TrainingRouter:
     user : Employee = Depends(authenticate)
     _service : TrainingService = Depends(TrainingService)
+    _cumulative_service : CumulativeTrainingService = Depends(CumulativeTrainingService)
     
     @training_router.post("/", status_code=status.HTTP_201_CREATED)
     async def create(self, training : TrainingRequest):
@@ -109,3 +110,55 @@ class TrainingRouter:
                 status=ResponseStatus.CREATED,
                 data=results,
             )
+
+    
+    @training_router.get("/get/cumulative", status_code=status.HTTP_200_OK)
+    async def get_cumulative(self):
+        result = await self._cumulative_service.get_all()
+        return Response(
+            message="Training Retrieved Successfully",
+            success=True,
+            status=ResponseStatus.RETRIEVED,
+            data=result,
+        )
+
+    @training_router.post("/cumulative", status_code=status.HTTP_201_CREATED)
+    async def create_cumulative(self, data: CumulativeTrainingRequest):
+        result = await self._cumulative_service.create(data)
+        return Response(
+            message="Cumulative Training Created Successfully",
+            success=True,
+            status=ResponseStatus.CREATED,
+            data=result,
+        )
+
+    @training_router.patch("/cumulative/{id}", status_code=status.HTTP_200_OK)
+    async def update_cumulative(self, id: PydanticObjectId, data: CumulativeTrainingUpdate):
+        result = await self._cumulative_service.update(id, data)
+        return Response(
+            message="Cumulative Training Updated Successfully",
+            success=True,
+            status=ResponseStatus.UPDATED,
+            data=result,
+        )
+
+    @training_router.delete("/cumulative/{id}", status_code=status.HTTP_200_OK)
+    async def delete_cumulative(self, id: PydanticObjectId):
+        result = await self._cumulative_service.delete(id)
+        return Response(
+            message="Cumulative Training Deleted Successfully",
+            success=True,
+            status=ResponseStatus.DELETED,
+            data=result,
+        )
+        
+    @training_router.post('/cumulative/export', status_code=status.HTTP_200_OK)
+    async def query_cumulative_export(self, data : FilterRequest):
+        result = await self._cumulative_service.export_query(data.filter)
+        return Response(
+            message="Cumulative Training Retrieved Successfully",
+            success=True,
+            status=ResponseStatus.RETRIEVED,
+            data=result,
+        )
+  

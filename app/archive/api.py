@@ -7,8 +7,8 @@ from app.core.security import authenticate
 from app.utils.class_based_views import cbv
 from app.employee.models import Employee
 from app.schemas.api import FilterRequest, Response, ResponseStatus
-from app.archive.models import Archive, ArchiveModel, ArchiveRequest
-from app.archive.service import ArchiveService
+from app.archive.models import Archive, ArchiveCumulativeRequest, ArchiveModel, ArchiveRequest
+from app.archive.service import ArchiveCumulativeService, ArchiveService
 
 archive_router = APIRouter()
 
@@ -18,6 +18,7 @@ UPLOAD_PATH = "uploads/archive"
 class ArchiveRouter:
     user: Employee = Depends(authenticate)
     _service: ArchiveService = Depends(ArchiveService)
+    _cumulative_service: ArchiveCumulativeService = Depends(ArchiveCumulativeService)
 
     @archive_router.post("/", status_code=status.HTTP_201_CREATED)
     async def create(self, archive: str = Form(...), file: UploadFile = File(...)):
@@ -95,3 +96,47 @@ class ArchiveRouter:
             status=ResponseStatus.DELETED,
             data=result,
         )
+        
+        
+    @archive_router.get("/cumulative", status_code=status.HTTP_200_OK)
+    async def get_cumulative(self, page: int = 1, page_size: int = 10):
+        result = await self._cumulative_service.get_all(page, page_size)
+        return Response(
+            message="Archive Retrieved Successfully",
+            success=True,
+            status=ResponseStatus.RETRIEVED,
+            data=result,
+        )
+    
+    @archive_router.post("/cumulative/export", status_code=status.HTTP_200_OK)
+    async def export_cumulative(self, data: FilterRequest):
+        result = await self._cumulative_service.export(data.filter)
+        return Response(
+            message="Archive Retrieved Successfully",
+            success=True,
+            status=ResponseStatus.RETRIEVED,
+            data=result,
+        )
+    
+    @archive_router.post("/cumulative", status_code=status.HTTP_201_CREATED)
+    async def create_cumulative(self, data: ArchiveCumulativeRequest):
+        result = await self._cumulative_service.create(data)
+        return Response(
+            message="Archive Created Successfully",
+            success=True,
+            status=ResponseStatus.CREATED,
+            data=result,
+        )
+    
+   
+
+    @archive_router.delete("/cumulative/{id}", status_code=status.HTTP_200_OK)
+    async def delete_cumulative(self, id: PydanticObjectId):
+        result = await self._cumulative_service.delete(id)
+        return Response(
+            message="Archive Deleted Successfully",
+            success=True,
+            status=ResponseStatus.DELETED,
+            data=result,
+        )
+        

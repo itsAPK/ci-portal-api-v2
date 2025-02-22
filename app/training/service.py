@@ -4,7 +4,7 @@ import pandas as pd
 from app.core.databases import parse_json
 from app.employee.models import Employee
 from app.schemas.api import Response, ResponseStatus
-from app.training.models import Training, TrainingModel, TrainingRequest, TrainingUpdate
+from app.training.models import CumulativeTraining, Training, TrainingModel, TrainingRequest, TrainingUpdate,CumulativeTrainingRequest,CumulativeTrainingUpdate
 
 
 class TrainingService:
@@ -208,3 +208,127 @@ class TrainingService:
         
     async def delete_all_trainings(self):
         return await Training.get_motor_collection().drop()
+
+class CumulativeTrainingService:
+    def __init__(self):
+        pass
+    
+    
+    async def create(self,data : CumulativeTraining):
+        values = data.model_dump()
+        
+        cumulative_training = CumulativeTraining(**values)
+        await cumulative_training.insert()
+        return cumulative_training
+
+    async def update(self,data : CumulativeTrainingUpdate,id : PydanticObjectId):
+        values = data.model_dump(exclude_none=True)
+        cumulative_training = await CumulativeTraining.get(id)
+        if not cumulative_training:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "message": "cumulative training not found",
+                    "success": False,
+                    "status": ResponseStatus.NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+        for key, value in values.items():
+            if value is not None and hasattr(cumulative_training, key):
+                setattr(cumulative_training, key, value)
+
+        await cumulative_training.save()
+        return cumulative_training
+
+    async def delete(self,id : PydanticObjectId):
+        try:
+            # Find the training by ID
+            cumulative_training = await CumulativeTraining.get(id)
+            
+            if not cumulative_training:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail={
+                        "message": "Cumulative Training not found",
+                        "success": False,
+                        "status": ResponseStatus().NOT_FOUND,
+                        "data": None,
+                    },
+                )
+
+            # Perform the deletion
+            await cumulative_training.delete()
+
+            return {"message": "Cumulative Training successfully deleted", "data": cumulative_training}
+
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail={
+                    "message": f"Error deleting cumulative training: {str(e)}",
+                    "success": False,
+                    "status": "Error",
+                    "data": None,
+                },
+            )
+    async def count(self):
+        return await CumulativeTraining.find().count()
+
+    async def query_count(self,  filter: list[dict]):
+        results = await CumulativeTraining.aggregate(filter).to_list()
+        return len(results)
+
+    async def query(self, filter: list[dict], page: int, page_size: int):
+        skip = (page - 1) * page_size
+        query = [] + filter
+        total_items = await self.query_count(query)
+        results = await CumulativeTraining.aggregate(
+            query + [{"$skip": skip}, {"$limit": page_size}]
+        ).to_list()
+        total_pages = (total_items + page_size - 1) // page_size
+        remaining_items = max(0, total_items - (skip + len(results)))
+
+        return {
+            "total_items": total_items,
+            "total_pages": total_pages,
+            "page": page,
+            "page_size": page_size,
+            "remaining_items": remaining_items,
+            "data": parse_json(results),
+        }
+
+    async def export_query(self, filter: list[dict]):
+
+        query = [] + filter
+        total_items = await self.query_count(query)
+        results = await CumulativeTraining.aggregate(query).to_list()
+
+        return {
+            "total_items": total_items,
+            "data":  parse_json(results),
+        }
+
+    async def get(self, id: PydanticObjectId):
+        cumulative_training = await CumulativeTraining.find_one(CumulativeTraining.id == id)
+        if not cumulative_training:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "message": "cumulative training not found",
+                    "success": False,
+                    "status": ResponseStatus.NOT_FOUND.value,
+                    "data": None,
+                },
+            )
+        return cumulative_training
+
+    async def get_all():
+        results = await CumulativeTraining.find().to_list()
+        return {
+            "message": "Cumulative Training Retrieved Successfully",
+            "success": True,
+            "status": ResponseStatus.RETRIEVED,
+            "data": results,
+        }
+        
