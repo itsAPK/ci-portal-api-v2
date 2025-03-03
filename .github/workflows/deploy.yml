@@ -1,0 +1,45 @@
+name: Build & Deploy to SERVER
+
+on:
+  push:
+    branches:
+      - master  # Adjust as needed
+
+jobs:
+  build-and-push:
+    name: Build and Push Docker Image to GHCR
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.ACCESS_TOKEN }}" | docker login ghcr.io -u itsapk --password-stdin
+
+      - name: Build Docker image
+        run: docker build -t ghcr.io/itsapk/ci-portal-api:latest .
+
+     
+
+      - name: Push Docker image to GHCR
+        run: docker push ghcr.io/itsapk/ci-portal-api:latest
+
+  deploy:
+    name: Deploy to SERVER
+    runs-on: ubuntu-latest
+    needs: build-and-push
+
+    steps:
+      - name: SSH into SERVER and Deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}  
+          script: |
+            docker login ghcr.io -u itsapk --password ${{ secrets.ACCESS_TOKEN }}
+            docker pull ghcr.io/itsapk/ci-portal-api:latest
+            docker stop ci-portal-api || true
+            docker rm ci-portal-api || true
+            docker run -d --name ci-portal-api -p 3241:3241 --restart unless-stopped ghcr.io/itsapk/ci-portal-api:latest
