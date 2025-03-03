@@ -92,7 +92,7 @@ jobs:
             docker rm ci-portal-api || true
 
             echo "🚀 Starting new container..."
-            docker run -d --name ci-portal-api -p 3240:3240 --restart unless-stopped ghcr.io/itsapk/ci-portal-api:latest
+            docker run -d --name ci-portal-api -p 3241:3241 --restart unless-stopped ghcr.io/itsapk/ci-portal-api:latest
 
       - name: ✅ Notify Telegram - Deployment Completed
         uses: appleboy/telegram-action@master
