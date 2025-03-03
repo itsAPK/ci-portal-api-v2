@@ -1,24 +1,11 @@
 FROM python:3.12-slim
 
-# Set the working directory in the container
 WORKDIR /app
 
-# Configure Poetry
-ENV POETRY_VERSION=1.2.0
-ENV POETRY_HOME=/opt/poetry
-ENV POETRY_VENV=/opt/poetry-venv
-ENV POETRY_CACHE_DIR=/opt/.cache
+COPY requirements.txt ./
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt
 
-# Install poetry separated from system interpreter
-RUN python3 -m venv $POETRY_VENV \
-	&& $POETRY_VENV/bin/pip install -U pip setuptools \
-	&& $POETRY_VENV/bin/pip install poetry==${POETRY_VERSION}
-
-# Add `poetry` to PATH
-ENV PATH="${PATH}:${POETRY_VENV}/bin"
-COPY pyproject.toml ./
-RUN poetry install
 COPY . .
-CMD ["poetry","run","uvicorn","app.main:app","--host", "0.0.0.0", "--port", "3240"]
 
-
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "3240"]
