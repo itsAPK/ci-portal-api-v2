@@ -24,3 +24,1013 @@ Traceback (most recent call last):
     version = _bcrypt.__about__.__version__
               ^^^^^^^^^^^^^^^^^
 AttributeError: module 'bcrypt' has no attribute '__about__'
+2025-03-06 03:15:35,516 - INFO - Attempting to send email to: ['rbk2@amararaja.com'] | Subject: CIRTS Portal: New Opportunity Assigned 
+2025-03-06 03:16:35,812 - ERROR - Failed to send email to ['rbk2@amararaja.com'] | Error: Exception raised Timed out connecting to 10.120.0.104 on port 25, check your credentials or email service configuration
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/tasks.py", line 507, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "uvloop/loop.pyx", line 2033, in create_connection
+  File "uvloop/loop.pyx", line 2020, in uvloop.loop.Loop.create_connection
+asyncio.exceptions.CancelledError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 479, in _create_connection
+    transport, _ = await asyncio.wait_for(connect_coro, timeout=timeout)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/tasks.py", line 506, in wait_for
+    async with timeouts.timeout(timeout):
+               ~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/timeouts.py", line 116, in __aexit__
+    raise TimeoutError from exc_val
+TimeoutError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 45, in _configure_connection
+    await self.session.connect()
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 433, in connect
+    raise exc
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 426, in connect
+    response = await self._create_connection(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        timeout=self.timeout if timeout is _default else timeout
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 481, in _create_connection
+    raise SMTPConnectTimeoutError(
+        f"Timed out connecting to {self.hostname} on port {self.port}"
+    ) from exc
+aiosmtplib.errors.SMTPConnectTimeoutError: Timed out connecting to 10.120.0.104 on port 25
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/app/core/mail.py", line 49, in send_email
+    await fm.send_message(message, template_name="base.html")
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/fastmail.py", line 110, in send_message
+    async with Connection(self.config) as session:
+               ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 23, in __aenter__
+    await self._configure_connection()
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 54, in _configure_connection
+    raise ConnectionErrors(
+        f"Exception raised {error}, check your credentials or email service configuration"
+    )
+fastapi_mail.errors.ConnectionErrors: Exception raised Timed out connecting to 10.120.0.104 on port 25, check your credentials or email service configuration
+2025-03-06 03:16:35,866 - INFO - Attempting to send email to: ['rbk2@amararaja.com'] | Subject: CIRTS Portal: Opportunity (ABD 3/BB/2025-2026/002) Assigned
+2025-03-06 03:17:35,894 - ERROR - Failed to send email to ['rbk2@amararaja.com'] | Error: Exception raised Timed out connecting to 10.120.0.104 on port 25, check your credentials or email service configuration
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/tasks.py", line 507, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "uvloop/loop.pyx", line 2033, in create_connection
+  File "uvloop/loop.pyx", line 2020, in uvloop.loop.Loop.create_connection
+asyncio.exceptions.CancelledError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 479, in _create_connection
+    transport, _ = await asyncio.wait_for(connect_coro, timeout=timeout)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/tasks.py", line 506, in wait_for
+    async with timeouts.timeout(timeout):
+               ~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/timeouts.py", line 116, in __aexit__
+    raise TimeoutError from exc_val
+TimeoutError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 45, in _configure_connection
+    await self.session.connect()
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 433, in connect
+    raise exc
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 426, in connect
+    response = await self._create_connection(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        timeout=self.timeout if timeout is _default else timeout
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 481, in _create_connection
+    raise SMTPConnectTimeoutError(
+        f"Timed out connecting to {self.hostname} on port {self.port}"
+    ) from exc
+aiosmtplib.errors.SMTPConnectTimeoutError: Timed out connecting to 10.120.0.104 on port 25
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/app/core/mail.py", line 49, in send_email
+    await fm.send_message(message, template_name="base.html")
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/fastmail.py", line 110, in send_message
+    async with Connection(self.config) as session:
+               ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 23, in __aenter__
+    await self._configure_connection()
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 54, in _configure_connection
+    raise ConnectionErrors(
+        f"Exception raised {error}, check your credentials or email service configuration"
+    )
+fastapi_mail.errors.ConnectionErrors: Exception raised Timed out connecting to 10.120.0.104 on port 25, check your credentials or email service configuration
+2025-03-06 03:17:35,900 - INFO - Attempting to send email to: ['apoorva@niranthra.in'] | Subject: CIRTS Portal: Opportunity (ABD 3/BB/2025-2026/002) Assigned
+2025-03-06 03:18:36,087 - ERROR - Failed to send email to ['apoorva@niranthra.in'] | Error: Exception raised Timed out connecting to 10.120.0.104 on port 25, check your credentials or email service configuration
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/tasks.py", line 507, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "uvloop/loop.pyx", line 2033, in create_connection
+  File "uvloop/loop.pyx", line 2020, in uvloop.loop.Loop.create_connection
+asyncio.exceptions.CancelledError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 479, in _create_connection
+    transport, _ = await asyncio.wait_for(connect_coro, timeout=timeout)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/tasks.py", line 506, in wait_for
+    async with timeouts.timeout(timeout):
+               ~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/timeouts.py", line 116, in __aexit__
+    raise TimeoutError from exc_val
+TimeoutError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 45, in _configure_connection
+    await self.session.connect()
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 433, in connect
+    raise exc
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 426, in connect
+    response = await self._create_connection(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        timeout=self.timeout if timeout is _default else timeout
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 481, in _create_connection
+    raise SMTPConnectTimeoutError(
+        f"Timed out connecting to {self.hostname} on port {self.port}"
+    ) from exc
+aiosmtplib.errors.SMTPConnectTimeoutError: Timed out connecting to 10.120.0.104 on port 25
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/app/core/mail.py", line 49, in send_email
+    await fm.send_message(message, template_name="base.html")
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/fastmail.py", line 110, in send_message
+    async with Connection(self.config) as session:
+               ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 23, in __aenter__
+    await self._configure_connection()
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 54, in _configure_connection
+    raise ConnectionErrors(
+        f"Exception raised {error}, check your credentials or email service configuration"
+    )
+fastapi_mail.errors.ConnectionErrors: Exception raised Timed out connecting to 10.120.0.104 on port 25, check your credentials or email service configuration
+2025-03-06 03:27:48,960 - INFO - Attempting to send email to: ['rbk2@amararaja.com'] | Subject: CIRTS Portal: New Opportunity Assigned 
+2025-03-06 03:28:49,167 - ERROR - Failed to send email to ['rbk2@amararaja.com'] | Error: Exception raised Timed out connecting to 10.120.0.104 on port 25, check your credentials or email service configuration
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/tasks.py", line 507, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "uvloop/loop.pyx", line 2033, in create_connection
+  File "uvloop/loop.pyx", line 2020, in uvloop.loop.Loop.create_connection
+asyncio.exceptions.CancelledError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 479, in _create_connection
+    transport, _ = await asyncio.wait_for(connect_coro, timeout=timeout)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/tasks.py", line 506, in wait_for
+    async with timeouts.timeout(timeout):
+               ~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/timeouts.py", line 116, in __aexit__
+    raise TimeoutError from exc_val
+TimeoutError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 45, in _configure_connection
+    await self.session.connect()
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 433, in connect
+    raise exc
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 426, in connect
+    response = await self._create_connection(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        timeout=self.timeout if timeout is _default else timeout
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 481, in _create_connection
+    raise SMTPConnectTimeoutError(
+        f"Timed out connecting to {self.hostname} on port {self.port}"
+    ) from exc
+aiosmtplib.errors.SMTPConnectTimeoutError: Timed out connecting to 10.120.0.104 on port 25
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/app/core/mail.py", line 49, in send_email
+    await fm.send_message(message, template_name="base.html")
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/fastmail.py", line 110, in send_message
+    async with Connection(self.config) as session:
+               ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 23, in __aenter__
+    await self._configure_connection()
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 54, in _configure_connection
+    raise ConnectionErrors(
+        f"Exception raised {error}, check your credentials or email service configuration"
+    )
+fastapi_mail.errors.ConnectionErrors: Exception raised Timed out connecting to 10.120.0.104 on port 25, check your credentials or email service configuration
+2025-03-06 03:28:49,183 - INFO - Attempting to send email to: ['rbk2@amararaja.com'] | Subject: CIRTS Portal: Opportunity (ASG/BB/2025-2026/001) Assigned
+2025-03-06 03:29:49,194 - ERROR - Failed to send email to ['rbk2@amararaja.com'] | Error: Exception raised Timed out connecting to 10.120.0.104 on port 25, check your credentials or email service configuration
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/tasks.py", line 507, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "uvloop/loop.pyx", line 2033, in create_connection
+  File "uvloop/loop.pyx", line 2020, in uvloop.loop.Loop.create_connection
+asyncio.exceptions.CancelledError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 479, in _create_connection
+    transport, _ = await asyncio.wait_for(connect_coro, timeout=timeout)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/tasks.py", line 506, in wait_for
+    async with timeouts.timeout(timeout):
+               ~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/timeouts.py", line 116, in __aexit__
+    raise TimeoutError from exc_val
+TimeoutError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 45, in _configure_connection
+    await self.session.connect()
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 433, in connect
+    raise exc
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 426, in connect
+    response = await self._create_connection(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        timeout=self.timeout if timeout is _default else timeout
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 481, in _create_connection
+    raise SMTPConnectTimeoutError(
+        f"Timed out connecting to {self.hostname} on port {self.port}"
+    ) from exc
+aiosmtplib.errors.SMTPConnectTimeoutError: Timed out connecting to 10.120.0.104 on port 25
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/app/core/mail.py", line 49, in send_email
+    await fm.send_message(message, template_name="base.html")
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/fastmail.py", line 110, in send_message
+    async with Connection(self.config) as session:
+               ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 23, in __aenter__
+    await self._configure_connection()
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 54, in _configure_connection
+    raise ConnectionErrors(
+        f"Exception raised {error}, check your credentials or email service configuration"
+    )
+fastapi_mail.errors.ConnectionErrors: Exception raised Timed out connecting to 10.120.0.104 on port 25, check your credentials or email service configuration
+2025-03-06 03:29:49,201 - INFO - Attempting to send email to: ['apoorva@niranthra.in'] | Subject: CIRTS Portal: Opportunity (ASG/BB/2025-2026/001) Assigned
+2025-03-06 03:30:49,211 - ERROR - Failed to send email to ['apoorva@niranthra.in'] | Error: Exception raised Timed out connecting to 10.120.0.104 on port 25, check your credentials or email service configuration
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/tasks.py", line 507, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "uvloop/loop.pyx", line 2033, in create_connection
+  File "uvloop/loop.pyx", line 2020, in uvloop.loop.Loop.create_connection
+asyncio.exceptions.CancelledError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 479, in _create_connection
+    transport, _ = await asyncio.wait_for(connect_coro, timeout=timeout)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/tasks.py", line 506, in wait_for
+    async with timeouts.timeout(timeout):
+               ~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/timeouts.py", line 116, in __aexit__
+    raise TimeoutError from exc_val
+TimeoutError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 45, in _configure_connection
+    await self.session.connect()
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 433, in connect
+    raise exc
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 426, in connect
+    response = await self._create_connection(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        timeout=self.timeout if timeout is _default else timeout
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 481, in _create_connection
+    raise SMTPConnectTimeoutError(
+        f"Timed out connecting to {self.hostname} on port {self.port}"
+    ) from exc
+aiosmtplib.errors.SMTPConnectTimeoutError: Timed out connecting to 10.120.0.104 on port 25
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/app/core/mail.py", line 49, in send_email
+    await fm.send_message(message, template_name="base.html")
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/fastmail.py", line 110, in send_message
+    async with Connection(self.config) as session:
+               ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 23, in __aenter__
+    await self._configure_connection()
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 54, in _configure_connection
+    raise ConnectionErrors(
+        f"Exception raised {error}, check your credentials or email service configuration"
+    )
+fastapi_mail.errors.ConnectionErrors: Exception raised Timed out connecting to 10.120.0.104 on port 25, check your credentials or email service configuration
+2025-03-06 03:33:26,834 - INFO - Attempting to send email to: ['rbk2@amararaja.com'] | Subject: CIRTS Portal: Opportunity (ASG/BB/2025-2026/001) is updated
+2025-03-06 03:33:48,592 - INFO - Attempting to send email to: ['nan'] | Subject: CIRTS Portal : New Opportunity Assigned 
+2025-03-06 03:33:48,595 - ERROR - Failed to send email to ['nan'] | Error: 1 validation error for MessageSchema
+recipients.0
+  value is not a valid email address: An email address must have an @-sign. [type=value_error, input_value='nan', input_type=str]
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/app/core/mail.py", line 41, in send_email
+    message = MessageSchema(
+        subject=subject,
+    ...<2 lines>...
+        subtype=MessageType.html,
+    )
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/pydantic/main.py", line 214, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+pydantic_core._pydantic_core.ValidationError: 1 validation error for MessageSchema
+recipients.0
+  value is not a valid email address: An email address must have an @-sign. [type=value_error, input_value='nan', input_type=str]
+2025-03-06 03:33:56,017 - INFO - Attempting to send email to: ['kmsn@amararaja.com'] | Subject: CIRTS Portal : New Opportunity Assigned 
+2025-03-06 03:34:02,111 - INFO - Attempting to send email to: ['vpr@amararaja.com'] | Subject: CIRTS Portal : New Opportunity Assigned 
+2025-03-06 03:34:27,058 - ERROR - Failed to send email to ['rbk2@amararaja.com'] | Error: Exception raised Timed out connecting to 10.120.0.104 on port 25, check your credentials or email service configuration
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/tasks.py", line 507, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "uvloop/loop.pyx", line 2033, in create_connection
+  File "uvloop/loop.pyx", line 2020, in uvloop.loop.Loop.create_connection
+asyncio.exceptions.CancelledError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 479, in _create_connection
+    transport, _ = await asyncio.wait_for(connect_coro, timeout=timeout)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/tasks.py", line 506, in wait_for
+    async with timeouts.timeout(timeout):
+               ~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/timeouts.py", line 116, in __aexit__
+    raise TimeoutError from exc_val
+TimeoutError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 45, in _configure_connection
+    await self.session.connect()
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 433, in connect
+    raise exc
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 426, in connect
+    response = await self._create_connection(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        timeout=self.timeout if timeout is _default else timeout
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 481, in _create_connection
+    raise SMTPConnectTimeoutError(
+        f"Timed out connecting to {self.hostname} on port {self.port}"
+    ) from exc
+aiosmtplib.errors.SMTPConnectTimeoutError: Timed out connecting to 10.120.0.104 on port 25
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/app/core/mail.py", line 49, in send_email
+    await fm.send_message(message, template_name="base.html")
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/fastmail.py", line 110, in send_message
+    async with Connection(self.config) as session:
+               ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 23, in __aenter__
+    await self._configure_connection()
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 54, in _configure_connection
+    raise ConnectionErrors(
+        f"Exception raised {error}, check your credentials or email service configuration"
+    )
+fastapi_mail.errors.ConnectionErrors: Exception raised Timed out connecting to 10.120.0.104 on port 25, check your credentials or email service configuration
+2025-03-06 03:34:27,069 - INFO - Attempting to send email to: ['apoorva@niranthra.in'] | Subject: CIRTS Portal: Opportunity (ASG/BB/2025-2026/001) is updated
+2025-03-06 03:34:56,027 - ERROR - Failed to send email to ['kmsn@amararaja.com'] | Error: Exception raised Timed out connecting to 10.120.0.104 on port 25, check your credentials or email service configuration
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/tasks.py", line 507, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "uvloop/loop.pyx", line 2033, in create_connection
+  File "uvloop/loop.pyx", line 2020, in uvloop.loop.Loop.create_connection
+asyncio.exceptions.CancelledError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 479, in _create_connection
+    transport, _ = await asyncio.wait_for(connect_coro, timeout=timeout)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/tasks.py", line 506, in wait_for
+    async with timeouts.timeout(timeout):
+               ~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/timeouts.py", line 116, in __aexit__
+    raise TimeoutError from exc_val
+TimeoutError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 45, in _configure_connection
+    await self.session.connect()
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 433, in connect
+    raise exc
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 426, in connect
+    response = await self._create_connection(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        timeout=self.timeout if timeout is _default else timeout
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 481, in _create_connection
+    raise SMTPConnectTimeoutError(
+        f"Timed out connecting to {self.hostname} on port {self.port}"
+    ) from exc
+aiosmtplib.errors.SMTPConnectTimeoutError: Timed out connecting to 10.120.0.104 on port 25
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/app/core/mail.py", line 49, in send_email
+    await fm.send_message(message, template_name="base.html")
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/fastmail.py", line 110, in send_message
+    async with Connection(self.config) as session:
+               ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 23, in __aenter__
+    await self._configure_connection()
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 54, in _configure_connection
+    raise ConnectionErrors(
+        f"Exception raised {error}, check your credentials or email service configuration"
+    )
+fastapi_mail.errors.ConnectionErrors: Exception raised Timed out connecting to 10.120.0.104 on port 25, check your credentials or email service configuration
+2025-03-06 03:35:02,119 - ERROR - Failed to send email to ['vpr@amararaja.com'] | Error: Exception raised Timed out connecting to 10.120.0.104 on port 25, check your credentials or email service configuration
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/tasks.py", line 507, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "uvloop/loop.pyx", line 2033, in create_connection
+  File "uvloop/loop.pyx", line 2020, in uvloop.loop.Loop.create_connection
+asyncio.exceptions.CancelledError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 479, in _create_connection
+    transport, _ = await asyncio.wait_for(connect_coro, timeout=timeout)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/tasks.py", line 506, in wait_for
+    async with timeouts.timeout(timeout):
+               ~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/timeouts.py", line 116, in __aexit__
+    raise TimeoutError from exc_val
+TimeoutError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 45, in _configure_connection
+    await self.session.connect()
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 433, in connect
+    raise exc
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 426, in connect
+    response = await self._create_connection(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        timeout=self.timeout if timeout is _default else timeout
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 481, in _create_connection
+    raise SMTPConnectTimeoutError(
+        f"Timed out connecting to {self.hostname} on port {self.port}"
+    ) from exc
+aiosmtplib.errors.SMTPConnectTimeoutError: Timed out connecting to 10.120.0.104 on port 25
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/app/core/mail.py", line 49, in send_email
+    await fm.send_message(message, template_name="base.html")
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/fastmail.py", line 110, in send_message
+    async with Connection(self.config) as session:
+               ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 23, in __aenter__
+    await self._configure_connection()
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 54, in _configure_connection
+    raise ConnectionErrors(
+        f"Exception raised {error}, check your credentials or email service configuration"
+    )
+fastapi_mail.errors.ConnectionErrors: Exception raised Timed out connecting to 10.120.0.104 on port 25, check your credentials or email service configuration
+2025-03-06 03:35:27,081 - ERROR - Failed to send email to ['apoorva@niranthra.in'] | Error: Exception raised Timed out connecting to 10.120.0.104 on port 25, check your credentials or email service configuration
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/tasks.py", line 507, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "uvloop/loop.pyx", line 2033, in create_connection
+  File "uvloop/loop.pyx", line 2020, in uvloop.loop.Loop.create_connection
+asyncio.exceptions.CancelledError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 479, in _create_connection
+    transport, _ = await asyncio.wait_for(connect_coro, timeout=timeout)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/tasks.py", line 506, in wait_for
+    async with timeouts.timeout(timeout):
+               ~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/timeouts.py", line 116, in __aexit__
+    raise TimeoutError from exc_val
+TimeoutError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 45, in _configure_connection
+    await self.session.connect()
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 433, in connect
+    raise exc
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 426, in connect
+    response = await self._create_connection(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        timeout=self.timeout if timeout is _default else timeout
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 481, in _create_connection
+    raise SMTPConnectTimeoutError(
+        f"Timed out connecting to {self.hostname} on port {self.port}"
+    ) from exc
+aiosmtplib.errors.SMTPConnectTimeoutError: Timed out connecting to 10.120.0.104 on port 25
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/app/core/mail.py", line 49, in send_email
+    await fm.send_message(message, template_name="base.html")
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/fastmail.py", line 110, in send_message
+    async with Connection(self.config) as session:
+               ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 23, in __aenter__
+    await self._configure_connection()
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 54, in _configure_connection
+    raise ConnectionErrors(
+        f"Exception raised {error}, check your credentials or email service configuration"
+    )
+fastapi_mail.errors.ConnectionErrors: Exception raised Timed out connecting to 10.120.0.104 on port 25, check your credentials or email service configuration
+2025-03-06 03:36:38,887 - INFO - Attempting to send email to: ['rbk2@amararaja.com'] | Subject: CIRTS Portal: Opportunity (ASG/BB/2025-2026/001) is updated
+2025-03-06 03:37:39,122 - ERROR - Failed to send email to ['rbk2@amararaja.com'] | Error: Exception raised Timed out connecting to 10.120.0.104 on port 25, check your credentials or email service configuration
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/tasks.py", line 507, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "uvloop/loop.pyx", line 2033, in create_connection
+  File "uvloop/loop.pyx", line 2020, in uvloop.loop.Loop.create_connection
+asyncio.exceptions.CancelledError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 479, in _create_connection
+    transport, _ = await asyncio.wait_for(connect_coro, timeout=timeout)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/tasks.py", line 506, in wait_for
+    async with timeouts.timeout(timeout):
+               ~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/timeouts.py", line 116, in __aexit__
+    raise TimeoutError from exc_val
+TimeoutError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 45, in _configure_connection
+    await self.session.connect()
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 433, in connect
+    raise exc
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 426, in connect
+    response = await self._create_connection(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        timeout=self.timeout if timeout is _default else timeout
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 481, in _create_connection
+    raise SMTPConnectTimeoutError(
+        f"Timed out connecting to {self.hostname} on port {self.port}"
+    ) from exc
+aiosmtplib.errors.SMTPConnectTimeoutError: Timed out connecting to 10.120.0.104 on port 25
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/app/core/mail.py", line 49, in send_email
+    await fm.send_message(message, template_name="base.html")
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/fastmail.py", line 110, in send_message
+    async with Connection(self.config) as session:
+               ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 23, in __aenter__
+    await self._configure_connection()
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 54, in _configure_connection
+    raise ConnectionErrors(
+        f"Exception raised {error}, check your credentials or email service configuration"
+    )
+fastapi_mail.errors.ConnectionErrors: Exception raised Timed out connecting to 10.120.0.104 on port 25, check your credentials or email service configuration
+2025-03-06 03:37:39,134 - INFO - Attempting to send email to: ['apoorva@niranthra.in'] | Subject: CIRTS Portal: Opportunity (ASG/BB/2025-2026/001) is updated
+2025-03-06 03:38:39,170 - ERROR - Failed to send email to ['apoorva@niranthra.in'] | Error: Exception raised Timed out connecting to 10.120.0.104 on port 25, check your credentials or email service configuration
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/tasks.py", line 507, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "uvloop/loop.pyx", line 2033, in create_connection
+  File "uvloop/loop.pyx", line 2020, in uvloop.loop.Loop.create_connection
+asyncio.exceptions.CancelledError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 479, in _create_connection
+    transport, _ = await asyncio.wait_for(connect_coro, timeout=timeout)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/tasks.py", line 506, in wait_for
+    async with timeouts.timeout(timeout):
+               ~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/timeouts.py", line 116, in __aexit__
+    raise TimeoutError from exc_val
+TimeoutError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 45, in _configure_connection
+    await self.session.connect()
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 433, in connect
+    raise exc
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 426, in connect
+    response = await self._create_connection(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        timeout=self.timeout if timeout is _default else timeout
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 481, in _create_connection
+    raise SMTPConnectTimeoutError(
+        f"Timed out connecting to {self.hostname} on port {self.port}"
+    ) from exc
+aiosmtplib.errors.SMTPConnectTimeoutError: Timed out connecting to 10.120.0.104 on port 25
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/app/core/mail.py", line 49, in send_email
+    await fm.send_message(message, template_name="base.html")
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/fastmail.py", line 110, in send_message
+    async with Connection(self.config) as session:
+               ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 23, in __aenter__
+    await self._configure_connection()
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 54, in _configure_connection
+    raise ConnectionErrors(
+        f"Exception raised {error}, check your credentials or email service configuration"
+    )
+fastapi_mail.errors.ConnectionErrors: Exception raised Timed out connecting to 10.120.0.104 on port 25, check your credentials or email service configuration
+2025-04-08 17:09:42,319 - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2025-04-09 21:57:40,701 - INFO - Attempting to send email to: ['rbk2@amararaja.com'] | Subject: CIRTS Portal: New Opportunity Assigned 
+2025-04-09 21:57:54,431 - INFO - Attempting to send email to: ['rbk2@amararaja.com'] | Subject: CIRTS Portal: Opportunity (ABD 1/BB/2025-2026/001) is updated
+2025-04-09 21:58:40,888 - ERROR - Failed to send email to ['rbk2@amararaja.com'] | Error: Exception raised Timed out connecting to 10.120.0.104 on port 25, check your credentials or email service configuration
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/tasks.py", line 507, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "uvloop/loop.pyx", line 2033, in create_connection
+  File "uvloop/loop.pyx", line 2020, in uvloop.loop.Loop.create_connection
+asyncio.exceptions.CancelledError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 479, in _create_connection
+    transport, _ = await asyncio.wait_for(connect_coro, timeout=timeout)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/tasks.py", line 506, in wait_for
+    async with timeouts.timeout(timeout):
+               ~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/timeouts.py", line 116, in __aexit__
+    raise TimeoutError from exc_val
+TimeoutError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 45, in _configure_connection
+    await self.session.connect()
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 433, in connect
+    raise exc
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 426, in connect
+    response = await self._create_connection(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        timeout=self.timeout if timeout is _default else timeout
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 481, in _create_connection
+    raise SMTPConnectTimeoutError(
+        f"Timed out connecting to {self.hostname} on port {self.port}"
+    ) from exc
+aiosmtplib.errors.SMTPConnectTimeoutError: Timed out connecting to 10.120.0.104 on port 25
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/app/core/mail.py", line 49, in send_email
+    await fm.send_message(message, template_name="base.html")
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/fastmail.py", line 110, in send_message
+    async with Connection(self.config) as session:
+               ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 23, in __aenter__
+    await self._configure_connection()
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 54, in _configure_connection
+    raise ConnectionErrors(
+        f"Exception raised {error}, check your credentials or email service configuration"
+    )
+fastapi_mail.errors.ConnectionErrors: Exception raised Timed out connecting to 10.120.0.104 on port 25, check your credentials or email service configuration
+2025-04-09 21:58:40,902 - INFO - Attempting to send email to: ['rbk2@amararaja.com'] | Subject: CIRTS Portal: Opportunity (ABD 1/BB/2025-2026/001) Assigned
+2025-04-09 21:58:54,441 - ERROR - Failed to send email to ['rbk2@amararaja.com'] | Error: Exception raised Timed out connecting to 10.120.0.104 on port 25, check your credentials or email service configuration
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/tasks.py", line 507, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "uvloop/loop.pyx", line 2033, in create_connection
+  File "uvloop/loop.pyx", line 2020, in uvloop.loop.Loop.create_connection
+asyncio.exceptions.CancelledError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 479, in _create_connection
+    transport, _ = await asyncio.wait_for(connect_coro, timeout=timeout)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/tasks.py", line 506, in wait_for
+    async with timeouts.timeout(timeout):
+               ~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/timeouts.py", line 116, in __aexit__
+    raise TimeoutError from exc_val
+TimeoutError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 45, in _configure_connection
+    await self.session.connect()
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 433, in connect
+    raise exc
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 426, in connect
+    response = await self._create_connection(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        timeout=self.timeout if timeout is _default else timeout
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 481, in _create_connection
+    raise SMTPConnectTimeoutError(
+        f"Timed out connecting to {self.hostname} on port {self.port}"
+    ) from exc
+aiosmtplib.errors.SMTPConnectTimeoutError: Timed out connecting to 10.120.0.104 on port 25
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/app/core/mail.py", line 49, in send_email
+    await fm.send_message(message, template_name="base.html")
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/fastmail.py", line 110, in send_message
+    async with Connection(self.config) as session:
+               ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 23, in __aenter__
+    await self._configure_connection()
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 54, in _configure_connection
+    raise ConnectionErrors(
+        f"Exception raised {error}, check your credentials or email service configuration"
+    )
+fastapi_mail.errors.ConnectionErrors: Exception raised Timed out connecting to 10.120.0.104 on port 25, check your credentials or email service configuration
+2025-04-09 21:58:54,444 - INFO - Attempting to send email to: ['apoorva@niranthra.in'] | Subject: CIRTS Portal: Opportunity (ABD 1/BB/2025-2026/001) is updated
+2025-04-09 22:00:51,685 - INFO - Attempting to send email to: ['rbk2@amararaja.com'] | Subject: CIRTS Portal: Opportunity (ABD 1/BB/2025-2026/001) is updated
+2025-04-09 22:01:51,855 - ERROR - Failed to send email to ['rbk2@amararaja.com'] | Error: Exception raised Timed out connecting to 10.120.0.104 on port 25, check your credentials or email service configuration
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/tasks.py", line 507, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "uvloop/loop.pyx", line 2033, in create_connection
+  File "uvloop/loop.pyx", line 2020, in uvloop.loop.Loop.create_connection
+asyncio.exceptions.CancelledError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 479, in _create_connection
+    transport, _ = await asyncio.wait_for(connect_coro, timeout=timeout)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/tasks.py", line 506, in wait_for
+    async with timeouts.timeout(timeout):
+               ~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/timeouts.py", line 116, in __aexit__
+    raise TimeoutError from exc_val
+TimeoutError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 45, in _configure_connection
+    await self.session.connect()
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 433, in connect
+    raise exc
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 426, in connect
+    response = await self._create_connection(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        timeout=self.timeout if timeout is _default else timeout
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 481, in _create_connection
+    raise SMTPConnectTimeoutError(
+        f"Timed out connecting to {self.hostname} on port {self.port}"
+    ) from exc
+aiosmtplib.errors.SMTPConnectTimeoutError: Timed out connecting to 10.120.0.104 on port 25
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/app/core/mail.py", line 49, in send_email
+    await fm.send_message(message, template_name="base.html")
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/fastmail.py", line 110, in send_message
+    async with Connection(self.config) as session:
+               ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 23, in __aenter__
+    await self._configure_connection()
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 54, in _configure_connection
+    raise ConnectionErrors(
+        f"Exception raised {error}, check your credentials or email service configuration"
+    )
+fastapi_mail.errors.ConnectionErrors: Exception raised Timed out connecting to 10.120.0.104 on port 25, check your credentials or email service configuration
+2025-04-09 22:01:51,865 - INFO - Attempting to send email to: ['apoorva@niranthra.in'] | Subject: CIRTS Portal: Opportunity (ABD 1/BB/2025-2026/001) is updated
+2025-04-09 22:02:51,873 - ERROR - Failed to send email to ['apoorva@niranthra.in'] | Error: Exception raised Timed out connecting to 10.120.0.104 on port 25, check your credentials or email service configuration
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/tasks.py", line 507, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "uvloop/loop.pyx", line 2033, in create_connection
+  File "uvloop/loop.pyx", line 2020, in uvloop.loop.Loop.create_connection
+asyncio.exceptions.CancelledError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 479, in _create_connection
+    transport, _ = await asyncio.wait_for(connect_coro, timeout=timeout)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/tasks.py", line 506, in wait_for
+    async with timeouts.timeout(timeout):
+               ~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/timeouts.py", line 116, in __aexit__
+    raise TimeoutError from exc_val
+TimeoutError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 45, in _configure_connection
+    await self.session.connect()
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 433, in connect
+    raise exc
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 426, in connect
+    response = await self._create_connection(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        timeout=self.timeout if timeout is _default else timeout
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 481, in _create_connection
+    raise SMTPConnectTimeoutError(
+        f"Timed out connecting to {self.hostname} on port {self.port}"
+    ) from exc
+aiosmtplib.errors.SMTPConnectTimeoutError: Timed out connecting to 10.120.0.104 on port 25
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/app/core/mail.py", line 49, in send_email
+    await fm.send_message(message, template_name="base.html")
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/fastmail.py", line 110, in send_message
+    async with Connection(self.config) as session:
+               ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 23, in __aenter__
+    await self._configure_connection()
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 54, in _configure_connection
+    raise ConnectionErrors(
+        f"Exception raised {error}, check your credentials or email service configuration"
+    )
+fastapi_mail.errors.ConnectionErrors: Exception raised Timed out connecting to 10.120.0.104 on port 25, check your credentials or email service configuration
+2025-04-12 00:01:33,535 - INFO - Attempting to send email to: ['arkp@amararaja.com'] | Subject: CIRTS Portal : Approval Requested For Opportunity ABD 1/BB/2025-2026/001 (CIRTS Portal) 
+2025-04-12 00:02:33,710 - ERROR - Failed to send email to ['arkp@amararaja.com'] | Error: Exception raised Timed out connecting to 10.120.0.104 on port 25, check your credentials or email service configuration
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/tasks.py", line 507, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "uvloop/loop.pyx", line 2033, in create_connection
+  File "uvloop/loop.pyx", line 2020, in uvloop.loop.Loop.create_connection
+asyncio.exceptions.CancelledError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 479, in _create_connection
+    transport, _ = await asyncio.wait_for(connect_coro, timeout=timeout)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/tasks.py", line 506, in wait_for
+    async with timeouts.timeout(timeout):
+               ~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/timeouts.py", line 116, in __aexit__
+    raise TimeoutError from exc_val
+TimeoutError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 45, in _configure_connection
+    await self.session.connect()
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 433, in connect
+    raise exc
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 426, in connect
+    response = await self._create_connection(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        timeout=self.timeout if timeout is _default else timeout
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/aiosmtplib/smtp.py", line 481, in _create_connection
+    raise SMTPConnectTimeoutError(
+        f"Timed out connecting to {self.hostname} on port {self.port}"
+    ) from exc
+aiosmtplib.errors.SMTPConnectTimeoutError: Timed out connecting to 10.120.0.104 on port 25
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/apoorvakumar/ci-portal-api/app/core/mail.py", line 49, in send_email
+    await fm.send_message(message, template_name="base.html")
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/fastmail.py", line 110, in send_message
+    async with Connection(self.config) as session:
+               ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 23, in __aenter__
+    await self._configure_connection()
+  File "/Users/apoorvakumar/ci-portal-api/.venv/lib/python3.13/site-packages/fastapi_mail/connection.py", line 54, in _configure_connection
+    raise ConnectionErrors(
+        f"Exception raised {error}, check your credentials or email service configuration"
+    )
+fastapi_mail.errors.ConnectionErrors: Exception raised Timed out connecting to 10.120.0.104 on port 25, check your credentials or email service configuration

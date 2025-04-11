@@ -209,6 +209,8 @@ class DefinePhase(Document):
     part_no : str
     baseline : str 
     target : str
+    baseline_uom : Optional[str] = None
+    target_uom : Optional[str] = None   
     part_having_problem : str
     part_not_having_problem : str
     suspected_phenomenon : str
@@ -244,6 +246,8 @@ class DefinePhaseRequest(BaseModel):
     part_no : str
     baseline : str 
     target : str
+    baseline_uom : Optional[str] = None
+    target_uom : Optional[str] = None  
     part_having_problem : str
     part_not_having_problem : str
     suspected_phenomenon : str
@@ -278,8 +282,10 @@ class DefinePhaseRequest(BaseModel):
 
 class DefinePhaseUpdate(BaseModel):
     part_no : Optional[str] = None
-    baseline : Optional[int] = None
-    target : Optional[int] = None
+    baseline : Optional[str] = None
+    target : Optional[str] = None
+    baseline_uom : Optional[str] = None
+    target_uom : Optional[str] = None  
     part_having_problem : Optional[str] = None
     part_not_having_problem : Optional[str] = None
     suspected_phenomenon : Optional[str] = None
@@ -378,7 +384,7 @@ class ImprovementRequest(BaseModel):
     measure_analysis_id : PydanticObjectId
 
 class ImprovementUpdate(BaseModel):
-  
+    
     is_b_vs_c : Optional[bool] = None
  
     

@@ -164,6 +164,16 @@ class OpportunityRouter:
             data=result,
         )
         
+    @opportunity_router.get("/count/by_status", status_code=status.HTTP_200_OK)
+    async def count_by_status(self):
+        result = await self._service.get_count_by_status()
+        return Response(
+            message="Opportunity Retrieved Successfully",
+            success=True,
+            status=ResponseStatus.SUCCESS,
+            data=result,
+        )
+        
     @opportunity_router.post("/export", status_code=status.HTTP_200_OK)
     async def export(self, data: FilterRequest, page: int = 1, page_size: int = 10):
         result = await self._service.export_query(data.filter)
@@ -191,11 +201,10 @@ class OpportunityRouter:
     async def upload_opportunity_files(
         self,
         opportunity_id: PydanticObjectId,
-        files: list[UploadFile] = File(...),  # Accept a list of files
+        files: list[UploadFile] = File(...), 
     ):
         file_paths = []
         
-        # Loop through the files and save them
         for file in files:
             file_path = save_file(
                 file.file, OPPORTUNITY_CATEGORY_PATH, filename=file.filename
@@ -203,10 +212,9 @@ class OpportunityRouter:
             file_paths.append(file_path)
             print(file_path, opportunity_id)
         
-        # Call the service to upload each file to the opportunity
         result = await self._service.upload_files_to_opportunity(
             opportunity_id=opportunity_id,
-            files=file_paths,  # Pass the list of file paths
+            files=file_paths,  
         )
         
         return Response(
@@ -620,21 +628,23 @@ class OpportunityRouter:
         )
 
     @opportunity_router.patch(
-        "/ssv-tool/{opportunity_id}/{tool_id}", status_code=status.HTTP_200_OK
+        "/ssv-tool/{opportunity_id}", status_code=status.HTTP_200_OK
     )
     async def update_ssv_tool(
         self,
         opportunity_id: PydanticObjectId,
-        tool_id: PydanticObjectId,
-        data: SSVToolRequest,
+        data: list[SSVToolRequest],
     ):
-        result = await self._ssv_tool_service.update(tool_id, data, opportunity_id)
+        result = await self._ssv_tool_service.update_ssv_tools(data, opportunity_id)
         return Response(
             message="SSV Tool Updated Successfully",
             success=True,
             status=ResponseStatus.UPDATED,
             data=result,
         )
+        
+   
+  
 
     @opportunity_router.delete(
         "/ssv-tool/{opportunity_id}/{tool_id}", status_code=status.HTTP_200_OK
@@ -694,17 +704,16 @@ class OpportunityRouter:
         )
 
     @opportunity_router.patch(
-        "/measure-analysis/{opportunity_id}/{tool_id}",
+        "/measure-analysis/{opportunity_id}",
         status_code=status.HTTP_200_OK,
     )
     async def update_measure_analysis(
         self,
         opportunity_id: PydanticObjectId,
-        tool_id: PydanticObjectId,
-        data: MeasureAnalysisRequest,
+        data: list[MeasureAnalysisRequest],
     ):
-        result = await self._measure_analysis_service.update(
-            data, opportunity_id, tool_id
+        result = await self._measure_analysis_service.update_measure_analysis(
+            data, opportunity_id
         )
         return Response(
             message="Measure Analysis Updated Successfully",
@@ -762,6 +771,23 @@ class OpportunityRouter:
         status: str,
     ):
         result = await self._improvement_service.create(data, opportunity_id, status)
+        return Response(
+            message="Improvement Created Successfully",
+            success=True,
+            status=ResponseStatus.CREATED,
+            data=result,
+        )
+        
+    @opportunity_router.patch(
+        "/improvement/update/{opportunity_id}",
+        status_code=status.HTTP_201_CREATED,
+    )
+    async def update(
+        self,
+        opportunity_id: PydanticObjectId,
+        data: list[ImprovementRequest],
+    ):
+        result = await self._improvement_service.update_improvement_phase(data, opportunity_id)
         return Response(
             message="Improvement Created Successfully",
             success=True,
@@ -837,6 +863,24 @@ class OpportunityRouter:
         result = await self._control_service.update(data, opportunity_id)
         return Response(
             message="Control Updated Successfully",
+            success=True,
+            status=ResponseStatus.UPDATED,
+            data=result,
+        )
+        
+    @opportunity_router.patch(
+        "/control/update/{opportunity_id}",
+        status_code=status.HTTP_200_OK,
+    )
+    async def update_control_phase(
+        self,
+        opportunity_id: PydanticObjectId,
+        data: list[ControlRequest],
+    ):
+        print(data)
+        result = await self._control_service.update_control_phase(data, opportunity_id)
+        return Response(
+            message="Control Phase Updated Successfully",
             success=True,
             status=ResponseStatus.UPDATED,
             data=result,
