@@ -344,10 +344,10 @@ class OppurtunityService:
 
         phase_counts = {
 
-            "define_phase": 0,
-            "measure_analysis_phase": 0,
-            "improvement_phase": 0,
-            "control_phase": 0,
+            "define": 0,
+            "measure_analysis": 0,
+            "improvement": 0,
+            "control": 0,
             "project_completed": 0
         }
 
