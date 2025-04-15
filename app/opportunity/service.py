@@ -287,14 +287,14 @@ class OppurtunityService:
                 "phase": {
                     "$switch": {
                         "branches": [
-                            {
-                                "case": {"$eq": ["$status", "Open for Assigning"]},
-                                "then": "pending"
-                            },
-                            {
-                                "case": {"$in": ["$status", ["Project Assigned", "Details Updated"]]},
-                                "then": "started"
-                            },
+                            # {
+                            #     "case": {"$eq": ["$status", "Open for Assigning"]},
+                            #     "then": "pending"
+                            # },
+                            # {
+                            #     "case": {"$in": ["$status", ["Project Assigned", "Details Updated"]]},
+                            #     "then": "started"
+                            # },
                             {
                                 "case": {"$in": ["$status", ["Define Phase Completed", "SSV's Tools Updated", "Measure & Analyze Phase Pending"]]},
                                 "then": "define_phase"
@@ -322,7 +322,7 @@ class OppurtunityService:
                                     "Project Completed",
                                     "Opportunity Completed"
                                 ]]},
-                                "then": "completed"
+                                "then": "project_completed"
                             }
                         ],
                         "default": "unknown"
@@ -343,13 +343,12 @@ class OppurtunityService:
         data = parse_json(results)
 
         phase_counts = {
-            "pending": 0,
-            "started": 0,
+
             "define_phase": 0,
             "measure_analysis_phase": 0,
             "improvement_phase": 0,
             "control_phase": 0,
-            "completed": 0
+            "project_completed": 0
         }
 
         for item in data:

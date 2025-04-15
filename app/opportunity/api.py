@@ -6,6 +6,7 @@ from fastapi import (
     Depends,
     File,
     HTTPException,
+    Request,
     UploadFile,
     status,
 )
@@ -113,9 +114,19 @@ class OpportunityRouter:
         )
 
     @opportunity_router.patch("/{id}", status_code=status.HTTP_200_OK)
-    async def update(self, id: PydanticObjectId, opportunity: OpportunityUpdate,background_tasks:BackgroundTasks):
-        user = self.user.employee_id
-        result = await self._service.update(opportunity, id,user,background_tasks=background_tasks)
+    async def update(
+        id: PydanticObjectId,
+        opportunity: OpportunityUpdate,
+        background_tasks: BackgroundTasks,
+        request: Request,
+        user: Employee = Depends(authenticate),
+        _service: OppurtunityService = Depends(OppurtunityService),
+    ):
+        print(request)
+        user = user.employee_id
+        result = await _service.update(
+            opportunity, id, user, background_tasks=background_tasks
+        )
         return Response(
             message="Opportunity Updated Successfully",
             success=True,
@@ -163,7 +174,7 @@ class OpportunityRouter:
             status=ResponseStatus.SUCCESS,
             data=result,
         )
-        
+
     @opportunity_router.get("/count/by_status", status_code=status.HTTP_200_OK)
     async def count_by_status(self):
         result = await self._service.get_count_by_status()
@@ -173,7 +184,7 @@ class OpportunityRouter:
             status=ResponseStatus.SUCCESS,
             data=result,
         )
-        
+
     @opportunity_router.post("/export", status_code=status.HTTP_200_OK)
     async def export(self, data: FilterRequest, page: int = 1, page_size: int = 10):
         result = await self._service.export_query(data.filter)
@@ -185,8 +196,15 @@ class OpportunityRouter:
         )
 
     @opportunity_router.get("/approve/{opportunity_id}", status_code=status.HTTP_200_OK)
-    async def approve(self, opportunity_id: PydanticObjectId, role: str,background_tasks: BackgroundTasks):
-        result = await self._service.approve(opportunity_id, self.user.id, role,background_tasks)
+    async def approve(
+        self,
+        opportunity_id: PydanticObjectId,
+        role: str,
+        background_tasks: BackgroundTasks,
+    ):
+        result = await self._service.approve(
+            opportunity_id, self.user.id, role, background_tasks
+        )
         return Response(
             message="Opportunity Approved Successfully",
             success=True,
@@ -195,42 +213,44 @@ class OpportunityRouter:
         )
 
     @opportunity_router.post(
-    "/upload/{opportunity_id}",
-    status_code=status.HTTP_201_CREATED,
-)
+        "/upload/{opportunity_id}",
+        status_code=status.HTTP_201_CREATED,
+    )
     async def upload_opportunity_files(
         self,
         opportunity_id: PydanticObjectId,
-        files: list[UploadFile] = File(...), 
+        files: list[UploadFile] = File(...),
     ):
         file_paths = []
-        
+
         for file in files:
             file_path = save_file(
                 file.file, OPPORTUNITY_CATEGORY_PATH, filename=file.filename
             )
             file_paths.append(file_path)
             print(file_path, opportunity_id)
-        
+
         result = await self._service.upload_files_to_opportunity(
             opportunity_id=opportunity_id,
-            files=file_paths,  
+            files=file_paths,
         )
-        
+
         return Response(
             message="Documents Uploaded Successfully",
             success=True,
             status=ResponseStatus.CREATED,
             data={},
         )
-        
+
     @opportunity_router.post("/upload_a3/{opportunity_id}")
     async def upload_a3(
         self,
         opportunity_id: PydanticObjectId,
         file: UploadFile = File(...),
     ):
-        file_path = save_file(file.file, OPPORTUNITY_CATEGORY_PATH, filename=file.filename)
+        file_path = save_file(
+            file.file, OPPORTUNITY_CATEGORY_PATH, filename=file.filename
+        )
         result = await self._service.upload_a3(
             file=file_path,
             id=opportunity_id,
@@ -241,7 +261,7 @@ class OpportunityRouter:
             status=ResponseStatus.CREATED,
             data=result,
         )
-        
+
     @opportunity_router.post(
         "/action-plan/{opportunity_id}", status_code=status.HTTP_201_CREATED
     )
@@ -565,7 +585,7 @@ class OpportunityRouter:
             status=ResponseStatus.CREATED,
             data=result,
         )
-        
+
     @opportunity_router.post(
         "/define-phase/upload/abnormalities/{opportunity_id}",
         status_code=status.HTTP_201_CREATED,
@@ -575,7 +595,7 @@ class OpportunityRouter:
         opportunity_id: PydanticObjectId,
         file: UploadFile = File(...),
     ):
-        print(file.filename,ABNORMALITIES_PATH)
+        print(file.filename, ABNORMALITIES_PATH)
         file_path = save_file(file.file, ABNORMALITIES_PATH, filename=file.filename)
         print(file_path)
         result = await self._define_phase_service.update(
@@ -588,7 +608,7 @@ class OpportunityRouter:
             status=ResponseStatus.CREATED,
             data=result,
         )
-        
+
     @opportunity_router.post(
         "/define-phase/upload/tool-conditions/{opportunity_id}",
         status_code=status.HTTP_201_CREATED,
@@ -642,9 +662,6 @@ class OpportunityRouter:
             status=ResponseStatus.UPDATED,
             data=result,
         )
-        
-   
-  
 
     @opportunity_router.delete(
         "/ssv-tool/{opportunity_id}/{tool_id}", status_code=status.HTTP_200_OK
@@ -777,7 +794,7 @@ class OpportunityRouter:
             status=ResponseStatus.CREATED,
             data=result,
         )
-        
+
     @opportunity_router.patch(
         "/improvement/update/{opportunity_id}",
         status_code=status.HTTP_201_CREATED,
@@ -787,7 +804,9 @@ class OpportunityRouter:
         opportunity_id: PydanticObjectId,
         data: list[ImprovementRequest],
     ):
-        result = await self._improvement_service.update_improvement_phase(data, opportunity_id)
+        result = await self._improvement_service.update_improvement_phase(
+            data, opportunity_id
+        )
         return Response(
             message="Improvement Created Successfully",
             success=True,
@@ -867,7 +886,7 @@ class OpportunityRouter:
             status=ResponseStatus.UPDATED,
             data=result,
         )
-        
+
     @opportunity_router.patch(
         "/control/update/{opportunity_id}",
         status_code=status.HTTP_200_OK,
@@ -917,7 +936,9 @@ class OpportunityRouter:
         data: ProjectClosureRequest,
         background_tasks: BackgroundTasks,
     ):
-        result = await self._project_closure_service.create(data, opportunity_id, background_tasks=background_tasks)
+        result = await self._project_closure_service.create(
+            data, opportunity_id, background_tasks=background_tasks
+        )
         return Response(
             message="Project Closure Created Successfully",
             success=True,
@@ -1005,21 +1026,23 @@ class OpportunityRouter:
             data=result,
         )
 
-
-    @opportunity_router.post("/monthly-savings/{opportunity_id}", status_code=status.HTTP_201_CREATED)
+    @opportunity_router.post(
+        "/monthly-savings/{opportunity_id}", status_code=status.HTTP_201_CREATED
+    )
     async def create_monthly_savings(
         self, data: MonthlySavingsRequest, opportunity_id: PydanticObjectId
     ):
-        result = await self._monthly_savings_service.create(data,opportunity_id)
+        result = await self._monthly_savings_service.create(data, opportunity_id)
         return Response(
             message="Monthly Savings Created Successfully",
             success=True,
             status=ResponseStatus.CREATED,
             data=result,
         )
-        
-        
-    @opportunity_router.get("/monthly-savings/{opportunity_id}", status_code=status.HTTP_200_OK)
+
+    @opportunity_router.get(
+        "/monthly-savings/{opportunity_id}", status_code=status.HTTP_200_OK
+    )
     async def get_monthly_savings(self, opportunity_id: PydanticObjectId):
         result = await self._monthly_savings_service.get_monthly_savings(opportunity_id)
         return Response(
@@ -1028,10 +1051,21 @@ class OpportunityRouter:
             status=ResponseStatus.RETRIEVED,
             data=result,
         )
-        
-    @opportunity_router.patch("/monthly-savings/{opportunity_id}/{monthly_savings_id}", status_code=status.HTTP_200_OK)
-    async def update_monthly_savings(self, opportunity_id: PydanticObjectId, monthly_savings_id : PydanticObjectId, data: MonthlySavingsUpdate,background_tasks : BackgroundTasks):
-        result = await self._monthly_savings_service.update_monthly_savings(opportunity_id, monthly_savings_id, data,background_tasks=background_tasks)
+
+    @opportunity_router.patch(
+        "/monthly-savings/{opportunity_id}/{monthly_savings_id}",
+        status_code=status.HTTP_200_OK,
+    )
+    async def update_monthly_savings(
+        self,
+        opportunity_id: PydanticObjectId,
+        monthly_savings_id: PydanticObjectId,
+        data: MonthlySavingsUpdate,
+        background_tasks: BackgroundTasks,
+    ):
+        result = await self._monthly_savings_service.update_monthly_savings(
+            opportunity_id, monthly_savings_id, data, background_tasks=background_tasks
+        )
         return Response(
             message="Monthly Savings Updated Successfully",
             success=True,

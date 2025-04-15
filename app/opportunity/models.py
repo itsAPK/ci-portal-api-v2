@@ -128,7 +128,7 @@ class OpportunityUpdate(BaseModel):
     remarks : Optional[str] = None
     savings_type : Optional[str] = None
     status : Optional[Status] = None
-    file : list[str] = []
+    file : Optional[list[str]] = None
     start_date : Optional[datetime] = None
     end_date : Optional[datetime] = None
     sub_category : Optional[str] = None
