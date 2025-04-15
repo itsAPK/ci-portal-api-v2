@@ -282,6 +282,7 @@ class OppurtunityService:
     
     async def get_count_by_status(self):
         pipeline = [
+    {"$match": {"category": "Black Belt"}},
         {
             "$addFields": {
                 "phase": {
@@ -297,15 +298,15 @@ class OppurtunityService:
                             # },
                             {
                                 "case": {"$in": ["$status", ["Define Phase Completed", "SSV's Tools Updated", "Measure & Analyze Phase Pending"]]},
-                                "then": "define_phase"
+                                "then": "define"
                             },
                             {
                                 "case": {"$in": ["$status", ["Measure & Analyze Phase Completed", "Improvement Phase Pending"]]},
-                                "then": "measure_analysis_phase"
+                                "then": "measure_analysis"
                             },
                             {
                                 "case": {"$in": ["$status", ["Improvement Phase Completed", "Control Phase Pending"]]},
-                                "then": "improvement_phase"
+                                "then": "improvement"
                             },
                             {
                                 "case": {"$in": ["$status", [
@@ -315,7 +316,7 @@ class OppurtunityService:
                                     "Project Closure Pending (LOF)",
                                     "Project Closure Pending (Costing Head)"
                                 ]]},
-                                "then": "control_phase"
+                                "then": "control"
                             },
                             {
                                 "case": {"$in": ["$status", [
